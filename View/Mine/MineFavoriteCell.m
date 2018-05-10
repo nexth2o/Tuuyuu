@@ -23,10 +23,8 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         
-        
         //图片
         _icon = [[UIImageView alloc] initWithFrame:CGRectMake(10*SCALE, 10*SCALE, 100*SCALE, 100*SCALE)];
-//        _icon.image = [UIImage imageNamed:@"test_food2"];
         [self addSubview:_icon];
         
         //标题
