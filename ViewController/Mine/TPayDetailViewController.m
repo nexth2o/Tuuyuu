@@ -106,7 +106,7 @@
     
     pageNumber = 0;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     [HttpClientService requestTuucoinconsume:paramDic success:^(id responseObject) {
         
@@ -148,7 +148,7 @@
 {
     pageNumber = 0;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     [HttpClientService requestTuucoinconsume:paramDic success:^(id responseObject) {
         
@@ -187,7 +187,7 @@
 }
 
 - (void)loadMoreData {
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     [HttpClientService requestTuucoinconsume:paramDic success:^(id responseObject) {
         

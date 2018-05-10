@@ -239,7 +239,7 @@
 
     pageNumber = 0;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[[UserDefaults service] getStoreId], @"cvs_no", [NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[[UserDefaults service] getStoreId], @"cvs_no", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     [HttpClientService requestWishlist:paramDic success:^(id responseObject) {
         
@@ -291,7 +291,7 @@
     
     pageNumber = 0;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[[UserDefaults service] getStoreId], @"cvs_no", [NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[[UserDefaults service] getStoreId], @"cvs_no", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     [HttpClientService requestWishlist:paramDic success:^(id responseObject) {
         
@@ -322,7 +322,7 @@
     
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[[UserDefaults service] getStoreId], @"cvs_no", [NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[[UserDefaults service] getStoreId], @"cvs_no", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     [HttpClientService requestWishlist:paramDic success:^(id responseObject) {
         
@@ -1572,12 +1572,12 @@
                         
                         if (num == 0) {
                             if ([scanner scanInt:&num]) {
-                                [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                                [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                                 //                                NSLog(@"num : %d",num);
                             }
                         }else {
                             if ([scanner scanInt:&num]) {
-                                [dic setObject:[NSString stringWithFormat:@"可减%zd元", num] forKey:@"result"];
+                                [dic setObject:[NSString stringWithFormat:@"可减%d元", num] forKey:@"result"];
                                 //                                NSLog(@"num : %d",num);
                             }
                         }
@@ -1594,7 +1594,6 @@
         }else if ([dic1[@"ptag"] isEqualToString:@"song"]) {
             //满赠
             NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
-            NSString * numStr = dic1[@"info"];
             NSArray *arr = [dic1[@"info"] componentsSeparatedByString:@"赠送"];
             NSScanner * scanner = [NSScanner scannerWithString:arr[0]];
             NSCharacterSet * numSet = [NSCharacterSet decimalDigitCharacterSet];
@@ -1602,7 +1601,7 @@
                 if ([scanner scanUpToCharactersFromSet:numSet intoString:NULL]) {
                     int num;
                     if ([scanner scanInt:&num] && (num != 1)) {
-                        [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                        [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                         
                         [dic setObject:[NSString stringWithFormat:@"可获赠%@", arr[1]] forKey:@"result"];
                         [dic setObject:@"song" forKey:@"type"];
@@ -1630,7 +1629,7 @@
                     if ([scanner scanUpToCharactersFromSet:numSet intoString:NULL]) {
                         
                         if ([scanner scanInt:&num]) {
-                            [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                            [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                             
                             [dic setObject:@"可参加换购活动" forKey:@"result"];
                             //                                NSLog(@"num : %d",num);
@@ -1662,7 +1661,7 @@
                 //购物车内有选择的商品
                 NSInteger nCount = [dic[@"orderCount"] integerValue];
                 nCount = nCount+1;
-                [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"orderCount"];
+                [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
                 
                 //更新DB
                 [self updateDB:dic];
@@ -1715,7 +1714,7 @@
                     return;
                 }else{
                     //更新
-                    [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"orderCount"];
+                    [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
                     
                     
                     //更新DB
@@ -1757,7 +1756,7 @@
                 //购物车内有选择的商品
                 NSInteger nCount = [dic[@"orderCount"] integerValue];
                 nCount = nCount + boxUnit;
-                [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"orderCount"];
+                [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
 
                 //更新DB
                 [self updateDB:dic];
@@ -1769,7 +1768,7 @@
         }
         
         //购物车内没有商品
-        [dictionary setObject:[NSString stringWithFormat:@"%zd", boxUnit] forKey:@"orderCount"];
+        [dictionary setObject:[NSString stringWithFormat:@"%d", boxUnit] forKey:@"orderCount"];
         [ordersArray addObject:dictionary];
         
         //更新DB

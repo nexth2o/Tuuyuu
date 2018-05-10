@@ -356,7 +356,7 @@
     
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:startDate, @"beg_time", endDate, @"end_time", [NSString stringWithFormat:@"%zd", pageNumber1], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:startDate, @"beg_time", endDate, @"end_time", [NSString stringWithFormat:@"%ld", (long)pageNumber1], @"page", nil];
     
     [HttpClientService requestIntegraldetails:paramDic success:^(id responseObject) {
         
@@ -426,7 +426,7 @@
     
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:startDate, @"beg_time", endDate, @"end_time", [NSString stringWithFormat:@"%zd", pageNumber2], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:startDate, @"beg_time", endDate, @"end_time", [NSString stringWithFormat:@"%ld", (long)pageNumber2], @"page", nil];
     
     [HttpClientService requestTuucoindetails:paramDic success:^(id responseObject) {
         
@@ -639,7 +639,7 @@
         pageNumber1 = 0;
         
         
-        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%zd", pageNumber1], @"page", nil];
+        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%ld", (long)pageNumber1], @"page", nil];
         
         [HttpClientService requestIntegraldetails:paramDic success:^(id responseObject) {
             
@@ -681,7 +681,7 @@
         
         pageNumber2 = 0;
         
-        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%zd", pageNumber2], @"page", nil];
+        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%ld", (long)pageNumber2], @"page", nil];
         
         [HttpClientService requestTuucoindetails:paramDic success:^(id responseObject) {
             
@@ -730,7 +730,7 @@
         
         [self showLoadHUDMsg:@"努力加载中..."];
         
-        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%zd", pageNumber1], @"page", nil];
+        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%ld", (long)pageNumber1], @"page", nil];
         
         [HttpClientService requestIntegraldetails:paramDic success:^(id responseObject) {
             
@@ -804,7 +804,7 @@
         
         [self showLoadHUDMsg:@"努力加载中..."];
         
-        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%zd", pageNumber2], @"page", nil];
+        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%ld", (long)pageNumber2], @"page", nil];
         
         [HttpClientService requestTuucoindetails:paramDic success:^(id responseObject) {
             

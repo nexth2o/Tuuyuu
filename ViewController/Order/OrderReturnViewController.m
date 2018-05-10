@@ -16,17 +16,14 @@
 #import "OrderReturnDetailViewController.h"
 
 
-@interface OrderReturnViewController ()<UITableViewDelegate, UITableViewDataSource> {
-    UITableView *contentView;
-    NSMutableDictionary *orderDic;
-    
-    float price;
-    float orderPrice;
-    
-    NSMutableArray *returnArray;
-    
-    NSString *reason;
-}
+@interface OrderReturnViewController ()<UITableViewDelegate, UITableViewDataSource>
+
+@property (nonatomic, strong) UITableView *contentView;
+@property (nonatomic, strong) NSMutableDictionary *orderDic;
+@property (nonatomic, strong) NSMutableArray *returnArray;
+@property (nonatomic, strong) NSString *reason;
+@property (nonatomic) float price;
+@property (nonatomic) float orderPrice;
 
 @end
 
@@ -41,14 +38,14 @@
         
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT) style:UITableViewStylePlain];
-        contentView.delegate = self;
-        contentView.dataSource = self;
-        contentView.separatorStyle = NO;
-        contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT) style:UITableViewStylePlain];
+        _contentView.delegate = self;
+        _contentView.dataSource = self;
+        _contentView.separatorStyle = NO;
+        _contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
         self.automaticallyAdjustsScrollViewInsets = NO;
         
@@ -64,10 +61,10 @@
         _orderDictionary = [[NSMutableDictionary alloc] init];
         
         //退货参数
-        returnArray = [NSMutableArray array];
+        _returnArray = [NSMutableArray array];
         
-        price = 0;
-        reason = @"";
+        _price = 0;
+        _reason = @"";
     }
     
     return self;
@@ -92,23 +89,24 @@
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderDictionary[@"order_id"], @"order_id", nil];
     
+    weakify(self);
     //支付方式 1现金 2微信 3支付宝 4兔币
     [HttpClientService requestReturnsummary:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            orderDic = [[NSMutableDictionary alloc] initWithDictionary:jsonDic];
-            orderPrice = [orderDic[@"money"] floatValue];
+            self.orderDic = [[NSMutableDictionary alloc] initWithDictionary:jsonDic];
+            self.orderPrice = [self.orderDic[@"money"] floatValue];
             
             //[orderDic[@"summary"] mutableCopy];全退
             
-            returnArray = [orderDic[@"summary"] mutableCopy];
+            self.returnArray = [self.orderDic[@"summary"] mutableCopy];
             
-            [contentView reloadData];
+            [self.contentView reloadData];
             
         }else if (status == 202) {
             [self showMsg:@"您的登录状态失效，请重新登录"];
@@ -136,7 +134,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (section == 1) {
-        return [orderDic[@"summary"] count];
+        return [_orderDic[@"summary"] count];
     }else {
         return 1;
     }
@@ -170,16 +168,16 @@
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
         //@"共3个商品，消费小计39.9元";
-        cell.title.text = orderDic[@"cvs_name"];
-        cell.subTitle.text = [NSString stringWithFormat:@"共%@个商品，消费小计%.2f元", orderDic[@"count"], orderPrice];
+        cell.title.text = _orderDic[@"cvs_name"];
+        cell.subTitle.text = [NSString stringWithFormat:@"共%@个商品，消费小计%.2f元", _orderDic[@"count"], _orderPrice];
         
-        if ([orderDic[@"pay_type"] isEqualToString:@"1"]) {
+        if ([_orderDic[@"pay_type"] isEqualToString:@"1"]) {
             cell.pay.text = @"现金退款";
-        }else if ([orderDic[@"pay_type"] isEqualToString:@"2"]) {
+        }else if ([_orderDic[@"pay_type"] isEqualToString:@"2"]) {
             cell.pay.text = @"退至您的支付账户";
-        }else if ([orderDic[@"pay_type"] isEqualToString:@"3"]) {
+        }else if ([_orderDic[@"pay_type"] isEqualToString:@"3"]) {
             cell.pay.text = @"退至您的支付账户";
-        }else if ([orderDic[@"pay_type"] isEqualToString:@"4"]) {
+        }else if ([_orderDic[@"pay_type"] isEqualToString:@"4"]) {
             cell.pay.text = @"退至您的兔币账户";
         }else {
             cell.pay.text = @"退至您的支付账户";
@@ -187,34 +185,37 @@
         
 //        __weak __typeof(&*cell)weakCell = cell;
         weakify(cell);
+        weakify(self);
         cell.allBtnBlock = ^() {
             strongify(cell);
+            strongify(self);
             cell.allIcon.image = [UIImage imageNamed:@"order_selected"];
             cell.otherIcon.image = [UIImage imageNamed:@"order_unselected"];
     
             //全选处理
-            for (int i = 0; i < returnArray.count; i++) {
-                NSMutableDictionary *dic = [returnArray[i] mutableCopy];
+            for (int i = 0; i < self.returnArray.count; i++) {
+                NSMutableDictionary *dic = [self.returnArray[i] mutableCopy];
                     [dic setObject:dic[@"count"] forKey:@"return_count"];
-                    [returnArray replaceObjectAtIndex:i withObject:dic];
+                    [self.returnArray replaceObjectAtIndex:i withObject:dic];
 
             }
             //UI处理
-            [contentView reloadData];
+            [self.contentView reloadData];
             
             [self requstTotalMoney];
         };
         
         cell.otherBtnBlock = ^() {
             strongify(cell);
+            strongify(self);
             cell.allIcon.image = [UIImage imageNamed:@"order_unselected"];
             cell.otherIcon.image = [UIImage imageNamed:@"order_selected"];
             
             //部分选择处理
-            returnArray = [orderDic[@"summary"] mutableCopy];
+            self.returnArray = [self.orderDic[@"summary"] mutableCopy];
             
             //UI处理
-            [contentView reloadData];
+            [self.contentView reloadData];
             
             [self requstTotalMoney];
         };
@@ -232,13 +233,13 @@
         cell.accessoryType = UITableViewCellAccessoryNone;
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         
-        cell.title.text = returnArray[indexPath.row][@"description"];
-        cell.subTitle.text = [NSString stringWithFormat:@"x%@件",returnArray[indexPath.row][@"count"]];
+        cell.title.text = _returnArray[indexPath.row][@"description"];
+        cell.subTitle.text = [NSString stringWithFormat:@"x%@件",_returnArray[indexPath.row][@"count"]];
         
-        cell.amount = [returnArray[indexPath.row][@"return_count"] integerValue];
+        cell.amount = [_returnArray[indexPath.row][@"return_count"] integerValue];
         
         
-        if (cell.amount == [returnArray[indexPath.row][@"count"] integerValue]) {
+        if (cell.amount == [_returnArray[indexPath.row][@"count"] integerValue]) {
             [cell.plus setEnabled:NO];
         }else {
             [cell.plus setEnabled:YES];
@@ -248,15 +249,17 @@
         
 //        __weak __typeof(&*cell)weakCell = cell;
         weakify(cell);
+        weakify(self);
         cell.plusBlock = ^(NSInteger nCount,BOOL animated)
         {
             strongify(cell);
-            if (cell.amount == [returnArray[indexPath.row][@"count"] integerValue]) {
+            strongify(self);
+            if (cell.amount == [self.returnArray[indexPath.row][@"count"] integerValue]) {
                 [cell.plus setEnabled:NO];
             }else {
                 [cell.plus setEnabled:YES];
             }
-            NSMutableDictionary *dic = [returnArray[indexPath.row] mutableCopy];
+            NSMutableDictionary *dic = [self.returnArray[indexPath.row] mutableCopy];
             //
             [self storeOrders:dic isAdded:animated];
             
@@ -276,15 +279,17 @@
         
         NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
         formatter.numberStyle = NSNumberFormatterCurrencyStyle;
-        float nTotal = price;//价格
+        float nTotal = _price;//价格
         NSString *priceStr = [formatter stringFromNumber:[NSNumber numberWithFloat:nTotal]];
         cell.price.text = priceStr;
         
         
 //        __weak __typeof(&*cell)weakCell = cell;
         weakify(cell);
+        weakify(self);
         cell.reasonBtnBlock = ^() {
             strongify(cell);
+            strongify(self);
             UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
             UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {
                 
@@ -292,27 +297,27 @@
             
             UIAlertAction *action1 = [UIAlertAction actionWithTitle:@"买错了，买多了，买少了" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
                 cell.reason.text = @"买错了，买多了，买少了";
-                reason = @"买错了，买多了，买少了";
+                self.reason = @"买错了，买多了，买少了";
             }];
             UIAlertAction *action2 = [UIAlertAction actionWithTitle:@"送达时间选错了" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
                 cell.reason.text = @"送达时间选错了";
-                reason = @"送达时间选错了";
+                self.reason = @"送达时间选错了";
             }];
             UIAlertAction *action3 = [UIAlertAction actionWithTitle:@"地址，电话填写错误" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
                 cell.reason.text = @"地址，电话填写错误";
-                reason = @"地址，电话填写错误";
+                self.reason = @"地址，电话填写错误";
             }];
             UIAlertAction *action4 = [UIAlertAction actionWithTitle:@"计划有变，不想要了" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
                 cell.reason.text = @"计划有变，不想要了";
-                reason = @"计划有变，不想要了";
+                self.reason = @"计划有变，不想要了";
             }];
             UIAlertAction *action5 = [UIAlertAction actionWithTitle:@"商家通知我卖完了" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
                 cell.reason.text = @"商家通知我卖完了";
-                reason = @"商家通知我卖完了";
+                self.reason = @"商家通知我卖完了";
             }];
             UIAlertAction *action6 = [UIAlertAction actionWithTitle:@"商家沟通态度差" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
                 cell.reason.text = @"商家沟通态度差";
-                reason = @"商家沟通态度差";
+                self.reason = @"商家沟通态度差";
             }];
             
             [cancle setValue:[UIColor darkGrayColor] forKey:@"titleTextColor"];
@@ -348,29 +353,29 @@
     
     
     if (added) {
-        for (int i = 0; i < returnArray.count; i++) {
+        for (int i = 0; i < _returnArray.count; i++) {
             
-            NSMutableDictionary *dic = [returnArray[i] mutableCopy];
+            NSMutableDictionary *dic = [_returnArray[i] mutableCopy];
             if ([dic[@"product_no"] isEqualToString:dictionary[@"product_no"]]){
                 NSInteger nCount = [dic[@"return_count"] integerValue];
                 nCount = nCount+1;
-                [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"return_count"];
-                [returnArray replaceObjectAtIndex:i withObject:dic];
+                [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"return_count"];
+                [_returnArray replaceObjectAtIndex:i withObject:dic];
             }
         }
         
     }else {
         
-        for (int i = 0; i < returnArray.count; i++) {
-            NSMutableDictionary *dic = [returnArray[i] mutableCopy];
+        for (int i = 0; i < _returnArray.count; i++) {
+            NSMutableDictionary *dic = [_returnArray[i] mutableCopy];
             if ([dic[@"product_no"] isEqualToString:dictionary[@"product_no"]]) {
                 
                 NSInteger nCount = [dic[@"return_count"] integerValue];
                 
                 nCount = nCount-1;
                 
-                [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"return_count"];
-                [returnArray replaceObjectAtIndex:i withObject:dic];
+                [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"return_count"];
+                [_returnArray replaceObjectAtIndex:i withObject:dic];
                 
             }
         }
@@ -389,18 +394,18 @@
 
 //计算金额接口
 - (void)requstTotalMoney {
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderDictionary[@"order_id"], @"order_id", returnArray, @"info", nil];
-    
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderDictionary[@"order_id"], @"order_id", _returnArray, @"info", nil];
+    weakify(self);
     [HttpClientService requestReturnsettle:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            price = [jsonDic[@"money"] floatValue];
-            [contentView reloadData];
+            self.price = [jsonDic[@"money"] floatValue];
+            [self.contentView reloadData];
             
         }
         
@@ -413,9 +418,9 @@
 
 - (BOOL)check {
     
-    if (returnArray.count > 0) {
-        for (int i = 0; i < returnArray.count; i++) {
-            NSDictionary *dic = [[NSDictionary alloc] initWithDictionary:returnArray[i]];
+    if (_returnArray.count > 0) {
+        for (int i = 0; i < _returnArray.count; i++) {
+            NSDictionary *dic = [[NSDictionary alloc] initWithDictionary:_returnArray[i]];
             if ([dic[@"return_count"] intValue] > 0) {
                 return YES;
             }
@@ -430,10 +435,12 @@
     if ([self check] == YES) {
         [self showLoadHUDMsg:@"努力加载中..."];
         
-        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderDictionary[@"order_id"], @"order_id",returnArray, @"info", reason, @"reason", nil];
+        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderDictionary[@"order_id"], @"order_id",_returnArray, @"info", _reason, @"reason", nil];
         
+        weakify(self);
         [HttpClientService requestReturnsubmit:paramDic success:^(id responseObject) {
             
+            strongify(self);
             NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
             
             int status = [[jsonDic objectForKey:@"status"] intValue];
@@ -445,6 +452,7 @@
                 UIAlertController *hurryAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"申请已提交。" preferredStyle:(UIAlertControllerStyleAlert)];
                 
                 UIAlertAction *OKButton = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+                    
                     NSMutableArray *viewControllers =[[NSMutableArray alloc] initWithArray:self.navigationController.viewControllers];
                     for (int i = 0; i < self.navigationController.viewControllers.count; i++) {
                         if (![[[self.navigationController.viewControllers mutableCopy] objectAtIndex:i] isKindOfClass:[OrderViewController class]]) {
@@ -453,7 +461,7 @@
                     }
                     
                     OrderReturnDetailViewController *orderReturnDetailViewController = [[OrderReturnDetailViewController alloc] init];
-                    [orderReturnDetailViewController.orderDictionary setObject:_orderDictionary[@"order_id"] forKey:@"order_id"];
+                    [orderReturnDetailViewController.orderDictionary setObject:self.orderDictionary[@"order_id"] forKey:@"order_id"];
                     
                     [viewControllers addObject:orderReturnDetailViewController];
                     [self.navigationController setViewControllers:viewControllers animated:YES];

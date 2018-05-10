@@ -445,7 +445,7 @@
         
         pageNumber = 0;
         
-        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:key, @"condition", [[UserDefaults service] getStoreId], @"cvs_no", @"0", @"type", [NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:key, @"condition", [[UserDefaults service] getStoreId], @"cvs_no", @"0", @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
         
         [HttpClientService requestSearch:paramDic success:^(id responseObject) {
             
@@ -538,7 +538,7 @@
 - (void)loadMoreData {
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:keyString, @"condition", [[UserDefaults service] getStoreId], @"cvs_no", @"0", @"type", [NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:keyString, @"condition", [[UserDefaults service] getStoreId], @"cvs_no", @"0", @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     //查询取餐列表
     [HttpClientService requestSearch:paramDic success:^(id responseObject) {
@@ -667,7 +667,6 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-        static NSString *myCellIdentifier1 = @"MyCellIdentifier1";
     static NSString *myCellIdentifier2 = @"MyCellIdentifier2";
     static NSString *myCellIdentifier3 = @"MyCellIdentifier3";
     static NSString *myCellIdentifier4 = @"MyCellIdentifier4";
@@ -1951,12 +1950,12 @@
                         
                         if (num == 0) {
                             if ([scanner scanInt:&num]) {
-                                [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                                [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                                 //                                NSLog(@"num : %d",num);
                             }
                         }else {
                             if ([scanner scanInt:&num]) {
-                                [dic setObject:[NSString stringWithFormat:@"可减%zd元", num] forKey:@"result"];
+                                [dic setObject:[NSString stringWithFormat:@"可减%d元", num] forKey:@"result"];
                                 //                                NSLog(@"num : %d",num);
                             }
                         }
@@ -1973,7 +1972,6 @@
         }else if ([dic1[@"ptag"] isEqualToString:@"song"]) {
             //满赠
             NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
-            NSString * numStr = dic1[@"info"];
             NSArray *arr = [dic1[@"info"] componentsSeparatedByString:@"赠送"];
             NSScanner * scanner = [NSScanner scannerWithString:arr[0]];
             NSCharacterSet * numSet = [NSCharacterSet decimalDigitCharacterSet];
@@ -1981,7 +1979,7 @@
                 if ([scanner scanUpToCharactersFromSet:numSet intoString:NULL]) {
                     int num;
                     if ([scanner scanInt:&num] && (num != 1)) {
-                        [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                        [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                         
                         [dic setObject:[NSString stringWithFormat:@"可获赠%@", arr[1]] forKey:@"result"];
                         [dic setObject:@"song" forKey:@"type"];
@@ -2009,7 +2007,7 @@
                     if ([scanner scanUpToCharactersFromSet:numSet intoString:NULL]) {
                         
                         if ([scanner scanInt:&num]) {
-                            [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                            [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                             
                             [dic setObject:@"可参加换购活动" forKey:@"result"];
                             //                                NSLog(@"num : %d",num);

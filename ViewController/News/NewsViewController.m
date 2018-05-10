@@ -12,10 +12,10 @@
 #import "PlayerViewController.h"
 #import "LoginViewController.h"
 
-@interface NewsViewController ()<UITableViewDelegate, UITableViewDataSource> {
-    UITableView *contentView;
-    NSMutableArray *newsArray;
-}
+@interface NewsViewController ()<UITableViewDelegate, UITableViewDataSource>
+
+@property (nonatomic, strong) UITableView *contentView;
+@property (nonatomic, strong) NSMutableArray *newsArray;
 
 @end
 
@@ -33,20 +33,20 @@
         
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+1, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT-1) style:UITableViewStylePlain];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+1, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT-1) style:UITableViewStylePlain];
         
-        contentView.delegate = self;
+        _contentView.delegate = self;
         
-        contentView.dataSource = self;
+        _contentView.dataSource = self;
         
         //        contentView.separatorStyle = NO;
         
-        contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
         //去除底部多余分割线
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
 //        __weak __typeof(&*self)weakSelf = self;
         weakify(self);
@@ -57,10 +57,10 @@
             
         };
         
-        [contentView setHidden:YES];
+        [_contentView setHidden:YES];
         
         if (@available(iOS 11.0, *)) {
-            contentView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+            _contentView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }else {
             self.automaticallyAdjustsScrollViewInsets = NO;
         }
@@ -90,31 +90,32 @@
 }
 
 - (void)disconnect {
-    [contentView setHidden:YES];
+    [_contentView setHidden:YES];
     [self showEmptyViewWithStyle:EmptyViewStyleNetworkUnreachable];
 }
 
 - (void)reloadBtnEvent {
-    [contentView setHidden:YES];
+    [_contentView setHidden:YES];
     [self showLoadHUDMsg:@"努力加载中..."];
     
+    weakify(self);
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[[UserDefaults service] getStoreId], @"cvs_no", nil];
     
     [HttpClientService requestNewsmsg:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            [contentView setHidden:NO];
+            [self.contentView setHidden:NO];
             
             [self hideEmptyView];
             
-            newsArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"news"]];
+            self.newsArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"news"]];
             
-            [contentView reloadData];
+            [self.contentView reloadData];
             
             
             [self hideLoadHUD:YES];
@@ -131,9 +132,9 @@
         }
         
     } failure:^(NSError *error) {
-        
+        strongify(self);
         [self hideLoadHUD:YES];
-        [contentView setHidden:YES];
+        [self.contentView setHidden:YES];
         [self showEmptyViewWithStyle:EmptyViewStyleNetworkUnreachable];
         
     }];
@@ -145,7 +146,7 @@
 }
 
 - (NSInteger )tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [newsArray count];
+    return [_newsArray count];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -163,14 +164,14 @@
     }
     
     
-    [cell.icon sd_setImageWithURL:[NSURL URLWithString:newsArray[indexPath.row][@"pic"]]
+    [cell.icon sd_setImageWithURL:[NSURL URLWithString:_newsArray[indexPath.row][@"pic"]]
                  placeholderImage:[UIImage imageNamed:@"loading_Image"]
                         completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                             //TODO
                         }];
     
-    cell.title.text = newsArray[indexPath.row][@"title"];
-    cell.time.text = newsArray[indexPath.row][@"time"];
+    cell.title.text = _newsArray[indexPath.row][@"title"];
+    cell.time.text = _newsArray[indexPath.row][@"time"];
     
     return cell;
     
@@ -180,12 +181,12 @@
     
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
     
-    if ([newsArray[indexPath.row][@"type"] isEqualToString:@"1"]) {
+    if ([_newsArray[indexPath.row][@"type"] isEqualToString:@"1"]) {
         WebViewController *webViewController = [[WebViewController alloc] initWithNibName:nil bundle:nil];
-        [webViewController.dictionary setObject:newsArray[indexPath.row][@"url"] forKey:@"url"];
-        [webViewController.dictionary setObject:newsArray[indexPath.row][@"title"] forKey:@"title"];
+        [webViewController.dictionary setObject:_newsArray[indexPath.row][@"url"] forKey:@"url"];
+        [webViewController.dictionary setObject:_newsArray[indexPath.row][@"title"] forKey:@"title"];
         PUSH(webViewController);
-    }else if ([newsArray[indexPath.row][@"type"] isEqualToString:@"0"]) {
+    }else if ([_newsArray[indexPath.row][@"type"] isEqualToString:@"0"]) {
         PlayerViewController *playerViewController = [[PlayerViewController alloc] initWithNibName:nil bundle:nil];
         [self presentViewController:playerViewController animated:true completion:nil];
     }

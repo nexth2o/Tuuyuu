@@ -863,12 +863,12 @@
                         
                         if (num == 0) {
                             if ([scanner scanInt:&num]) {
-                                [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                                [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                                 //                                NSLog(@"num : %d",num);
                             }
                         }else {
                             if ([scanner scanInt:&num]) {
-                                [dic setObject:[NSString stringWithFormat:@"可减%zd元", num] forKey:@"result"];
+                                [dic setObject:[NSString stringWithFormat:@"可减%d元", num] forKey:@"result"];
                                 //                                NSLog(@"num : %d",num);
                             }
                         }
@@ -885,7 +885,6 @@
         }else if ([dic1[@"ptag"] isEqualToString:@"song"]) {
             //满赠
             NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
-            NSString * numStr = dic1[@"info"];
             
             NSArray *arr = [dic1[@"info"] componentsSeparatedByString:@"赠送"];
             
@@ -895,7 +894,7 @@
                 if ([scanner scanUpToCharactersFromSet:numSet intoString:NULL]) {
                     int num;
                     if ([scanner scanInt:&num] && (num != 1)) {
-                        [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                        [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                         
                         [dic setObject:[NSString stringWithFormat:@"可获赠%@", arr[1]] forKey:@"result"];
                         [dic setObject:@"song" forKey:@"type"];
@@ -923,7 +922,7 @@
                     if ([scanner scanUpToCharactersFromSet:numSet intoString:NULL]) {
                         
                         if ([scanner scanInt:&num]) {
-                            [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                            [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                             
                             [dic setObject:@"可参加换购活动" forKey:@"result"];
                             //                                NSLog(@"num : %d",num);

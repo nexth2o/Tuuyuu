@@ -315,10 +315,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     static NSString *myCellIdentifier1 = @"MyCellIdentifier1";
-    static NSString *myCellIdentifier2 = @"MyCellIdentifier2";
     static NSString *myCellIdentifier3 = @"MyCellIdentifier3";
-    static NSString *myCellIdentifier4 = @"MyCellIdentifier4";
-    static NSString *myCellIdentifier5 = @"MyCellIdentifier5";
     
     UITableViewCell *cell = nil;
     
@@ -972,12 +969,12 @@
                         
                         if (num == 0) {
                             if ([scanner scanInt:&num]) {
-                                [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                                [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                                 //                                NSLog(@"num : %d",num);
                             }
                         }else {
                             if ([scanner scanInt:&num]) {
-                                [dic setObject:[NSString stringWithFormat:@"可减%zd元", num] forKey:@"result"];
+                                [dic setObject:[NSString stringWithFormat:@"可减%d元", num] forKey:@"result"];
                                 //                                NSLog(@"num : %d",num);
                             }
                         }
@@ -994,7 +991,6 @@
         }else if ([dic1[@"ptag"] isEqualToString:@"song"]) {
             //满赠
             NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
-            NSString * numStr = dic1[@"info"];
             NSArray *arr = [dic1[@"info"] componentsSeparatedByString:@"赠送"];
             NSScanner * scanner = [NSScanner scannerWithString:arr[0]];
             NSCharacterSet * numSet = [NSCharacterSet decimalDigitCharacterSet];
@@ -1002,7 +998,7 @@
                 if ([scanner scanUpToCharactersFromSet:numSet intoString:NULL]) {
                     int num;
                     if ([scanner scanInt:&num] && (num != 1)) {
-                        [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                        [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                         
                         [dic setObject:[NSString stringWithFormat:@"可获赠%@", arr[1]] forKey:@"result"];
                         [dic setObject:@"song" forKey:@"type"];
@@ -1030,7 +1026,7 @@
                     if ([scanner scanUpToCharactersFromSet:numSet intoString:NULL]) {
                         
                         if ([scanner scanInt:&num]) {
-                            [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                            [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                             
                             [dic setObject:@"可参加换购活动" forKey:@"result"];
                             //                                NSLog(@"num : %d",num);
@@ -1062,7 +1058,7 @@
                 //购物车内有选择的商品
                 NSInteger nCount = [dic[@"orderCount"] integerValue];
                 nCount = nCount+1;
-                [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"orderCount"];
+                [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
                 
                 //更新DB
                 [self updateDB:dic];
@@ -1107,7 +1103,7 @@
                     return;
                 }else{
                     //更新
-                    [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"orderCount"];
+                    [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
                     
                     //更新DB
                     [self updateDB:dic];

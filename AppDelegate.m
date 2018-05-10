@@ -195,10 +195,9 @@
 }
 
 //点击推送消息后回调
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)())completionHandler{
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler{
     
     NSLog(@"Userinfo %@",response.notification.request.content.userInfo);
-    NSDictionary *dic = response.notification.request.content.userInfo;
     
     //deselect the selected table cell
 }

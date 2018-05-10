@@ -13,8 +13,6 @@
 #import "SubmitOrderSalesCell.h"//促销优惠
 #import "SubmitOrderSumCell.h"//合计行
 #import "OrderDetailFooterCell.h"
-//#import "OrderDetailSectionHeaderView.h"
-//#import "OrderDetailSectionFooterView.h"
 #import "OrderReturnViewController.h"
 #import "OrderReturnDetailViewController.h"
 #import "OrderScoreViewController.h"
@@ -22,11 +20,6 @@
 #import "LoginViewController.h"
 #import "OrderStatusViewController.h"
 #import "HomeViewController.h"
-
-//TODO DELETE
-//#import "OrderHeaderView.h"
-//#import "OrderFooterView.h"
-
 #import "CategoryViewController.h"
 #import "CartInfoDAL.h"
 #import "CartInfoEntity.h"
@@ -35,15 +28,12 @@
 static NSString *SectionViewID = @"XOSectionView";
 static NSString *SectionViewID2 = @"XOSectionView2";
 
-@interface OrderDetailViewController ()<UITableViewDelegate, UITableViewDataSource> {
-    UITableView *contentView;
-    
-    NSMutableDictionary *orderDetailDictionary;
-    
-    UIView *OverlayView;
-    
-    dispatch_source_t payTimer;
-}
+@interface OrderDetailViewController ()<UITableViewDelegate, UITableViewDataSource>
+
+@property (nonatomic, strong) UITableView *contentView;
+@property (nonatomic, strong) NSMutableDictionary *orderDetailDictionary;
+@property (nonatomic, strong) UIView *OverlayView;
+@property (nonatomic, strong) dispatch_source_t payTimer;
 
 @end
 
@@ -58,17 +48,17 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        OverlayView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
-        [self.view addSubview:OverlayView];
+        _OverlayView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+        [self.view addSubview:_OverlayView];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT) style:UITableViewStylePlain];
-        contentView.delegate = self;
-        contentView.dataSource = self;
-        contentView.separatorStyle = NO;
-        contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT) style:UITableViewStylePlain];
+        _contentView.delegate = self;
+        _contentView.dataSource = self;
+        _contentView.separatorStyle = NO;
+        _contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
         [self.view bringSubviewToFront:navigationBar];
         
@@ -100,25 +90,22 @@ static NSString *SectionViewID2 = @"XOSectionView2";
 
 - (void)newData {
     
-    [contentView setHidden:YES];
+    [_contentView setHidden:YES];
     [self showLoadHUDMsg:@"努力加载中..."];
-    [contentView setHidden:YES];
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderDictionary[@"order_id"], @"order_id", nil];
     
-    //查询取餐列表
+    weakify(self);
     [HttpClientService requestOrderdetail:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
-        NSLog(@"刷新成功%zd", status);
-        
         if (status == 0) {
             
-            orderDetailDictionary = [[NSMutableDictionary alloc] initWithDictionary:jsonDic];
-            [contentView setHidden:NO];
-            [contentView reloadData];
+            self.orderDetailDictionary = [[NSMutableDictionary alloc] initWithDictionary:jsonDic];
+            [self.contentView setHidden:NO];
+            [self.contentView reloadData];
             
             [self hideLoadHUD:YES];
         }else if (status == 202) {
@@ -145,26 +132,25 @@ static NSString *SectionViewID2 = @"XOSectionView2";
 
 - (void)newData2 {
     
-    [contentView setHidden:YES];
+    [_contentView setHidden:YES];
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderDictionary[@"order_id"], @"order_id", nil];
     
-    //查询取餐列表
+    weakify(self);
     [HttpClientService requestOrderdetail:paramDic success:^(id responseObject) {
         
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
-        
-        NSLog(@"刷新成功%zd", status);
         
         if (status == 0) {
             
             [self hideLoadHUD:YES];
             
-            orderDetailDictionary = [[NSMutableDictionary alloc] initWithDictionary:jsonDic];
+            self.orderDetailDictionary = [[NSMutableDictionary alloc] initWithDictionary:jsonDic];
             
-            [contentView setHidden:NO];
-            [contentView reloadData];
+            [self.contentView setHidden:NO];
+            [self.contentView reloadData];
             
             
             
@@ -200,9 +186,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
     if (section == 0) {
         return 1;
     }else if (section == 1) {//商品区
-        return [orderDetailDictionary[@"product"] count];
+        return [_orderDetailDictionary[@"product"] count];
     }else if (section == 2) {//优惠区
-        return [orderDetailDictionary[@"promo_list"] count]+1;
+        return [_orderDetailDictionary[@"promo_list"] count]+1;
     }else {
         return 1;
     }
@@ -212,7 +198,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
     
     if (indexPath.section == 0) {
         
-        if ([orderDetailDictionary[@"staff_name"] length] > 0 ) {
+        if ([_orderDetailDictionary[@"staff_name"] length] > 0 ) {
             return 220*SCALE;
         }else {
             return 140*SCALE;
@@ -229,8 +215,8 @@ static NSString *SectionViewID2 = @"XOSectionView2";
 }
 
 - (void)close {
-    [self.view sendSubviewToBack:OverlayView];
-    OverlayView.backgroundColor = [UIColor clearColor];
+    [self.view sendSubviewToBack:_OverlayView];
+    _OverlayView.backgroundColor = [UIColor clearColor];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -253,14 +239,14 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         
         //计算时间差
-        NSDate *validDate = [NSDate dateWithTimeIntervalSince1970:[orderDetailDictionary[@"ltime"] integerValue]];
+        NSDate *validDate = [NSDate dateWithTimeIntervalSince1970:[_orderDetailDictionary[@"ltime"] integerValue]];
         NSTimeInterval secondInterval = [[NSDate date] timeIntervalSinceDate:validDate];
         NSTimeInterval minuteInterval = secondInterval/60;
         NSTimeInterval hourInterval = minuteInterval/60;
         NSTimeInterval dayInterval = hourInterval/24;
         
         
-        if ([orderDetailDictionary[@"state"] isEqualToString:@"0"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"]) {
+        if ([_orderDetailDictionary[@"state"] isEqualToString:@"0"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"]) {
             [cell.statusBtn setTitle:@"请在15分钟内完成支付 >" forState:UIControlStateNormal];
             
             [cell.aBtn setHidden:YES];
@@ -272,17 +258,19 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.dBtn setTitle:@"取消订单" forState:UIControlStateNormal];
             [cell.eBtn setTitle:@"立即支付" forState:UIControlStateNormal];
             
-            if (payTimer==nil) {
-                __block int timeout = [orderDetailDictionary[@"count_down"] intValue]; //倒计时时间
+            if (_payTimer==nil) {
+                __block int timeout = [_orderDetailDictionary[@"count_down"] intValue]; //倒计时时间
                 
                 if (timeout!=0) {
                     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-                    payTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
-                    dispatch_source_set_timer(payTimer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
-                    dispatch_source_set_event_handler(payTimer, ^{
+                    _payTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
+                    dispatch_source_set_timer(_payTimer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
+                    weakify(self);
+                    dispatch_source_set_event_handler(_payTimer, ^{
+                        strongify(self);
                         if(timeout<=0){ //倒计时结束，关闭
-                            dispatch_source_cancel(payTimer);
-                            payTimer = nil;
+                            dispatch_source_cancel(self.payTimer);
+                            self.payTimer = nil;
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 
                                 [self newData];
@@ -309,11 +297,11 @@ static NSString *SectionViewID2 = @"XOSectionView2";
                             timeout--;
                         }
                     });
-                    dispatch_resume(payTimer);
+                    dispatch_resume(_payTimer);
                 }
             }
 
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"0"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"]) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"0"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"]) {
             [cell.statusBtn setTitle:@"请在15分钟内完成支付 >" forState:UIControlStateNormal];
             
             [cell.aBtn setHidden:YES];
@@ -323,17 +311,19 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setHidden:NO];
             [cell.bBtn setTitle:@"立即支付" forState:UIControlStateNormal];
             
-            if (payTimer==nil) {
-                __block int timeout = [orderDetailDictionary[@"count_down"] intValue]; //倒计时时间
+            if (_payTimer==nil) {
+                __block int timeout = [_orderDetailDictionary[@"count_down"] intValue]; //倒计时时间
                 
                 if (timeout!=0) {
                     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-                    payTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
-                    dispatch_source_set_timer(payTimer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
-                    dispatch_source_set_event_handler(payTimer, ^{
+                    _payTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
+                    dispatch_source_set_timer(_payTimer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
+                    weakify(self);
+                    dispatch_source_set_event_handler(_payTimer, ^{
+                        strongify(self);
                         if(timeout<=0){ //倒计时结束，关闭
-                            dispatch_source_cancel(payTimer);
-                            payTimer = nil;
+                            dispatch_source_cancel(self.payTimer);
+                            self.payTimer = nil;
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 [self newData];
                             });
@@ -359,10 +349,10 @@ static NSString *SectionViewID2 = @"XOSectionView2";
                             timeout--;
                         }
                     });
-                    dispatch_resume(payTimer);
+                    dispatch_resume(_payTimer);
                 }
             }
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"2"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && [orderDetailDictionary[@"pay_type"] isEqualToString:@"1"]) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"2"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && [_orderDetailDictionary[@"pay_type"] isEqualToString:@"1"]) {
             [cell.statusBtn setTitle:@"等待商家接单 >" forState:UIControlStateNormal];
             cell.tips.text = @"10分钟内商家未接单，将自动取消。";
             
@@ -374,7 +364,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setHidden:NO];
             [cell.bBtn setTitle:@"取消订单" forState:UIControlStateNormal];
 
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"2"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && ([orderDetailDictionary[@"pay_type"] isEqualToString:@"2"] || [orderDetailDictionary[@"pay_type"] isEqualToString:@"3"] || [orderDetailDictionary[@"pay_type"] isEqualToString:@"4"])) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"2"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && ([_orderDetailDictionary[@"pay_type"] isEqualToString:@"2"] || [_orderDetailDictionary[@"pay_type"] isEqualToString:@"3"] || [_orderDetailDictionary[@"pay_type"] isEqualToString:@"4"])) {
             [cell.statusBtn setTitle:@"支付成功 >" forState:UIControlStateNormal];
             cell.tips.text = @"10分钟内商家未接单，将自动取消。";
             [cell.aBtn setHidden:YES];
@@ -385,7 +375,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setHidden:NO];
             [cell.bBtn setTitle:@"取消订单" forState:UIControlStateNormal];
 
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"2"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && ([orderDetailDictionary[@"pay_type"] isEqualToString:@"2"] || [orderDetailDictionary[@"pay_type"] isEqualToString:@"3"] || [orderDetailDictionary[@"pay_type"] isEqualToString:@"4"])) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"2"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && ([_orderDetailDictionary[@"pay_type"] isEqualToString:@"2"] || [_orderDetailDictionary[@"pay_type"] isEqualToString:@"3"] || [_orderDetailDictionary[@"pay_type"] isEqualToString:@"4"])) {
             [cell.statusBtn setTitle:@"支付成功 >" forState:UIControlStateNormal];
             cell.tips.text = @"10分钟内商家未接单，将自动取消。";
             
@@ -395,7 +385,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.dBtn setHidden:YES];
             [cell.eBtn setHidden:YES];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"2"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && [orderDetailDictionary[@"pay_type"] isEqualToString:@"1"]) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"2"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && [_orderDetailDictionary[@"pay_type"] isEqualToString:@"1"]) {
             [cell.statusBtn setTitle:@"等待商家接单 >" forState:UIControlStateNormal];
             cell.tips.text = @"10分钟内商家未接单，将自动取消。";
             
@@ -405,9 +395,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.dBtn setHidden:YES];
             [cell.eBtn setHidden:YES];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"3"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && minuteInterval < 1) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"3"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && minuteInterval < 1) {
             [cell.statusBtn setTitle:@"商家已接单 >" forState:UIControlStateNormal];
-            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
+            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [_orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
             
             [cell.aBtn setHidden:YES];
             [cell.bBtn setHidden:YES];
@@ -420,9 +410,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.eBtn setEnabled:NO];
             [cell.eBtn setTitleColor:[UIColor lightGrayColor]forState:UIControlStateNormal];
 
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"3"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && minuteInterval >= 1 && minuteInterval < 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"3"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && minuteInterval >= 1 && minuteInterval < 30) {
             [cell.statusBtn setTitle:@"商家备货中 >" forState:UIControlStateNormal];
-            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
+            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [_orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
         
             [cell.aBtn setHidden:YES];
             [cell.bBtn setHidden:YES];
@@ -436,9 +426,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             
             [cell.eBtn setTitleColor:[UIColor lightGrayColor]forState:UIControlStateNormal];
 
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"3"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && minuteInterval >= 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"3"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && minuteInterval >= 30) {
             [cell.statusBtn setTitle:@"商家备货中 >" forState:UIControlStateNormal];
-            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
+            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [_orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
             
             [cell.aBtn setHidden:YES];
             [cell.bBtn setHidden:YES];
@@ -452,7 +442,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             
             [cell.eBtn setTitleColor:[UIColor darkGrayColor]forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"3"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && minuteInterval < 1) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"3"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && minuteInterval < 1) {
             [cell.statusBtn setTitle:@"您已申请取消订单，请等待商家处理 >" forState:UIControlStateNormal];
             cell.tips.text = @"商家已出品，出品后商家有权拒绝您的退单申请，建议您先电话联系兔悠协商处理。";
             
@@ -466,7 +456,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setEnabled:NO];
             [cell.bBtn setTitleColor:[UIColor lightGrayColor]forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"3"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && minuteInterval >= 1 && minuteInterval < 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"3"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && minuteInterval >= 1 && minuteInterval < 30) {
             [cell.statusBtn setTitle:@"您已申请取消订单，请等待商家处理 >" forState:UIControlStateNormal];
             cell.tips.text = @"商家已出品，出品后商家有权拒绝您的退单申请，建议您先电话联系兔悠协商处理。";
             
@@ -481,7 +471,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setEnabled:NO];
             [cell.bBtn setTitleColor:[UIColor lightGrayColor]forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"3"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && minuteInterval >= 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"3"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && minuteInterval >= 30) {
             [cell.statusBtn setTitle:@"您已申请取消订单，请等待商家处理 >" forState:UIControlStateNormal];
             cell.tips.text = @"商家已出品，出品后商家有权拒绝您的退单申请，建议您先电话联系兔悠协商处理。";
             
@@ -495,9 +485,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setEnabled:NO];
             [cell.bBtn setTitleColor:[UIColor darkGrayColor]forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"3"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"2"] && minuteInterval < 1) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"3"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"2"] && minuteInterval < 1) {
             [cell.statusBtn setTitle:@"商家拒绝退单，商家备货中 >" forState:UIControlStateNormal];
-            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
+            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [_orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
             
             [cell.aBtn setHidden:YES];
             [cell.cBtn setHidden:YES];
@@ -510,9 +500,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             
             [cell.bBtn setTitleColor:[UIColor lightGrayColor]forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"3"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"2"] && minuteInterval >= 1 && minuteInterval < 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"3"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"2"] && minuteInterval >= 1 && minuteInterval < 30) {
             [cell.statusBtn setTitle:@"商家拒绝退单，商家备货中 >" forState:UIControlStateNormal];
-            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
+            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [_orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
             
             [cell.aBtn setHidden:YES];
             [cell.cBtn setHidden:YES];
@@ -524,9 +514,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setEnabled:NO];
             [cell.bBtn setTitleColor:[UIColor lightGrayColor]forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"3"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"2"] && minuteInterval >= 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"3"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"2"] && minuteInterval >= 30) {
             [cell.statusBtn setTitle:@"商家拒绝退单，商家备货中 >" forState:UIControlStateNormal];
-            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
+            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [_orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
 
             [cell.aBtn setHidden:YES];
             [cell.cBtn setHidden:YES];
@@ -539,9 +529,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             
             [cell.bBtn setTitleColor:[UIColor darkGrayColor]forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"4"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && minuteInterval < 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"4"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && minuteInterval < 30) {
             [cell.statusBtn setTitle:@"骑手正在配送中 >" forState:UIControlStateNormal];
-            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
+            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [_orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
             
             [cell.dBtn setHidden:YES];
             [cell.eBtn setHidden:YES];
@@ -556,9 +546,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             
             [cell.bBtn setTitleColor:[UIColor lightGrayColor]forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"4"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && minuteInterval >= 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"4"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] && minuteInterval >= 30) {
             [cell.statusBtn setTitle:@"骑手正在配送中 >" forState:UIControlStateNormal];
-            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
+            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [_orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
             
             [cell.dBtn setHidden:YES];
             [cell.eBtn setHidden:YES];
@@ -570,7 +560,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setTitle:@"催单" forState:UIControlStateNormal];
             [cell.cBtn setTitle:@"确认收货" forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"4"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && minuteInterval < 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"4"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && minuteInterval < 30) {
             [cell.statusBtn setTitle:@"您已申请取消订单，请等待商家处理 >" forState:UIControlStateNormal];
             cell.tips.text = @"骑手配送中，配送中商家有权拒绝您的退单申请，建议您先电话联系骑手协商处理。";
             
@@ -585,7 +575,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             
             [cell.bBtn setTitleColor:[UIColor lightGrayColor]forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"4"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && minuteInterval >= 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"4"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] && minuteInterval >= 30) {
             [cell.statusBtn setTitle:@"您已申请取消订单，请等待商家处理 >" forState:UIControlStateNormal];
             cell.tips.text = @"骑手配送中，配送中商家有权拒绝您的退单申请，建议您先电话联系骑手协商处理。";
             
@@ -599,9 +589,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setTitle:@"申请退单" forState:UIControlStateNormal];
             [cell.bBtn setTitleColor:[UIColor lightGrayColor]forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"4"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"2"] && minuteInterval < 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"4"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"2"] && minuteInterval < 30) {
             [cell.statusBtn setTitle:@"商家拒绝退单，骑手正在配送中 >" forState:UIControlStateNormal];
-            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
+            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [_orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
             
             [cell.aBtn setHidden:YES];
             [cell.bBtn setHidden:YES];
@@ -615,9 +605,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             
             [cell.dBtn setTitleColor:[UIColor lightGrayColor]forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"4"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"2"] && minuteInterval >= 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"4"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"2"] && minuteInterval >= 30) {
             [cell.statusBtn setTitle:@"商家拒绝退单，骑手正在配送中 >" forState:UIControlStateNormal];
-            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
+            cell.tips.text = [NSString stringWithFormat:@"预计送达%@", [_orderDetailDictionary[@"deliverd_time"] substringWithRange:NSMakeRange(11,5)]];
             
             [cell.aBtn setHidden:YES];
             [cell.bBtn setHidden:YES];
@@ -632,7 +622,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         }
         
         
-        else if ([orderDetailDictionary[@"state"] isEqualToString:@"5"] && [orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [orderDetailDictionary[@"has_rate"] isEqualToString:@"0"] && dayInterval <= 7) {
+        else if ([_orderDetailDictionary[@"state"] isEqualToString:@"5"] && [_orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [_orderDetailDictionary[@"has_rate"] isEqualToString:@"0"] && dayInterval <= 7) {
             [cell.statusBtn setTitle:@"订单已完成 >" forState:UIControlStateNormal];
             cell.tips.text = @"感谢您对兔悠的支持，欢迎再次光临";
         
@@ -648,7 +638,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.cBtn setTitle:@"去评价" forState:UIControlStateNormal];
             [cell.bBtn setEnabled:YES];
             [cell.bBtn setTitleColor:[UIColor blackColor]forState:UIControlStateNormal];
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"5"] && [orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [orderDetailDictionary[@"has_rate"] isEqualToString:@"0"] && dayInterval > 7 && dayInterval < 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"5"] && [_orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [_orderDetailDictionary[@"has_rate"] isEqualToString:@"0"] && dayInterval > 7 && dayInterval < 30) {
             [cell.statusBtn setTitle:@"订单已完成 >" forState:UIControlStateNormal];
             cell.tips.text = @"感谢您对兔悠的支持，欢迎再次光临";
             
@@ -662,7 +652,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.dBtn setTitle:@"再来一单" forState:UIControlStateNormal];
             [cell.eBtn setTitle:@"去评价" forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"5"] && [orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [orderDetailDictionary[@"has_rate"] isEqualToString:@"0"] && dayInterval >= 30) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"5"] && [_orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [_orderDetailDictionary[@"has_rate"] isEqualToString:@"0"] && dayInterval >= 30) {
             [cell.statusBtn setTitle:@"订单已完成 >" forState:UIControlStateNormal];
             cell.tips.text = @"感谢您对兔悠的支持，欢迎再次光临";
             
@@ -675,7 +665,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setTitle:@"再来一单" forState:UIControlStateNormal];
             [cell.bBtn setEnabled:YES];
             [cell.bBtn setTitleColor:[UIColor blackColor]forState:UIControlStateNormal];
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"5"] && [orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [orderDetailDictionary[@"has_rate"] isEqualToString:@"1"] && dayInterval <= 7) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"5"] && [_orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [_orderDetailDictionary[@"has_rate"] isEqualToString:@"1"] && dayInterval <= 7) {
             [cell.statusBtn setTitle:@"订单已完成 >" forState:UIControlStateNormal];
             cell.tips.text = @"感谢您对兔悠的支持，欢迎再次光临";
             
@@ -689,7 +679,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.dBtn setTitle:@"申请退货" forState:UIControlStateNormal];
             [cell.eBtn setTitle:@"再来一单" forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"5"] && [orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [orderDetailDictionary[@"has_rate"] isEqualToString:@"1"] && dayInterval > 7) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"5"] && [_orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [_orderDetailDictionary[@"has_rate"] isEqualToString:@"1"] && dayInterval > 7) {
             [cell.statusBtn setTitle:@"订单已完成 >" forState:UIControlStateNormal];
             cell.tips.text = @"感谢您对兔悠的支持，欢迎再次光临";
             
@@ -702,21 +692,21 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setTitle:@"再来一单" forState:UIControlStateNormal];
             [cell.bBtn setEnabled:YES];
             [cell.bBtn setTitleColor:[UIColor blackColor]forState:UIControlStateNormal];
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"5"] && [orderDetailDictionary[@"has_return"] isEqualToString:@"1"] && [orderDetailDictionary[@"return_state"] isEqualToString:@"0"]) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"5"] && [_orderDetailDictionary[@"has_return"] isEqualToString:@"1"] && [_orderDetailDictionary[@"return_state"] isEqualToString:@"0"]) {
             NSLog(@"退货申请中");
             [cell.aBtn setHidden:YES];
             [cell.bBtn setHidden:YES];
             [cell.cBtn setHidden:YES];
             [cell.dBtn setHidden:YES];
             [cell.eBtn setHidden:YES];
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"5"] && [orderDetailDictionary[@"has_return"] isEqualToString:@"1"] && [orderDetailDictionary[@"return_state"] isEqualToString:@"1"]) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"5"] && [_orderDetailDictionary[@"has_return"] isEqualToString:@"1"] && [_orderDetailDictionary[@"return_state"] isEqualToString:@"1"]) {
             NSLog(@"退货申请接单");
             [cell.aBtn setHidden:YES];
             [cell.bBtn setHidden:YES];
             [cell.cBtn setHidden:YES];
             [cell.dBtn setHidden:YES];
             [cell.eBtn setHidden:YES];
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"5"] && [orderDetailDictionary[@"has_return"] isEqualToString:@"1"] && [orderDetailDictionary[@"return_state"] isEqualToString:@"2"]) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"5"] && [_orderDetailDictionary[@"has_return"] isEqualToString:@"1"] && [_orderDetailDictionary[@"return_state"] isEqualToString:@"2"]) {
             NSLog(@"退货申请取货");
             [cell.statusBtn setTitle:@"退货已完成 >" forState:UIControlStateNormal];
             cell.tips.text = @"建议您下次订购商家顺便直接取货或自行到周边店铺办理退货手续";
@@ -729,7 +719,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setHidden:NO];
             [cell.bBtn setTitle:@"再来一单" forState:UIControlStateNormal];
             [cell.bBtn setTitleColor:[UIColor blackColor]forState:UIControlStateNormal];
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"5"] && [orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [orderDetailDictionary[@"return_state"] isEqualToString:@"4"]) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"5"] && [_orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [_orderDetailDictionary[@"return_state"] isEqualToString:@"4"]) {
             NSLog(@"退单成功");
             [cell.statusBtn setTitle:@"退款中 >" forState:UIControlStateNormal];
             cell.tips.text = @"线上支付的将退款至您的支付账户，货到付款的将退现金。";
@@ -742,7 +732,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setHidden:NO];
             [cell.bBtn setTitle:@"再来一单" forState:UIControlStateNormal];
             [cell.bBtn setTitleColor:[UIColor blackColor]forState:UIControlStateNormal];
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"5"] && [orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [orderDetailDictionary[@"return_state"] isEqualToString:@"5"] && dayInterval <= 7) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"5"] && [_orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [_orderDetailDictionary[@"return_state"] isEqualToString:@"5"] && dayInterval <= 7) {
             NSLog(@"退单失败");
             [cell.statusBtn setTitle:@"订单已完成 >" forState:UIControlStateNormal];
             cell.tips.text = @"商家拒绝了您的退货申请，请联系兔悠协商解决";
@@ -757,7 +747,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.dBtn setTitle:@"申请退货" forState:UIControlStateNormal];
             [cell.eBtn setTitle:@"再来一单" forState:UIControlStateNormal];
             
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"5"] && [orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [orderDetailDictionary[@"return_state"] isEqualToString:@"5"] && dayInterval > 7) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"5"] && [_orderDetailDictionary[@"has_return"] isEqualToString:@"0"] && [_orderDetailDictionary[@"return_state"] isEqualToString:@"5"] && dayInterval > 7) {
             NSLog(@"退单失败");
             [cell.statusBtn setTitle:@"订单已完成 >" forState:UIControlStateNormal];
             cell.tips.text = @"商家拒绝了您的退货申请，请联系兔悠协商解决";
@@ -771,7 +761,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setTitle:@"再来一单" forState:UIControlStateNormal];
             [cell.bBtn setEnabled:YES];
             [cell.bBtn setTitleColor:[UIColor blackColor]forState:UIControlStateNormal];
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"6"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] ) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"6"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"1"] ) {
   
             [cell.statusBtn setTitle:@"订单已取消 >" forState:UIControlStateNormal];
             cell.tips.text = @"您的订单已取消";
@@ -785,7 +775,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             [cell.bBtn setTitle:@"再来一单" forState:UIControlStateNormal];
             [cell.bBtn setEnabled:YES];
             [cell.bBtn setTitleColor:[UIColor blackColor]forState:UIControlStateNormal];
-        }else if ([orderDetailDictionary[@"state"] isEqualToString:@"6"] && [orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] ) {
+        }else if ([_orderDetailDictionary[@"state"] isEqualToString:@"6"] && [_orderDetailDictionary[@"user_cancel"] isEqualToString:@"0"] ) {
             
             [cell.statusBtn setTitle:@"订单已取消 >" forState:UIControlStateNormal];
             cell.tips.text = @"由于您订购的商品已售完，您的外卖订单已被取消，欢迎您调换其他商品下单";
@@ -803,19 +793,22 @@ static NSString *SectionViewID2 = @"XOSectionView2";
 //            [self showMsg:@"未知错误信息"];
         }
         
+        weakify(self);
         cell.statusBlock = ^() {
+            strongify(self);
             OrderStatusViewController *orderStatusViewController = [[OrderStatusViewController alloc] init];
-            [orderStatusViewController.orderDictionary setObject:orderDetailDictionary[@"order_id"] forKey:@"order_id"];
+            [orderStatusViewController.orderDictionary setObject:self.orderDetailDictionary[@"order_id"] forKey:@"order_id"];
             [self addChildViewController:orderStatusViewController];
 
             
-            [self.view bringSubviewToFront:OverlayView];
+            [self.view bringSubviewToFront:self.OverlayView];
             [self.view addSubview:orderStatusViewController.view];
             
             // ------View出现动画
             orderStatusViewController.view.transform = CGAffineTransformMakeTranslation(0, SCREEN_HEIGHT);
             [UIView animateWithDuration:0.5 animations:^{
-                OverlayView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6];
+                strongify(self);
+                self.OverlayView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6];
                 orderStatusViewController.view.transform = CGAffineTransformMakeTranslation(0, 0);
             } completion:^(BOOL finished) {
                 
@@ -828,12 +821,13 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         
         cell.aBlock = ^() {
             strongify(cell);
+            strongify(self);
             if ([cell.aBtn.titleLabel.text isEqualToString:@"申请退单"]) {
                 
                 UIAlertController *storeExistAlert = [UIAlertController alertControllerWithTitle:@"申请退单" message:@"商家已出品，出品后商家有权拒绝您的退单申请，建议您先电话联系兔悠协商处理。" preferredStyle:(UIAlertControllerStyleAlert)];
                 
                 UIAlertAction *OKButton = [UIAlertAction actionWithTitle:@"申请退单" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
-                    [self ordercancel:orderDetailDictionary[@"order_id"]];
+                    [self ordercancel:self.orderDetailDictionary[@"order_id"]];
                 }];
                 
                 UIAlertAction *NOButton = [UIAlertAction actionWithTitle:@"联系商家" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
@@ -859,7 +853,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             }else if ([cell.aBtn.titleLabel.text isEqualToString:@"申请退货"]) {
                 //申请退货
                 OrderReturnViewController *orderReturnViewController = [[OrderReturnViewController alloc] init];
-                [orderReturnViewController.orderDictionary setObject:orderDetailDictionary[@"order_id"] forKey:@"order_id"];
+                [orderReturnViewController.orderDictionary setObject:self.orderDetailDictionary[@"order_id"] forKey:@"order_id"];
                 PUSH(orderReturnViewController);
                 
             }
@@ -868,13 +862,14 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         
         cell.bBlock = ^() {
             strongify(cell);
+            strongify(self);
             if ([cell.bBtn.titleLabel.text isEqualToString:@"取消订单"]) {
                 
                 UIAlertController *storeExistAlert = [UIAlertController alertControllerWithTitle:@"取消订单并退款" message:@"退款将原路退回到您的支付账户；详情请查看退款进度。" preferredStyle:(UIAlertControllerStyleAlert)];
                 UIAlertAction *OKButton = [UIAlertAction actionWithTitle:@"先等等" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
                 }];
                 UIAlertAction *NOButton = [UIAlertAction actionWithTitle:@"取消订单" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
-                    [self ordercancel:orderDetailDictionary[@"order_id"]];
+                    [self ordercancel:self.orderDetailDictionary[@"order_id"]];
                 }];
                 [storeExistAlert addAction:OKButton];
                 [storeExistAlert addAction:NOButton];
@@ -882,14 +877,14 @@ static NSString *SectionViewID2 = @"XOSectionView2";
                 
                 
             }else if ([cell.bBtn.titleLabel.text isEqualToString:@"催单"]) {
-                [self orderurge:orderDetailDictionary[@"order_id"]];
+                [self orderurge:self.orderDetailDictionary[@"order_id"]];
             }else if ([cell.bBtn.titleLabel.text isEqualToString:@"再来一单"]) {
                 
                 CartInfoDAL *dal = [[CartInfoDAL alloc] init];
                 
                 [dal cleanCartInfo];
                 
-                NSMutableArray *tempArray = [[NSMutableArray alloc] initWithArray:orderDetailDictionary[@"product"]];
+                NSMutableArray *tempArray = [[NSMutableArray alloc] initWithArray:self.orderDetailDictionary[@"product"]];
                 for ( int i =0; i<tempArray.count; i++) {
                     
                     [self updateDB:tempArray[i]];
@@ -903,11 +898,12 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         
         cell.cBlock = ^() {
             strongify(cell);
+            strongify(self);
             if ([cell.cBtn.titleLabel.text isEqualToString:@"申请退单"]) {
                 UIAlertController *storeExistAlert = [UIAlertController alertControllerWithTitle:@"申请退单" message:@"商家已出品，出品后商家有权拒绝您的退单申请，建议您先电话联系兔悠协商处理。" preferredStyle:(UIAlertControllerStyleAlert)];
                 
                 UIAlertAction *OKButton = [UIAlertAction actionWithTitle:@"申请退单" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
-                    [self ordercancel:orderDetailDictionary[@"order_id"]];
+                    [self ordercancel:self.orderDetailDictionary[@"order_id"]];
                 }];
                 
                 UIAlertAction *NOButton = [UIAlertAction actionWithTitle:@"联系商家" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
@@ -928,11 +924,11 @@ static NSString *SectionViewID2 = @"XOSectionView2";
                 
                 [self presentViewController:storeExistAlert animated:YES completion:nil];
             }else if ([cell.cBtn.titleLabel.text isEqualToString:@"确认收货"]) {
-                [self confirmreceipt:orderDetailDictionary[@"order_id"]];
+                [self confirmreceipt:self.orderDetailDictionary[@"order_id"]];
             }else if ([cell.cBtn.titleLabel.text isEqualToString:@"去评价"]) {
                 //去评价
                 OrderScoreViewController *orderScoreViewController = [[OrderScoreViewController alloc] init];
-                [orderScoreViewController.orderDictionary setObject:orderDetailDictionary[@"order_id"] forKey:@"order_id"];
+                [orderScoreViewController.orderDictionary setObject:self.orderDetailDictionary[@"order_id"] forKey:@"order_id"];
                 PUSH(orderScoreViewController);
             }
             
@@ -940,23 +936,25 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         
         cell.dBlock = ^() {
             strongify(cell);
+            strongify(self);
             if ([cell.dBtn.titleLabel.text isEqualToString:@"取消订单"]) {
                 UIAlertController *storeExistAlert = [UIAlertController alertControllerWithTitle:@"取消订单并退款" message:@"退款将原路退回到您的支付账户；详情请查看退款进度。" preferredStyle:(UIAlertControllerStyleAlert)];
                 UIAlertAction *OKButton = [UIAlertAction actionWithTitle:@"先等等" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
                 }];
                 UIAlertAction *NOButton = [UIAlertAction actionWithTitle:@"取消订单" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
-                    [self ordercancel:orderDetailDictionary[@"order_id"]];
+                    [self ordercancel:self.orderDetailDictionary[@"order_id"]];
                 }];
                 [storeExistAlert addAction:OKButton];
                 [storeExistAlert addAction:NOButton];
                 [self presentViewController:storeExistAlert animated:YES completion:nil];
             }else if ([cell.dBtn.titleLabel.text isEqualToString:@"催单"]) {
-                [self orderurge:orderDetailDictionary[@"order_id"]];
+                [self orderurge:self.orderDetailDictionary[@"order_id"]];
             }else if ([cell.dBtn.titleLabel.text isEqualToString:@"申请退单"]) {
                 UIAlertController *storeExistAlert = [UIAlertController alertControllerWithTitle:@"申请退单" message:@"商家已出品，出品后商家有权拒绝您的退单申请，建议您先电话联系兔悠协商处理。" preferredStyle:(UIAlertControllerStyleAlert)];
                 
                 UIAlertAction *OKButton = [UIAlertAction actionWithTitle:@"申请退单" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
-                    [self ordercancel:orderDetailDictionary[@"order_id"]];
+                    strongify(self);
+                    [self ordercancel:self.orderDetailDictionary[@"order_id"]];
                 }];
                 
                 UIAlertAction *NOButton = [UIAlertAction actionWithTitle:@"联系商家" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
@@ -982,7 +980,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
                 
                 [dal cleanCartInfo];
                 
-                NSMutableArray *tempArray = [[NSMutableArray alloc] initWithArray:orderDetailDictionary[@"product"]];
+                NSMutableArray *tempArray = [[NSMutableArray alloc] initWithArray:self.orderDetailDictionary[@"product"]];
                 for ( int i =0; i<tempArray.count; i++) {
                     
                     [self updateDB:tempArray[i]];
@@ -993,7 +991,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             }else if ([cell.dBtn.titleLabel.text isEqualToString:@"申请退货"]) {
                 //申请退货
                 OrderReturnViewController *orderReturnViewController = [[OrderReturnViewController alloc] init];
-                [orderReturnViewController.orderDictionary setObject:orderDetailDictionary[@"order_id"] forKey:@"order_id"];
+                [orderReturnViewController.orderDictionary setObject:self.orderDetailDictionary[@"order_id"] forKey:@"order_id"];
                 PUSH(orderReturnViewController);
                 
             }
@@ -1002,16 +1000,17 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         
         cell.eBlock = ^() {
             strongify(cell);
+            strongify(self);
             if ([cell.eBtn.titleLabel.text isEqualToString:@"立即支付"]) {
                 PaymentViewController *paymentViewController = [[PaymentViewController alloc] init];
-                [paymentViewController.orderDictionary setObject:orderDetailDictionary[@"order_id"] forKey:@"order_id"];
+                [paymentViewController.orderDictionary setObject:self.orderDetailDictionary[@"order_id"] forKey:@"order_id"];
                 PUSH(paymentViewController);
             }else if ([cell.eBtn.titleLabel.text isEqualToString:@"催单"]) {
-                [self orderurge:orderDetailDictionary[@"order_id"]];
+                [self orderurge:self.orderDetailDictionary[@"order_id"]];
             }else if ([cell.eBtn.titleLabel.text isEqualToString:@"去评价"]) {
                 //去评价
                 OrderScoreViewController *orderScoreViewController = [[OrderScoreViewController alloc] init];
-                [orderScoreViewController.orderDictionary setObject:orderDetailDictionary[@"order_id"] forKey:@"order_id"];
+                [orderScoreViewController.orderDictionary setObject:self.orderDetailDictionary[@"order_id"] forKey:@"order_id"];
                 PUSH(orderScoreViewController);
             }else if ([cell.eBtn.titleLabel.text isEqualToString:@"再来一单"]) {
                 
@@ -1019,7 +1018,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
                 
                 [dal cleanCartInfo];
                 
-                NSMutableArray *tempArray = [[NSMutableArray alloc] initWithArray:orderDetailDictionary[@"product"]];
+                NSMutableArray *tempArray = [[NSMutableArray alloc] initWithArray:self.orderDetailDictionary[@"product"]];
                 for ( int i =0; i<tempArray.count; i++) {
                     
                     [self updateDB:tempArray[i]];
@@ -1032,7 +1031,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         };
         
         
-        if ([orderDetailDictionary[@"staff_name"] length] > 0 ) {
+        if ([_orderDetailDictionary[@"staff_name"] length] > 0 ) {
             
             [cell.star1 setHidden:NO];
             [cell.star2 setHidden:NO];
@@ -1066,14 +1065,14 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         
         if ([[[UserDefaults service] getGender] isEqualToString:@"1"]) {
             //TODO 没有返回骑士头像
-            [cell.staffIcon sd_setImageWithURL:[NSURL URLWithString:orderDetailDictionary[@"product"][indexPath.row][@"staff_portrait"]]
+            [cell.staffIcon sd_setImageWithURL:[NSURL URLWithString:_orderDetailDictionary[@"product"][indexPath.row][@"staff_portrait"]]
                               placeholderImage:[UIImage imageNamed:@"test_head"]
                                      completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                          //TODO
                                      }];
         }else {
             //TODO 没有返回骑士头像
-            [cell.staffIcon sd_setImageWithURL:[NSURL URLWithString:orderDetailDictionary[@"product"][indexPath.row][@"staff_portrait"]]
+            [cell.staffIcon sd_setImageWithURL:[NSURL URLWithString:_orderDetailDictionary[@"product"][indexPath.row][@"staff_portrait"]]
                               placeholderImage:[UIImage imageNamed:@"test_head2"]
                                      completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                          //TODO
@@ -1082,9 +1081,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         
         
         
-        cell.staffName.text = orderDetailDictionary[@"staff_name"];
+        cell.staffName.text = _orderDetailDictionary[@"staff_name"];
         
-        cell.score.text = orderDetailDictionary[@"staff_rate"];
+        cell.score.text = _orderDetailDictionary[@"staff_rate"];
         
         
         
@@ -1093,7 +1092,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         UIImage *grayStar = [UIImage imageNamed:@"score_star_gray"];
         UIImage *yellowStar = [UIImage imageNamed:@"score_star_yellow"];
         
-        double count = [orderDetailDictionary[@"staff_rate"] doubleValue];
+        double count = [_orderDetailDictionary[@"staff_rate"] doubleValue];
         
         for (int i = 0; i < 5; i++) {
             
@@ -1156,7 +1155,8 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         //        __weak __typeof(&*cell)weakCell =cell;
         cell.phoneBlock = ^()
         {
-            NSString *telUrl = [NSString stringWithFormat:@"tel://%@", orderDetailDictionary[@"staff_tel"]];
+            strongify(self);
+            NSString *telUrl = [NSString stringWithFormat:@"tel://%@", self.orderDetailDictionary[@"staff_tel"]];
         
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:telUrl]];
         
@@ -1167,7 +1167,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         return cell;
     }else if (indexPath.section == 1) {
 
-        if ([@"11" isEqualToString:orderDetailDictionary[@"product"][indexPath.row][@"l_kind_code"]]) {
+        if ([@"11" isEqualToString:_orderDetailDictionary[@"product"][indexPath.row][@"l_kind_code"]]) {
             OrderCigaretteDetailCell *cell = [tableView dequeueReusableCellWithIdentifier:orderCellIdentifier6];
             if (!cell) {
                 cell = [[OrderCigaretteDetailCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:orderCellIdentifier6];
@@ -1176,13 +1176,13 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             cell.accessoryType = UITableViewCellAccessoryNone;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
-            cell.productName.text = orderDetailDictionary[@"product"][indexPath.row][@"description"];
-            cell.subTitle.text = orderDetailDictionary[@"product"][indexPath.row][@"capacity_description"];
-            cell.productCount.text = [NSString stringWithFormat:@"x%@", orderDetailDictionary[@"product"][indexPath.row][@"count"]];
+            cell.productName.text = _orderDetailDictionary[@"product"][indexPath.row][@"description"];
+            cell.subTitle.text = _orderDetailDictionary[@"product"][indexPath.row][@"capacity_description"];
+            cell.productCount.text = [NSString stringWithFormat:@"x%@", _orderDetailDictionary[@"product"][indexPath.row][@"count"]];
             
             NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
             formatter.numberStyle = NSNumberFormatterCurrencyStyle;
-            float nTotal = [orderDetailDictionary[@"product"][indexPath.row][@"dis_price"] floatValue];
+            float nTotal = [_orderDetailDictionary[@"product"][indexPath.row][@"dis_price"] floatValue];
             NSString *priceStr = [formatter stringFromNumber:[NSNumber numberWithFloat:nTotal]];
             cell.price.text = priceStr;
             
@@ -1197,19 +1197,19 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
             
-            [cell.productIcon sd_setImageWithURL:[NSURL URLWithString:orderDetailDictionary[@"product"][indexPath.row][@"product_url"]]
+            [cell.productIcon sd_setImageWithURL:[NSURL URLWithString:_orderDetailDictionary[@"product"][indexPath.row][@"product_url"]]
                                 placeholderImage:[UIImage imageNamed:@"loading_Image"]
                                        completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                            //TODO
                                        }];
             
-            cell.productName.text = orderDetailDictionary[@"product"][indexPath.row][@"description"];
-            cell.subTitle.text = orderDetailDictionary[@"product"][indexPath.row][@"capacity_description"];
-            cell.productCount.text = [NSString stringWithFormat:@"x%@", orderDetailDictionary[@"product"][indexPath.row][@"count"]];
+            cell.productName.text = _orderDetailDictionary[@"product"][indexPath.row][@"description"];
+            cell.subTitle.text = _orderDetailDictionary[@"product"][indexPath.row][@"capacity_description"];
+            cell.productCount.text = [NSString stringWithFormat:@"x%@", _orderDetailDictionary[@"product"][indexPath.row][@"count"]];
             
             NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
             formatter.numberStyle = NSNumberFormatterCurrencyStyle;
-            float nTotal = [orderDetailDictionary[@"product"][indexPath.row][@"dis_price"] floatValue];
+            float nTotal = [_orderDetailDictionary[@"product"][indexPath.row][@"dis_price"] floatValue];
             NSString *priceStr = [formatter stringFromNumber:[NSNumber numberWithFloat:nTotal]];
             cell.price.text = priceStr;
             
@@ -1219,7 +1219,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         
         
     }else if (indexPath.section == 2) {//优惠区
-        if ([orderDetailDictionary[@"promo_list"] count] == indexPath.row) {//合计行 促销行数加1
+        if ([_orderDetailDictionary[@"promo_list"] count] == indexPath.row) {//合计行 促销行数加1
             
             SubmitOrderSumCell *cell = [tableView dequeueReusableCellWithIdentifier:orderCellIdentifier3];
             if (!cell) {
@@ -1229,9 +1229,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             //            cell.accessoryType = UITableViewCellAccessoryNone;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
-            cell.totalTitle.text = [NSString stringWithFormat:@"合计 %@", orderDetailDictionary[@"total"]];
-            cell.title.text = [NSString stringWithFormat:@"已优惠 %@", orderDetailDictionary[@"discount"]];
-            cell.subTitle.text = [NSString stringWithFormat:@"实付 %@", orderDetailDictionary[@"money"]];
+            cell.totalTitle.text = [NSString stringWithFormat:@"合计 %@", _orderDetailDictionary[@"total"]];
+            cell.title.text = [NSString stringWithFormat:@"已优惠 %@", _orderDetailDictionary[@"discount"]];
+            cell.subTitle.text = [NSString stringWithFormat:@"实付 %@", _orderDetailDictionary[@"money"]];
             
             return cell;
         }else {
@@ -1246,9 +1246,9 @@ static NSString *SectionViewID2 = @"XOSectionView2";
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
             
-            cell.icon.image = [UIImage imageNamed:orderDetailDictionary[@"promo_list"][indexPath.row][@"ptag"]];
-            cell.title.text = orderDetailDictionary[@"promo_list"][indexPath.row][@"info"];
-            cell.subTitle.text = [NSString stringWithFormat:@"-%@", orderDetailDictionary[@"promo_list"][indexPath.row][@"discount"]];
+            cell.icon.image = [UIImage imageNamed:_orderDetailDictionary[@"promo_list"][indexPath.row][@"ptag"]];
+            cell.title.text = _orderDetailDictionary[@"promo_list"][indexPath.row][@"info"];
+            cell.subTitle.text = [NSString stringWithFormat:@"-%@", _orderDetailDictionary[@"promo_list"][indexPath.row][@"discount"]];
             
             return cell;
         }
@@ -1262,26 +1262,28 @@ static NSString *SectionViewID2 = @"XOSectionView2";
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         
         cell.time.text = @"立即送达";
-        cell.name.text = [NSString stringWithFormat:@"%@ %@", orderDetailDictionary[@"name"], orderDetailDictionary[@"tel_no"]];
-        cell.address.text = [NSString stringWithFormat:@"%@%@", orderDetailDictionary[@"address"], orderDetailDictionary[@"building"]];
-        cell.number.text = [NSString stringWithFormat:@"%@", orderDetailDictionary[@"order_id"]];
-        cell.orderTime.text = [NSString stringWithFormat:@"%@", orderDetailDictionary[@"time"]];
+        cell.name.text = [NSString stringWithFormat:@"%@ %@", _orderDetailDictionary[@"name"], _orderDetailDictionary[@"tel_no"]];
+        cell.address.text = [NSString stringWithFormat:@"%@%@", _orderDetailDictionary[@"address"], _orderDetailDictionary[@"building"]];
+        cell.number.text = [NSString stringWithFormat:@"%@", _orderDetailDictionary[@"order_id"]];
+        cell.orderTime.text = [NSString stringWithFormat:@"%@", _orderDetailDictionary[@"time"]];
         
-        if ([orderDetailDictionary[@"pay_type"] isEqualToString:@"1"]) {//现金
+        if ([_orderDetailDictionary[@"pay_type"] isEqualToString:@"1"]) {//现金
             cell.pay.text = @"货到付款";
-        }else if ([orderDetailDictionary[@"pay_type"] isEqualToString:@"2"]) {//微信
+        }else if ([_orderDetailDictionary[@"pay_type"] isEqualToString:@"2"]) {//微信
             cell.pay.text = @"在线支付";
-        }else if ([orderDetailDictionary[@"pay_type"] isEqualToString:@"3"]) {//支付宝
+        }else if ([_orderDetailDictionary[@"pay_type"] isEqualToString:@"3"]) {//支付宝
             cell.pay.text = @"在线支付";
         }else {
             cell.pay.text = @"兔币支付";
         }
         
         //        __weak __typeof(&*cell)weakCell =cell;
+        weakify(self);
         cell.phoneBlock = ^()
         {
+            strongify(self);
             //联系商家
-            NSString *telUrl = [NSString stringWithFormat:@"tel://%@", orderDetailDictionary[@"store_tel"]];
+            NSString *telUrl = [NSString stringWithFormat:@"tel://%@", self.orderDetailDictionary[@"store_tel"]];
             
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:telUrl]];
            
@@ -1313,7 +1315,7 @@ static NSString *SectionViewID2 = @"XOSectionView2";
 
 //取消订单
 - (void)ordercancel:(NSString *)orderId {
-    payTimer=nil;
+    _payTimer=nil;
         [self showLoadHUDMsg:@"处理中..."];
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:orderId, @"order_id", nil];//"order_id" = 3000583624642535424;

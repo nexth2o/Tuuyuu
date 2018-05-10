@@ -124,7 +124,7 @@
     [contentView setHidden:YES];
     pageNumber = 0;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     [HttpClientService requestMyrateinfo:paramDic success:^(id responseObject) {
         
@@ -179,7 +179,7 @@
             
         }else {
             [self hideLoadHUD:YES];
-            [self showMsg:[NSString stringWithFormat:@"错误码%zd", status]];
+            [self showMsg:[NSString stringWithFormat:@"错误码%d", status]];
             
         }
         
@@ -473,7 +473,7 @@
     pageNumber = 0;
     
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     [HttpClientService requestMyrateinfo:paramDic success:^(id responseObject) {
 
@@ -540,7 +540,7 @@
     
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     //查询取餐列表
     [HttpClientService requestMyrateinfo:paramDic success:^(id responseObject) {
         

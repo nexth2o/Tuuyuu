@@ -105,7 +105,7 @@
     pageNumber = 0;
     pageLen = 20;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:@"0", @"user_id", [NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:@"0", @"user_id", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     [HttpClientService requestFriendslist:paramDic success:^(id responseObject) {
         
@@ -150,7 +150,7 @@
 - (void)loadMoreData {
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:@"0", @"user_id", [NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:@"0", @"user_id", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
 
     //查询取餐列表
     [HttpClientService requestFriendslist:paramDic success:^(id responseObject) {

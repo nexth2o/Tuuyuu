@@ -299,7 +299,7 @@
     pageLen = 20;
     
     //TODO需要修改成动态店铺
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_paramDictionary[@"type"], @"type", [NSString stringWithFormat:@"%zd", pageNumber], @"page", [[UserDefaults service] getStoreId], @"cvs_no", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_paramDictionary[@"type"], @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", [[UserDefaults service] getStoreId], @"cvs_no", nil];
     
     [HttpClientService requestSpecialProduct:paramDic success:^(id responseObject) {
         
@@ -342,7 +342,7 @@
     
     pageLen = 20;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_paramDictionary[@"type"], @"type", [NSString stringWithFormat:@"%zd", pageNumber], @"page", [[UserDefaults service] getStoreId], @"cvs_no", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_paramDictionary[@"type"], @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", [[UserDefaults service] getStoreId], @"cvs_no", nil];
     
     [HttpClientService requestSpecialProduct:paramDic success:^(id responseObject) {
         
@@ -378,7 +378,7 @@
     
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_paramDictionary[@"type"], @"type", [NSString stringWithFormat:@"%zd", pageNumber], @"page", [[UserDefaults service] getStoreId], @"cvs_no", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_paramDictionary[@"type"], @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", [[UserDefaults service] getStoreId], @"cvs_no", nil];
     
     //查询取餐列表
     [HttpClientService requestSpecialProduct:paramDic success:^(id responseObject) {
@@ -466,8 +466,6 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    static NSString *myCellIdentifier1 = @"MyCellIdentifier1";
-    static NSString *myCellIdentifier2 = @"MyCellIdentifier2";
     static NSString *myCellIdentifier3 = @"MyCellIdentifier3";
     static NSString *myCellIdentifier4 = @"MyCellIdentifier4";
     static NSString *myCellIdentifier5 = @"MyCellIdentifier5";
@@ -780,10 +778,10 @@
                 [cell.salesEtc setHidden:NO];
                 
                 if ([[UserDefaults service] getStoreSales].count > 1 ) {
-                    cell.salesEtc.text = [NSString stringWithFormat:@"等%zd个活动", [[UserDefaults service] getStoreSales].count];
+                    cell.salesEtc.text = [NSString stringWithFormat:@"等%lu个活动", (unsigned long)[[UserDefaults service] getStoreSales].count];
                     [cell.open setHidden:NO];
                 }else {
-                    cell.salesEtc.text = [NSString stringWithFormat:@"%zd个活动", [[UserDefaults service] getStoreSales].count];
+                    cell.salesEtc.text = [NSString stringWithFormat:@"%lu个活动", (unsigned long)[[UserDefaults service] getStoreSales].count];
                     [cell.open setHidden:YES];
                 }
             }else {
@@ -1172,12 +1170,12 @@
                         
                         if (num == 0) {
                             if ([scanner scanInt:&num]) {
-                                [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                                [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                                 //                                NSLog(@"num : %d",num);
                             }
                         }else {
                             if ([scanner scanInt:&num]) {
-                                [dic setObject:[NSString stringWithFormat:@"可减%zd元", num] forKey:@"result"];
+                                [dic setObject:[NSString stringWithFormat:@"可减%d元", num] forKey:@"result"];
                                 //                                NSLog(@"num : %d",num);
                             }
                         }
@@ -1194,7 +1192,6 @@
         }else if ([dic1[@"ptag"] isEqualToString:@"song"]) {
             //满赠
             NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
-            NSString * numStr = dic1[@"info"];
             NSArray *arr = [dic1[@"info"] componentsSeparatedByString:@"赠送"];
             NSScanner * scanner = [NSScanner scannerWithString:arr[0]];
             NSCharacterSet * numSet = [NSCharacterSet decimalDigitCharacterSet];
@@ -1202,7 +1199,7 @@
                 if ([scanner scanUpToCharactersFromSet:numSet intoString:NULL]) {
                     int num;
                     if ([scanner scanInt:&num] && (num != 1)) {
-                        [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                        [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                         
                         [dic setObject:[NSString stringWithFormat:@"可获赠%@", arr[1]] forKey:@"result"];
                         [dic setObject:@"song" forKey:@"type"];
@@ -1230,7 +1227,7 @@
                     if ([scanner scanUpToCharactersFromSet:numSet intoString:NULL]) {
                         
                         if ([scanner scanInt:&num]) {
-                            [dic setObject:[NSString stringWithFormat:@"%zd", num] forKey:@"if"];
+                            [dic setObject:[NSString stringWithFormat:@"%d", num] forKey:@"if"];
                             
                             [dic setObject:@"可参加换购活动" forKey:@"result"];
                             //                                NSLog(@"num : %d",num);
@@ -1262,7 +1259,7 @@
                 //购物车内有选择的商品
                 NSInteger nCount = [dic[@"orderCount"] integerValue];
                 nCount = nCount+1;
-                [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"orderCount"];
+                [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
                 
                 //更新DB
                 [self updateDB:dic];
@@ -1306,7 +1303,7 @@
                     return;
                 }else{
                     //更新
-                    [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"orderCount"];
+                    [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
                     
                     //更新DB
                     [self updateDB:dic];

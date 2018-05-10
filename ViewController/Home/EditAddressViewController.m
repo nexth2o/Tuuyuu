@@ -311,7 +311,7 @@
             
         }else {
             [self hideLoadHUD:YES];
-            [self showMsg:[NSString stringWithFormat:@"错误码%zd", status]];
+            [self showMsg:[NSString stringWithFormat:@"错误码%d", status]];
             
         }
         

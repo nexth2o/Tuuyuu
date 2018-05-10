@@ -228,7 +228,7 @@
                 //购物车内有选择的商品
                 NSInteger nCount = [dic[@"orderCount"] integerValue];
                 nCount = nCount+1;
-                [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"orderCount"];
+                [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
                 
                 //更新DB
                 [self updateDB2:dic];
@@ -266,7 +266,7 @@
                     return;
                 }else{
                     //更新
-                    [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"orderCount"];
+                    [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
                     
                     [self updateDB2:dic];
                     

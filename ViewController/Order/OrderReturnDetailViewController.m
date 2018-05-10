@@ -11,11 +11,10 @@
 #import "OrderReturnDetailCell.h"
 #import "LoginViewController.h"
 
-@interface OrderReturnDetailViewController ()<UITableViewDelegate, UITableViewDataSource> {
-    UITableView *contentView;
-    NSInteger pageNumber;
-    NSMutableDictionary *returnDetailDic;
-}
+@interface OrderReturnDetailViewController ()<UITableViewDelegate, UITableViewDataSource>
+
+@property (nonatomic, strong) UITableView *contentView;
+@property (nonatomic, strong) NSMutableDictionary *returnDetailDic;
 
 @end
 
@@ -39,21 +38,21 @@
         
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT) style:UITableViewStylePlain];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT) style:UITableViewStylePlain];
         
-        contentView.delegate = self;
+        _contentView.delegate = self;
         
-        contentView.dataSource = self;
+        _contentView.dataSource = self;
         
-        contentView.separatorStyle = NO;
+        _contentView.separatorStyle = NO;
         
-        contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
         //去除底部多余分割线
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
         _orderDictionary = [[NSMutableDictionary alloc] init];
         
@@ -81,17 +80,18 @@
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderDictionary[@"order_id"], @"order_id", nil];
     
+    weakify(self);
     [HttpClientService requestReturnstate:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            returnDetailDic = [[NSMutableDictionary alloc] initWithDictionary:jsonDic];
+            self.returnDetailDic = [[NSMutableDictionary alloc] initWithDictionary:jsonDic];
             
-            [contentView reloadData];
+            [self.contentView reloadData];
             
             [self hideLoadHUD:YES];
         }else if (status == 202) {
@@ -134,7 +134,7 @@
     if (section == 0) {
         return 1;
     }else {
-        return [returnDetailDic[@"info"] count];//节点数组
+        return [_returnDetailDic[@"info"] count];//节点数组
     }
 
 }
@@ -163,15 +163,15 @@
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         //店铺
-        cell.store.text = returnDetailDic[@"cvs_name"];
+        cell.store.text = _returnDetailDic[@"cvs_name"];
         
         //订单号码
-        cell.order.text = returnDetailDic[@"order_id"];
+        cell.order.text = _returnDetailDic[@"order_id"];
         
         //价格
         NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
         formatter.numberStyle = NSNumberFormatterCurrencyStyle;
-        float nTotal = [returnDetailDic[@"money"] floatValue];
+        float nTotal = [_returnDetailDic[@"money"] floatValue];
         NSString *priceStr = [formatter stringFromNumber:[NSNumber numberWithFloat:nTotal]];
         cell.price.text = priceStr;
         
@@ -188,14 +188,14 @@
             
             cell.line.image = [UIImage imageNamed:@"order_status_header"];
             
-            cell.returnTitle.text = returnDetailDic[@"info"][indexPath.row][@"state"];
-            cell.returnTime.text = returnDetailDic[@"info"][indexPath.row][@"time"];
-            cell.returnReason.text = returnDetailDic[@"info"][indexPath.row][@"description"];
+            cell.returnTitle.text = _returnDetailDic[@"info"][indexPath.row][@"state"];
+            cell.returnTime.text = _returnDetailDic[@"info"][indexPath.row][@"time"];
+            cell.returnReason.text = _returnDetailDic[@"info"][indexPath.row][@"description"];
             
             return cell;
         }
         
-        if (indexPath.row == [returnDetailDic[@"info"] count] - 1) {
+        if (indexPath.row == [_returnDetailDic[@"info"] count] - 1) {
             OrderReturnDetailCell *cell = [tableView dequeueReusableCellWithIdentifier:myCellIdentifier2];
             
             if (cell == nil) {
@@ -204,9 +204,9 @@
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             cell.line.image = [UIImage imageNamed:@"order_status_footer_gray"];
             
-            cell.returnTitle.text = returnDetailDic[@"info"][indexPath.row][@"state"];
-            cell.returnTime.text = returnDetailDic[@"info"][indexPath.row][@"time"];
-            cell.returnReason.text = returnDetailDic[@"info"][indexPath.row][@"description"];
+            cell.returnTitle.text = _returnDetailDic[@"info"][indexPath.row][@"state"];
+            cell.returnTime.text = _returnDetailDic[@"info"][indexPath.row][@"time"];
+            cell.returnReason.text = _returnDetailDic[@"info"][indexPath.row][@"description"];
             
             return cell;
         }else {
@@ -218,9 +218,9 @@
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             cell.line.image = [UIImage imageNamed:@"order_status_middle_gray"];
             
-            cell.returnTitle.text = returnDetailDic[@"info"][indexPath.row][@"state"];
-            cell.returnTime.text = returnDetailDic[@"info"][indexPath.row][@"time"];
-            cell.returnReason.text = returnDetailDic[@"info"][indexPath.row][@"description"];
+            cell.returnTitle.text = _returnDetailDic[@"info"][indexPath.row][@"state"];
+            cell.returnTime.text = _returnDetailDic[@"info"][indexPath.row][@"time"];
+            cell.returnReason.text = _returnDetailDic[@"info"][indexPath.row][@"description"];
             
             return cell;
             

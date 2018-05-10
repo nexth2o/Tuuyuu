@@ -138,7 +138,7 @@
     
     pageNumber = 0;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys: type, @"type", [NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys: type, @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     //查询取餐列表
     [HttpClientService requestOrderlist:paramDic success:^(id responseObject) {
@@ -188,7 +188,7 @@
             
         }else {
             [self hideLoadHUD:YES];
-            [self showMsg:[NSString stringWithFormat:@"错误码%zd",status]];
+            [self showMsg:[NSString stringWithFormat:@"错误码%d",status]];
             
         }
     } failure:^(NSError *error) {
@@ -205,7 +205,7 @@
 {
     pageNumber = 0;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys: type, @"type", [NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys: type, @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     //查询取餐列表
     [HttpClientService requestOrderlist:paramDic success:^(id responseObject) {
@@ -271,7 +271,7 @@
 
 - (void)loadMoreData {
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys: type, @"type", [NSString stringWithFormat:@"%zd", pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys: type, @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
     //查询取餐列表
     [HttpClientService requestOrderlist:paramDic success:^(id responseObject) {
@@ -378,7 +378,7 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"点击了%zd", indexPath.row);
+    NSLog(@"点击了%ld", (long)indexPath.row);
 }
 
 
