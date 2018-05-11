@@ -37,30 +37,15 @@
 #define TIPS_HEIGHT 30.0*SCALE
 
 @interface SearchViewController ()<UITableViewDelegate, UITableViewDataSource, KeyWordsDelegate, UITextFieldDelegate, ZFReOrderTableViewDelegate, ShoppingCartViewDelegate, CAAnimationDelegate> {
-    UITableView *contentView;
 
-    NSMutableArray *hotArray;
-    NSMutableArray *guessArray;
-    NSMutableArray *historyArray;
-    
-    KeywordView *hotKeyWordView;
-    KeywordView *guessKeyWordView;
-    KeywordView *historyKeyWordView;
-    
     NSString *condition;
-    UITableView *resultView;
-    NSMutableArray *resultArray;
-    
     UITextField *searchTextField;
     
     //购物车相关
-    NSUInteger totalOrders;
     CALayer *dotLayer;
     UIBezierPath *path;
     CGFloat endPointX;
     CGFloat endPointY;
-    ShoppingCartView *ShopCartView;
-    NSMutableArray *ordersArray;
     
     //购物车展开提示促销信息
     UIView *tipsViewWithShopCartView;
@@ -75,6 +60,23 @@
     NSString *keyString;
     NSInteger pageNumber;
 }
+
+@property (nonatomic, strong) KeywordView *hotKeyWordView;
+@property (nonatomic, strong) KeywordView *guessKeyWordView;
+@property (nonatomic, strong) KeywordView *historyKeyWordView;
+@property (nonatomic, strong) UITableView *contentView;
+@property (nonatomic, strong) NSMutableArray *hotArray;
+@property (nonatomic, strong) NSMutableArray *guessArray;
+@property (nonatomic, strong) NSMutableArray *historyArray;
+
+@property (nonatomic, strong) UITableView *resultView;
+@property (nonatomic, strong) NSMutableArray *resultArray;
+//购物车相关
+@property (nonatomic, strong) ShoppingCartView *ShopCartView;
+@property (nonatomic) NSUInteger totalOrders;
+@property (nonatomic, strong) NSMutableArray *ordersArray;
+
+@property (nonatomic)NSInteger pageNumber;
 
 @end
 
@@ -109,51 +111,51 @@
         [navigationBar.editButton setTitle:@"搜索" forState:UIControlStateNormal];
         [navigationBar.editButton setHidden:NO];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+1, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-1) style:UITableViewStylePlain];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+1, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-1) style:UITableViewStylePlain];
         
-        contentView.delegate = self;
+        _contentView.delegate = self;
         
-        contentView.dataSource = self;
+        _contentView.dataSource = self;
         
         //        contentView.separatorStyle = NO;
         
-        contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
         //去除底部多余分割线
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
         UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(backGroundClick)];
-        [contentView addGestureRecognizer:tap];
+        [_contentView addGestureRecognizer:tap];
         
         
         [self.view bringSubviewToFront:navigationBar];
         
-        resultView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT) style:UITableViewStylePlain];
+        _resultView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT) style:UITableViewStylePlain];
         
-        resultView.delegate = self;
+        _resultView.delegate = self;
         
-        resultView.dataSource = self;
+        _resultView.dataSource = self;
         
-        resultView.separatorStyle = NO;
+        _resultView.separatorStyle = NO;
         
-        resultView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _resultView.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        resultView.mj_footer = [MJChiBaoZiFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
+        _resultView.mj_footer = [MJChiBaoZiFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
         
         //去除底部多余分割线
-        resultView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _resultView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
-        [self.view addSubview:resultView];
+        [self.view addSubview:_resultView];
         
-        resultView.estimatedRowHeight = 0;
-        resultView.estimatedSectionHeaderHeight = 0;
-        resultView.estimatedSectionFooterHeight = 0;
+        _resultView.estimatedRowHeight = 0;
+        _resultView.estimatedSectionHeaderHeight = 0;
+        _resultView.estimatedSectionFooterHeight = 0;
         
         if (@available(iOS 11.0, *)) {
-            contentView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-            resultView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+            _contentView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+            _resultView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }else {
             self.automaticallyAdjustsScrollViewInsets = NO;
         }
@@ -177,31 +179,31 @@
         
         
         //购物车区
-        ShopCartView = [[ShoppingCartView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - BOTTOM_BAR_HEIGHT2, SCREEN_WIDTH, BOTTOM_BAR_HEIGHT) inView:self.view withObjects:nil];
+        _ShopCartView = [[ShoppingCartView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - BOTTOM_BAR_HEIGHT2, SCREEN_WIDTH, BOTTOM_BAR_HEIGHT) inView:self.view withObjects:nil];
         
-        ShopCartView.delegate = self;
+        _ShopCartView.delegate = self;
         
-        ShopCartView.parentView = self.view;
+        _ShopCartView.parentView = self.view;
         
-        ShopCartView.OrderList.delegate = self;
+        _ShopCartView.OrderList.delegate = self;
         
-        ShopCartView.OrderList.tableView.delegate = self;
+        _ShopCartView.OrderList.tableView.delegate = self;
         
-        ShopCartView.OrderList.tableView.dataSource = self;
+        _ShopCartView.OrderList.tableView.dataSource = self;
         
-        ShopCartView.OrderList.tableView.estimatedRowHeight = 0;
-        ShopCartView.OrderList.tableView.estimatedSectionHeaderHeight = 0;
-        ShopCartView.OrderList.tableView.estimatedSectionFooterHeight = 0;
+        _ShopCartView.OrderList.tableView.estimatedRowHeight = 0;
+        _ShopCartView.OrderList.tableView.estimatedSectionHeaderHeight = 0;
+        _ShopCartView.OrderList.tableView.estimatedSectionFooterHeight = 0;
         
         if (@available(iOS 11.0, *)) {
-            ShopCartView.OrderList.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+            _ShopCartView.OrderList.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }else {
             self.automaticallyAdjustsScrollViewInsets = NO;
         }
         
         //        ShopCartView.backgroundColor = [UIColor whiteColor];
         
-        [self.view addSubview:ShopCartView];
+        [self.view addSubview:_ShopCartView];
         
         closeView = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - BOTTOM_BAR_HEIGHT2, SCREEN_WIDTH, BOTTOM_BAR_HEIGHT)];
         closeView.backgroundColor = UIColorFromRGB(76,76,76);
@@ -216,16 +218,16 @@
         [closeView addSubview:closeTips];
         [closeView setHidden:YES];
         
-        CGRect rect = [self.view convertRect:ShopCartView.shoppingCartBtn.frame fromView:ShopCartView];
+        CGRect rect = [self.view convertRect:_ShopCartView.shoppingCartBtn.frame fromView:_ShopCartView];
         
         endPointX = rect.origin.x + 25;
         
         endPointY = rect.origin.y + 20;
         
-        [ShopCartView setHidden:YES];
+        [_ShopCartView setHidden:YES];
         
         //购物车数据初始化
-        ordersArray = [NSMutableArray array];
+        _ordersArray = [NSMutableArray array];
         
     }
     
@@ -249,23 +251,23 @@
 
 - (void)new {
     NSDictionary *paramDic = [[NSDictionary alloc] init];
-    
+    weakify(self);
     [HttpClientService requestHotsearch:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            hotArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"hot_search"]];
-            guessArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"hot_guess"]];
+            self.hotArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"hot_search"]];
+            self.guessArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"hot_guess"]];
             
-            hotKeyWordView = [[KeywordView alloc] initWithframe:CGRectZero Keywords:hotArray];
-            hotKeyWordView.keyWordsDelegate = self;
+            self.hotKeyWordView = [[KeywordView alloc] initWithframe:CGRectZero Keywords:self.hotArray];
+            self.hotKeyWordView.keyWordsDelegate = self;
             
-            guessKeyWordView = [[KeywordView alloc] initWithframe:CGRectZero Keywords:guessArray];
-            guessKeyWordView.keyWordsDelegate = self;
+            self.guessKeyWordView = [[KeywordView alloc] initWithframe:CGRectZero Keywords:self.guessArray];
+            self.guessKeyWordView.keyWordsDelegate = self;
             
             SearchHistoryDAL *dal = [[SearchHistoryDAL alloc] init];
             NSMutableArray *entityArray = [dal queryCartInfo];
@@ -281,22 +283,22 @@
                 [tempArray addObject:tempDic];
             }
             
-            historyArray = [NSMutableArray arrayWithArray:tempArray];
-            [historyKeyWordView removeFromSuperview];
-            historyKeyWordView = [[KeywordView alloc] initWithframe:CGRectZero Keywords:historyArray];
-            historyKeyWordView.keyWordsDelegate = self;
+            self.historyArray = [NSMutableArray arrayWithArray:tempArray];
+            [self.historyKeyWordView removeFromSuperview];
+            self.historyKeyWordView = [[KeywordView alloc] initWithframe:CGRectZero Keywords:self.historyArray];
+            self.historyKeyWordView.keyWordsDelegate = self;
             
-            [contentView reloadData];
+            [self.contentView reloadData];
             
-            if (resultArray.count > 0) {
-                [resultView setHidden:NO];
-                [ShopCartView setHidden:NO];
-                [contentView setHidden:YES];
+            if (self.resultArray.count > 0) {
+                [self.resultView setHidden:NO];
+                [self.ShopCartView setHidden:NO];
+                [self.contentView setHidden:YES];
                 
-                [resultView reloadData];
+                [self.resultView reloadData];
                 //购物车数据初始化
-                ordersArray = [NSMutableArray array];
-                totalOrders = 0;
+                self.ordersArray = [NSMutableArray array];
+                self.totalOrders = 0;
                 if ([[UserDefaults service] getOperatingState] == YES) {
                     //取DB最新
                     CartInfoDAL *dal = [[CartInfoDAL alloc] init];
@@ -315,27 +317,27 @@
                         
                         [tempArray addObject:tempDic];
                         
-                        totalOrders += [entity.orderCount integerValue];
+                        self.totalOrders += [entity.orderCount integerValue];
                     }
-                    ordersArray = tempArray;
+                    self.ordersArray = tempArray;
                 }
-                ShopCartView.OrderList.objects = ordersArray;
-                [ShopCartView.OrderList.tableView reloadData];
+                self.ShopCartView.OrderList.objects = self.ordersArray;
+                [self.ShopCartView.OrderList.tableView reloadData];
                 
                 
                 
-                ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                 [self setCartImage];
                 [self setTotalMoney];
-                if (totalOrders <=0) {
-                    [ShopCartView dismissAnimated:YES];
+                if (self.totalOrders <=0) {
+                    [self.ShopCartView dismissAnimated:YES];
                 }
-                [ShopCartView setHidden:NO];
+                [self.ShopCartView setHidden:NO];
             }else {
                 
-                [resultView setHidden:YES];
-                [ShopCartView setHidden:YES];
-                [contentView setHidden:NO];
+                [self.resultView setHidden:YES];
+                [self.ShopCartView setHidden:YES];
+                [self.contentView setHidden:NO];
             }
             
             [self hideLoadHUD:YES];
@@ -360,24 +362,24 @@
 
 - (void)new2 {
     NSDictionary *paramDic = [[NSDictionary alloc] init];
-    
+    weakify(self);
     [HttpClientService requestHotsearch:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            hotArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"hot_search"]];
-            guessArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"hot_guess"]];
+            self.hotArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"hot_search"]];
+            self.guessArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"hot_guess"]];
             
-            hotKeyWordView = [[KeywordView alloc] initWithframe:CGRectZero Keywords:hotArray];
-            hotKeyWordView.keyWordsDelegate = self;
+            self.hotKeyWordView = [[KeywordView alloc] initWithframe:CGRectZero Keywords:self.hotArray];
+            self.hotKeyWordView.keyWordsDelegate = self;
             
             
-            guessKeyWordView = [[KeywordView alloc] initWithframe:CGRectZero Keywords:guessArray];
-            guessKeyWordView.keyWordsDelegate = self;
+            self.guessKeyWordView = [[KeywordView alloc] initWithframe:CGRectZero Keywords:self.guessArray];
+            self.guessKeyWordView.keyWordsDelegate = self;
             
             
             SearchHistoryDAL *dal = [[SearchHistoryDAL alloc] init];
@@ -394,12 +396,12 @@
                 [tempArray addObject:tempDic];
             }
             
-            historyArray = [NSMutableArray arrayWithArray:tempArray];
-            [historyKeyWordView removeFromSuperview];
-            historyKeyWordView = [[KeywordView alloc] initWithframe:CGRectZero Keywords:historyArray];
-            historyKeyWordView.keyWordsDelegate = self;
+            self.historyArray = [NSMutableArray arrayWithArray:tempArray];
+            [self.historyKeyWordView removeFromSuperview];
+            self.historyKeyWordView = [[KeywordView alloc] initWithframe:CGRectZero Keywords:self.historyArray];
+            self.historyKeyWordView.keyWordsDelegate = self;
             
-            [contentView reloadData];
+            [self.contentView reloadData];
             
             [self hideLoadHUD:YES];
         }else if (status == 202) {
@@ -446,32 +448,32 @@
         pageNumber = 0;
         
         NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:key, @"condition", [[UserDefaults service] getStoreId], @"cvs_no", @"0", @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
-        
+        weakify(self);
         [HttpClientService requestSearch:paramDic success:^(id responseObject) {
-            
+            strongify(self);
             NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
             
             int status = [[jsonDic objectForKey:@"status"] intValue];
             
             if (status == 0) {
                 
-                resultArray= [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"result"]];
+                self.resultArray= [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"result"]];
                 
-                if ([resultArray count] > 0 ) {
+                if ([self.resultArray count] > 0 ) {
                     
-                    [contentView setHidden:YES];
-                    [resultView setHidden:NO];
+                    [self.contentView setHidden:YES];
+                    [self.resultView setHidden:NO];
                     
-                    [resultView reloadData];
+                    [self.resultView reloadData];
                     
-                    if ([resultArray count] < 20) {
-                        [resultView.mj_footer endRefreshingWithNoMoreData];
+                    if ([self.resultArray count] < 20) {
+                        [self.resultView.mj_footer endRefreshingWithNoMoreData];
                     }
-                    pageNumber++;
+                    self.pageNumber++;
                     
                     //购物车数据初始化
-                    ordersArray = [NSMutableArray array];
-                    totalOrders = 0;
+                    self.ordersArray = [NSMutableArray array];
+                    self.totalOrders = 0;
                     if ([[UserDefaults service] getOperatingState] == YES) {
                     //取DB最新
                     CartInfoDAL *dal = [[CartInfoDAL alloc] init];
@@ -490,21 +492,21 @@
                         
                         [tempArray addObject:tempDic];
                         
-                        totalOrders += [entity.orderCount integerValue];
+                        self.totalOrders += [entity.orderCount integerValue];
                     }
-                    ordersArray = tempArray;
+                    self.ordersArray = tempArray;
                     }
-                    ShopCartView.OrderList.objects = ordersArray;
-                    [ShopCartView.OrderList.tableView reloadData];
+                    self.ShopCartView.OrderList.objects = self.ordersArray;
+                    [self.ShopCartView.OrderList.tableView reloadData];
                     
-                    ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                    self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                     [self setCartImage];
                     [self setTotalMoney];
-                    if (totalOrders <=0) {
-                        [ShopCartView dismissAnimated:YES];
+                    if (self.totalOrders <=0) {
+                        [self.ShopCartView dismissAnimated:YES];
                     }
                     //TODO 显示购物车
-                    [ShopCartView setHidden:NO];
+                    [self.ShopCartView setHidden:NO];
                     
                     [self hideLoadHUD:YES];
                 }else {
@@ -514,9 +516,9 @@
                     [self setEmptyViewTitle:@"搜不到您要的商品"];
                     
                     [tipsViewWithoutShopCartView setHidden:YES];
-                    [resultView setHidden:YES];
-                    [contentView setHidden:YES];
-                    [ShopCartView setHidden:YES];
+                    [self.resultView setHidden:YES];
+                    [self.contentView setHidden:YES];
+                    [self.ShopCartView setHidden:YES];
 
                 }
                 
@@ -540,7 +542,7 @@
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:keyString, @"condition", [[UserDefaults service] getStoreId], @"cvs_no", @"0", @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
-    //查询取餐列表
+    weakify(self);
     [HttpClientService requestSearch:paramDic success:^(id responseObject) {
         
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
@@ -555,9 +557,7 @@
                 
                 [self hideLoadHUD:YES];
                 
-                [self showMsg:@"没有更多好友了"];
-                
-                [resultView.mj_footer endRefreshingWithNoMoreData];
+                [self.resultView.mj_footer endRefreshingWithNoMoreData];
                 
             }else if (array.count > 0 && array.count < 20) {
                 
@@ -567,14 +567,14 @@
                     
                     dic = [array objectAtIndex:i];
                     
-                    [resultArray addObject:dic];
+                    [self.resultArray addObject:dic];
                 }
                 
-                [resultView reloadData];
+                [self.resultView reloadData];
                 
                 [self hideLoadHUD:YES];
                 
-                [resultView.mj_footer endRefreshingWithNoMoreData];
+                [self.resultView.mj_footer endRefreshingWithNoMoreData];
                 
                 
             }else {
@@ -585,25 +585,25 @@
                     
                     dic = [array objectAtIndex:i];
                     
-                    [resultArray addObject:dic];
+                    [self.resultArray addObject:dic];
                 }
-                pageNumber++;
+                self.pageNumber++;
                 
-                [resultView reloadData];
+                [self.resultView reloadData];
                 
                 [self hideLoadHUD:YES];
                 
-                [resultView.mj_footer endRefreshing];
+                [self.resultView.mj_footer endRefreshing];
                 
             }
             
         }
         
     } failure:^(NSError *error) {
-        
+        strongify(self);
         [self hideLoadHUD:YES];
         
-        [resultView.mj_footer endRefreshing];
+        [self.resultView.mj_footer endRefreshing];
         
     }];
 }
@@ -614,12 +614,12 @@
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    if (tableView == resultView) {
-        return [resultArray count];
-    }else if ([tableView isEqual:ShopCartView.OrderList.tableView]) {
+    if (tableView == _resultView) {
+        return [self.resultArray count];
+    }else if ([tableView isEqual:_ShopCartView.OrderList.tableView]) {
         return 1;
     }else{
-        if (historyArray.count > 0) {
+        if (_historyArray.count > 0) {
             return 3;
         }else {
             return 2;
@@ -631,8 +631,8 @@
 
 - (NSInteger )tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    if ([tableView isEqual:ShopCartView.OrderList.tableView]) {
-        return [ordersArray count];
+    if ([tableView isEqual:_ShopCartView.OrderList.tableView]) {
+        return [_ordersArray count];
     }else {
         return 1;
     }
@@ -642,24 +642,24 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    if (tableView == resultView) {
+    if (tableView == _resultView) {
         
-        if ([resultArray[indexPath.section][@"promo_product"] count] > 0) {
+        if ([self.resultArray[indexPath.section][@"promo_product"] count] > 0) {
             return 180*SCALE;//折扣商品
         }else {
             return 130*SCALE;//正常商品
         }
         
         
-    }else if ([tableView isEqual:ShopCartView.OrderList.tableView]) {
+    }else if ([tableView isEqual:_ShopCartView.OrderList.tableView]) {
         return 40*SCALE;//购物车
     }else {
         if (indexPath.section == 0) {
-            return hotKeyWordView.frame.size.height;
+            return _hotKeyWordView.frame.size.height;
         }else if (indexPath.section == 1) {
-            return guessKeyWordView.frame.size.height;
+            return _guessKeyWordView.frame.size.height;
         }else {
-            return historyKeyWordView.frame.size.height;
+            return _historyKeyWordView.frame.size.height;
         }
     }
  
@@ -677,7 +677,7 @@
     
     UITableViewCell *cell = nil;
     
-    if (tableView == contentView) {
+    if (tableView == _contentView) {
         if (indexPath.section == 0) {
             
             UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:myCellIdentifier2];
@@ -686,7 +686,7 @@
             }
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
-            [cell addSubview:hotKeyWordView];
+            [cell addSubview:_hotKeyWordView];
             return cell;
         }else if (indexPath.section == 1) {
             
@@ -696,7 +696,7 @@
             }
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
-            [cell addSubview:guessKeyWordView];
+            [cell addSubview:_guessKeyWordView];
 
             return cell;
         }else {
@@ -705,15 +705,15 @@
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier4];
             }
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
-            [cell addSubview:historyKeyWordView];
+            [cell addSubview:_historyKeyWordView];
             
             return cell;
         }
 
         
-    }else if (tableView == resultView) {
+    }else if (tableView == _resultView) {
         
-        if ([resultArray[indexPath.section][@"promo_product"] count] > 0) {
+        if ([self.resultArray[indexPath.section][@"promo_product"] count] > 0) {
             DiscountProductCell *cell = [tableView dequeueReusableCellWithIdentifier:myCellIdentifier5];
             
             if (!cell) {
@@ -721,11 +721,13 @@
             }
             
             //商品区
-            [cell.rightImageView sd_setImageWithURL:[NSURL URLWithString:resultArray[indexPath.section][@"product_url"]]
+            weakify(self);
+            [cell.rightImageView sd_setImageWithURL:[NSURL URLWithString:_resultArray[indexPath.section][@"product_url"]]
                                    placeholderImage:[UIImage imageNamed:@"loading_Image"]
                                           completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                               //TODO
-                                              if ([resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
+                                              strongify(self);
+                                              if ([self.resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
                                                   //hidden
                                                   [cell.rightImageView2 setHidden:YES];
                                               }else {
@@ -734,34 +736,35 @@
                                               }
                                           }];
             
-            cell.rightTitle.text = resultArray[indexPath.section][@"description"];//商品名
-            cell.rightSubTitle.text = resultArray[indexPath.section][@"capacity_description"];//规格
-            cell.salesArray = resultArray[indexPath.section][@"promo_list"];//促销类型数组
+            cell.rightTitle.text = _resultArray[indexPath.section][@"description"];//商品名
+            cell.rightSubTitle.text = _resultArray[indexPath.section][@"capacity_description"];//规格
+            cell.salesArray = _resultArray[indexPath.section][@"promo_list"];//促销类型数组
             
             NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
             formatter.numberStyle = NSNumberFormatterCurrencyStyle;
-            float nTotal = [resultArray[indexPath.section][@"dis_price"] floatValue];//价格
+            float nTotal = [_resultArray[indexPath.section][@"dis_price"] floatValue];//价格
             NSString *price = [formatter stringFromNumber:[NSNumber numberWithFloat:nTotal]];
             cell.priceLabel.text = price;
             
             //赠品区 resultArray
-            if ([resultArray[indexPath.section][@"promo_product"][0][@"type"] isEqualToString:@"5"]) {
-                cell.giftLabel.text = [NSString stringWithFormat:@"第二件%@折", resultArray[indexPath.section][@"promo_product"][0][@"sa_ratio"]];
+            if ([_resultArray[indexPath.section][@"promo_product"][0][@"type"] isEqualToString:@"5"]) {
+                cell.giftLabel.text = [NSString stringWithFormat:@"第二件%@折", _resultArray[indexPath.section][@"promo_product"][0][@"sa_ratio"]];
                 [cell.plus2 setHidden:NO];
-            }else if ([resultArray[indexPath.section][@"promo_product"][0][@"type"] isEqualToString:@"4"]) {
+            }else if ([_resultArray[indexPath.section][@"promo_product"][0][@"type"] isEqualToString:@"4"]) {
                 
-                if ([resultArray[indexPath.section][@"promo_product"][0][@"buy_count"] isEqualToString:@"1"] && [resultArray[indexPath.section][@"promo_product"][0][@"give_count"] isEqualToString:@"1"]) {
+                if ([_resultArray[indexPath.section][@"promo_product"][0][@"buy_count"] isEqualToString:@"1"] && [_resultArray[indexPath.section][@"promo_product"][0][@"give_count"] isEqualToString:@"1"]) {
                     cell.giftLabel.text = @"买赠";
                 }else {
-                    cell.giftLabel.text = [NSString stringWithFormat:@"买%@赠%@", resultArray[indexPath.section][@"promo_product"][0][@"buy_count"], resultArray[indexPath.section][@"promo_product"][0][@"give_count"]];
+                    cell.giftLabel.text = [NSString stringWithFormat:@"买%@赠%@", _resultArray[indexPath.section][@"promo_product"][0][@"buy_count"], _resultArray[indexPath.section][@"promo_product"][0][@"give_count"]];
                 }
             }
             
-            [cell.giftImageView sd_setImageWithURL:[NSURL URLWithString:resultArray[indexPath.section][@"promo_product"][0][@"product_url"]]
+            [cell.giftImageView sd_setImageWithURL:[NSURL URLWithString:_resultArray[indexPath.section][@"promo_product"][0][@"product_url"]]
                                   placeholderImage:[UIImage imageNamed:@"loading_Image"]
                                          completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                              //TODO
-                                             if ([resultArray[indexPath.section][@"promo_product"][0][@"stock_qty"] intValue] > 0) {
+                                             strongify(self);
+                                             if ([self.resultArray[indexPath.section][@"promo_product"][0][@"stock_qty"] intValue] > 0) {
                                                  //hidden
                                                  [cell.giftImageView2 setHidden:YES];
                                              }else {
@@ -769,24 +772,24 @@
                                                  [cell.giftImageView2 setHidden:NO];
                                              }
                                          }];
-            cell.giftTitle.text = resultArray[indexPath.section][@"promo_product"][0][@"description"];
-            cell.giftSubTitle.text = resultArray[indexPath.section][@"promo_product"][0][@"cap_description"];
-            cell.newPrice = [resultArray[indexPath.section][@"promo_product"][0][@"dis_price"] floatValue];
-            cell.oldPrice = [resultArray[indexPath.section][@"promo_product"][0][@"sa_price"] floatValue];
+            cell.giftTitle.text = _resultArray[indexPath.section][@"promo_product"][0][@"description"];
+            cell.giftSubTitle.text = _resultArray[indexPath.section][@"promo_product"][0][@"cap_description"];
+            cell.newPrice = [_resultArray[indexPath.section][@"promo_product"][0][@"dis_price"] floatValue];
+            cell.oldPrice = [_resultArray[indexPath.section][@"promo_product"][0][@"sa_price"] floatValue];
             
-            if ([resultArray[indexPath.section][@"dis_price"] isEqualToString:resultArray[indexPath.section][@"sa_price"]]) {
+            if ([_resultArray[indexPath.section][@"dis_price"] isEqualToString:_resultArray[indexPath.section][@"sa_price"]]) {
                 [cell.giftOldPrice setHidden:YES];
             }else {
                 [cell.giftOldPrice setHidden:NO];
             }
             
             if ([[UserDefaults service] getOperatingState] == YES) {
-                if ([resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
-                    if ([resultArray[indexPath.section][@"on_sale"] isEqualToString:@"1"]) {
+                if ([_resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
+                    if ([_resultArray[indexPath.section][@"on_sale"] isEqualToString:@"1"]) {
                         [cell.plus setSelected:YES];
                         [cell.packageBtn setEnabled:YES];
                         
-                        if ([resultArray[indexPath.section][@"box_unit"] intValue] > 1) {
+                        if ([_resultArray[indexPath.section][@"box_unit"] intValue] > 1) {
                             [cell.packageBtn setHidden:NO];
                         }else {
                             [cell.packageBtn setHidden:YES];
@@ -808,56 +811,55 @@
             }
             
 //            __weak __typeof(&*cell)weakCell =cell;
-            weakify(self);
             weakify(cell);
             cell.plusBlock = ^(NSInteger nCount,BOOL animated)
             {
                 strongify(self);
                 strongify(cell);
-                if ([resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
-                if ([resultArray[indexPath.section][@"on_sale"] isEqualToString:@"1"]) {
+                if ([self.resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
+                if ([self.resultArray[indexPath.section][@"on_sale"] isEqualToString:@"1"]) {
                     
                     CGRect parentRect = [cell convertRect:cell.plus.frame toView:self.view];
                     
                     if (animated==NO) {
                         if ([cell.orderCount.text integerValue] <= [cell.orderCount2.text integerValue]) {
                             //副品
-                            NSMutableDictionary *dic2 = [resultArray[indexPath.section][@"promo_product"][0] mutableCopy];
+                            NSMutableDictionary *dic2 = [self.resultArray[indexPath.section][@"promo_product"][0] mutableCopy];
                             
-                            [dic2 setObject:[NSString stringWithFormat:@"%@,%@", resultArray[indexPath.section][@"product_no"], resultArray[indexPath.section][@"promo_product"][0][@"product_no"]] forKey:@"product_no"];
+                            [dic2 setObject:[NSString stringWithFormat:@"%@,%@", self.resultArray[indexPath.section][@"product_no"], self.resultArray[indexPath.section][@"promo_product"][0][@"product_no"]] forKey:@"product_no"];
                             
                             [self storeOrders:dic2 isAdded:animated];
                             
                             if (animated) {
                                 [self JoinCartAnimationWithRect:parentRect];
 
-                                totalOrders ++;
+                                self.totalOrders ++;
                             }
                             else
                             {
-                                totalOrders --;
+                                self.totalOrders --;
                             }
                         }
                     }
                     
-                    NSMutableDictionary *dic = [resultArray[indexPath.section] mutableCopy];
+                    NSMutableDictionary *dic = [self.resultArray[indexPath.section] mutableCopy];
                     
                     [self storeOrders:dic isAdded:animated];
                     
                     if (animated) {
                         [self JoinCartAnimationWithRect:parentRect];
-                        totalOrders ++;
+                        self.totalOrders ++;
                     }
                     else
                     {
-                        totalOrders --;
+                        self.totalOrders --;
                     }
                     
-                    ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                    self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                     [self setCartImage];
                     [self setTotalMoney];
                     
-                    [resultView reloadData];
+                    [self.resultView reloadData];
                 }else {
                     [self showDetailMsg:@"该商品售卖时间有限，暂时无法购买"];
                 }
@@ -872,29 +874,29 @@
             {
                 strongify(self);
                 strongify(cell);
-                cell.amount += [resultArray[indexPath.section][@"box_unit"] integerValue];
+                cell.amount += [self.resultArray[indexPath.section][@"box_unit"] integerValue];
                 
-                NSMutableDictionary *dic = [resultArray[indexPath.section] mutableCopy];
+                NSMutableDictionary *dic = [self.resultArray[indexPath.section] mutableCopy];
                 
-                [self storePackageOrders:dic boxUnit:[resultArray[indexPath.section][@"box_unit"] intValue] isAdded:animated];
+                [self storePackageOrders:dic boxUnit:[self.resultArray[indexPath.section][@"box_unit"] intValue] isAdded:animated];
                 
                 CGRect parentRect = [cell convertRect:cell.plus.frame toView:self.view];
                 
                 if (animated) {
                     [self JoinCartAnimationWithRect:parentRect];
-                    totalOrders += [resultArray[indexPath.section][@"box_unit"] integerValue];
+                    self.totalOrders += [self.resultArray[indexPath.section][@"box_unit"] integerValue];
                 }
                 
-                ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                 [self setCartImage];
                 [self setTotalMoney];
                 
-                [contentView reloadData];
+                [self.contentView reloadData];
                 
             };
             
             //第二件商品折扣 同品的情况
-            if ([resultArray[indexPath.section][@"product_no"] isEqualToString:resultArray[indexPath.section][@"promo_product"][0][@"product_no"]]) {
+            if ([_resultArray[indexPath.section][@"product_no"] isEqualToString:_resultArray[indexPath.section][@"promo_product"][0][@"product_no"]]) {
 
             [cell.giftSubTitle setHidden:YES];
                 
@@ -902,12 +904,12 @@
                 {
                     strongify(self);
                     strongify(cell);
-                    if ([resultArray[indexPath.section][@"promo_product"][0][@"on_sale"] isEqualToString:@"1"]) {
+                    if ([self.resultArray[indexPath.section][@"promo_product"][0][@"on_sale"] isEqualToString:@"1"]) {
                         
                         if (show == NO) {
-                            NSMutableDictionary *dic = [resultArray[indexPath.section][@"promo_product"][0] mutableCopy];
+                            NSMutableDictionary *dic = [self.resultArray[indexPath.section][@"promo_product"][0] mutableCopy];
                             
-                            [dic setObject:[NSString stringWithFormat:@"%@,%@", resultArray[indexPath.section][@"product_no"], resultArray[indexPath.section][@"promo_product"][0][@"product_no"]] forKey:@"product_no"];
+                            [dic setObject:[NSString stringWithFormat:@"%@,%@", self.resultArray[indexPath.section][@"product_no"], self.resultArray[indexPath.section][@"promo_product"][0][@"product_no"]] forKey:@"product_no"];
                             
                             [self storeOrders:dic isAdded:animated];
                             
@@ -916,18 +918,18 @@
                             if (animated) {
                                 [self JoinCartAnimationWithRect:parentRect];
 
-                                totalOrders ++;
+                                self.totalOrders ++;
                             }
                             else
                             {
-                                totalOrders --;
+                                self.totalOrders --;
                             }
 
-                            ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                            self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                             [self setCartImage];
                             [self setTotalMoney];
                             
-                            [resultView reloadData];
+                            [self.resultView reloadData];
                         }else {
                             [self showDetailMsg:@"第二件同品商品不能超过主商品，您需再订购主商品。"];
                         }
@@ -938,7 +940,7 @@
                     
                 };
                 
-                if ([resultArray[indexPath.section][@"promo_product"][0][@"type"] isEqualToString:@"5"] && [[UserDefaults service] getOperatingState] == YES) {
+                if ([_resultArray[indexPath.section][@"promo_product"][0][@"type"] isEqualToString:@"5"] && [[UserDefaults service] getOperatingState] == YES) {
                     [cell.orderCount2 setHidden:NO];
                     [cell.plus2 setHidden:NO];
                     [cell.minus2 setHidden:NO];
@@ -949,17 +951,17 @@
                 }
                 
                 //刷新父列表(需要强化测试)
-                if (ordersArray.count > 0) {
+                if (_ordersArray.count > 0) {
                     cell.amount = 0;
                     cell.amount2 = 0;
                     
-                    for (NSMutableDictionary *dic in ordersArray) {
+                    for (NSMutableDictionary *dic in _ordersArray) {
                         
-                        if ([dic[@"product_no"] isEqualToString:resultArray[indexPath.section][@"product_no"]]){
+                        if ([dic[@"product_no"] isEqualToString:_resultArray[indexPath.section][@"product_no"]]){
                             
                             NSInteger nCount = [dic[@"orderCount"] integerValue];
                             cell.amount = nCount;
-                        }else if ([dic[@"product_no"] isEqualToString:[NSString stringWithFormat:@"%@,%@", resultArray[indexPath.section][@"product_no"], resultArray[indexPath.section][@"promo_product"][0][@"product_no"]]]){
+                        }else if ([dic[@"product_no"] isEqualToString:[NSString stringWithFormat:@"%@,%@", _resultArray[indexPath.section][@"product_no"], _resultArray[indexPath.section][@"promo_product"][0][@"product_no"]]]){
                             NSInteger nCount = [dic[@"orderCount"] integerValue];
                             cell.amount2 = nCount;
                         }
@@ -976,7 +978,7 @@
                 //不同品的情况
                 [cell.giftSubTitle setHidden:YES];
                 
-                if ([resultArray[indexPath.section][@"promo_product"][0][@"type"] isEqualToString:@"5"] && [[UserDefaults service] getOperatingState] == YES) {
+                if ([_resultArray[indexPath.section][@"promo_product"][0][@"type"] isEqualToString:@"5"] && [[UserDefaults service] getOperatingState] == YES) {
                     [cell.orderCount2 setHidden:NO];
                     [cell.plus2 setHidden:NO];
                     [cell.minus2 setHidden:NO];
@@ -990,12 +992,12 @@
                 {
                     strongify(self);
                     strongify(cell);
-                    if ([resultArray[indexPath.section][@"promo_product"][0][@"on_sale"] isEqualToString:@"1"]) {
+                    if ([self.resultArray[indexPath.section][@"promo_product"][0][@"on_sale"] isEqualToString:@"1"]) {
                         
                         if (show == NO) {
-                            NSMutableDictionary *dic = [resultArray[indexPath.section][@"promo_product"][0] mutableCopy];
+                            NSMutableDictionary *dic = [self.resultArray[indexPath.section][@"promo_product"][0] mutableCopy];
                             
-                            [dic setObject:[NSString stringWithFormat:@"%@,%@", resultArray[indexPath.section][@"product_no"], resultArray[indexPath.section][@"promo_product"][0][@"product_no"]] forKey:@"product_no"];
+                            [dic setObject:[NSString stringWithFormat:@"%@,%@", self.resultArray[indexPath.section][@"product_no"], self.resultArray[indexPath.section][@"promo_product"][0][@"product_no"]] forKey:@"product_no"];
                             
                             [self storeOrders:dic isAdded:animated];
                             
@@ -1004,18 +1006,18 @@
                             if (animated) {
                                 [self JoinCartAnimationWithRect:parentRect];
 
-                                totalOrders ++;
+                                self.totalOrders ++;
                             }
                             else
                             {
-                                totalOrders --;
+                                self.totalOrders --;
                             }
 
-                            ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                            self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                             [self setCartImage];
                             [self setTotalMoney];
                             
-                            [resultView reloadData];
+                            [self.resultView reloadData];
                         }else {
                             [self showDetailMsg:@"第二件折扣商品不能超过主商品，您需再订购主商品。"];
                         }
@@ -1028,17 +1030,17 @@
                 };
                 
                 //刷新父列表(需要强化测试)
-                if (ordersArray.count > 0) {
+                if (_ordersArray.count > 0) {
                     cell.amount = 0;
                     cell.amount2 = 0;
 
-                    for (NSMutableDictionary *dic in ordersArray) {
+                    for (NSMutableDictionary *dic in _ordersArray) {
                         
-                        if ([dic[@"product_no"] isEqualToString:resultArray[indexPath.section][@"product_no"]]){
+                        if ([dic[@"product_no"] isEqualToString:_resultArray[indexPath.section][@"product_no"]]){
                             
                             NSInteger nCount = [dic[@"orderCount"] integerValue];
                             cell.amount = nCount;
-                        }else if ([dic[@"product_no"] isEqualToString:[NSString stringWithFormat:@"%@,%@", resultArray[indexPath.section][@"product_no"], resultArray[indexPath.section][@"promo_product"][0][@"product_no"]]]){
+                        }else if ([dic[@"product_no"] isEqualToString:[NSString stringWithFormat:@"%@,%@", _resultArray[indexPath.section][@"product_no"], _resultArray[indexPath.section][@"promo_product"][0][@"product_no"]]]){
                             NSInteger nCount = [dic[@"orderCount"] integerValue];
                             cell.amount2 = nCount;
                         }
@@ -1057,26 +1059,26 @@
             
             
             
-            if ([@"11" isEqualToString:resultArray[indexPath.section][@"l_kind_code"]]) {
+            if ([@"11" isEqualToString:_resultArray[indexPath.section][@"l_kind_code"]]) {
                 ProductCigaretteCell *cell = [tableView dequeueReusableCellWithIdentifier:myCellIdentifier7];
                 
                 if (!cell) {
                     cell = [[ProductCigaretteCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier7];
                 }
                 
-                cell.rightTitle.text = resultArray[indexPath.section][@"description"];//商品名
-                cell.rightSubTitle.text = resultArray[indexPath.section][@"capacity_description"];//规格
-                cell.salesArray = resultArray[indexPath.section][@"promo_list"];
+                cell.rightTitle.text = _resultArray[indexPath.section][@"description"];//商品名
+                cell.rightSubTitle.text = _resultArray[indexPath.section][@"capacity_description"];//规格
+                cell.salesArray = _resultArray[indexPath.section][@"promo_list"];
                 
                 NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
                 formatter.numberStyle = NSNumberFormatterCurrencyStyle;
-                float nTotal = [resultArray[indexPath.section][@"dis_price"] floatValue];//价格
+                float nTotal = [_resultArray[indexPath.section][@"dis_price"] floatValue];//价格
                 NSString *price = [formatter stringFromNumber:[NSNumber numberWithFloat:nTotal]];
                 cell.price.text = price;
           
-                cell.oldPrice = [resultArray[indexPath.section][@"sa_price"] floatValue];
+                cell.oldPrice = [_resultArray[indexPath.section][@"sa_price"] floatValue];
                 
-                if ([resultArray[indexPath.section][@"dis_price"] isEqualToString:resultArray[indexPath.section][@"sa_price"]]) {
+                if ([_resultArray[indexPath.section][@"dis_price"] isEqualToString:_resultArray[indexPath.section][@"sa_price"]]) {
                     [cell.oldPriceLabel setHidden:YES];
                 }else {
                     [cell.oldPriceLabel setHidden:NO];
@@ -1084,11 +1086,11 @@
                 
                 if ([[UserDefaults service] getOperatingState] == YES) {
                     [cell.plus setHidden:NO];
-                    if ([resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
-                        if ([resultArray[indexPath.section][@"on_sale"] isEqualToString:@"1"]) {
+                    if ([_resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
+                        if ([_resultArray[indexPath.section][@"on_sale"] isEqualToString:@"1"]) {
                             [cell.plus setSelected:YES];
                             [cell.packageBtn setHidden:YES];
-                            if ([resultArray[indexPath.section][@"box_unit"] intValue] > 1) {
+                            if ([_resultArray[indexPath.section][@"box_unit"] intValue] > 1) {
                                 [cell.packageBtn setHidden:NO];
                             }else {
                                 [cell.packageBtn setHidden:YES];
@@ -1115,9 +1117,9 @@
                 {
                     strongify(self);
                     strongify(cell);
-                    if ([resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
-                    if ([resultArray[indexPath.section][@"on_sale"] isEqualToString:@"1"]) {
-                        NSMutableDictionary *dic = [resultArray[indexPath.section] mutableCopy];
+                    if ([self.resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
+                    if ([self.resultArray[indexPath.section][@"on_sale"] isEqualToString:@"1"]) {
+                        NSMutableDictionary *dic = [self.resultArray[indexPath.section] mutableCopy];
                         
                         [self storeOrders:dic isAdded:animated];
                         
@@ -1125,17 +1127,17 @@
                         
                         if (animated) {
                             [self JoinCartAnimationWithRect:parentRect];
-                            totalOrders ++;
+                            self.totalOrders ++;
                         }
                         else
                         {
-                            totalOrders --;
+                            self.totalOrders --;
                         }
-                        ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                        self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                         [self setCartImage];
                         [self setTotalMoney];
                         
-                        [resultView reloadData];
+                        [self.resultView reloadData];
                     }else {
                         [self showDetailMsg:@"该商品售卖时间有限，暂时无法购买"];
                     }
@@ -1149,34 +1151,34 @@
                 {
                     strongify(self);
                     strongify(cell);
-                    cell.amount += [resultArray[indexPath.section][@"box_unit"] integerValue];
+                    cell.amount += [self.resultArray[indexPath.section][@"box_unit"] integerValue];
                     
-                    NSMutableDictionary *dic = [resultArray[indexPath.section] mutableCopy];
+                    NSMutableDictionary *dic = [self.resultArray[indexPath.section] mutableCopy];
                     
-                    [self storePackageOrders:dic boxUnit:[resultArray[indexPath.section][@"box_unit"] intValue] isAdded:animated];
+                    [self storePackageOrders:dic boxUnit:[self.resultArray[indexPath.section][@"box_unit"] intValue] isAdded:animated];
                     
                     CGRect parentRect = [cell convertRect:cell.plus.frame toView:self.view];
                     
                     if (animated) {
                         [self JoinCartAnimationWithRect:parentRect];
-                        totalOrders += [resultArray[indexPath.section][@"box_unit"] integerValue];
+                        self.totalOrders += [self.resultArray[indexPath.section][@"box_unit"] integerValue];
                     }
                 
-                    ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                    self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                     [self setCartImage];
                     [self setTotalMoney];
                     
-                    [contentView reloadData];
+                    [self.contentView reloadData];
                     
                 };
                 
                 //刷新父列表(需要强化测试)
-                if (ordersArray.count > 0) {
+                if (_ordersArray.count > 0) {
                     cell.amount = 0;
                     
-                    for (NSMutableDictionary *dic in ordersArray) {
+                    for (NSMutableDictionary *dic in _ordersArray) {
                         
-                        if ([dic[@"product_no"] isEqualToString:resultArray[indexPath.section][@"product_no"]]){
+                        if ([dic[@"product_no"] isEqualToString:self.resultArray[indexPath.section][@"product_no"]]){
                             
                             NSInteger nCount = [dic[@"orderCount"] integerValue];
                             cell.amount = nCount;
@@ -1197,12 +1199,13 @@
                 if (!cell) {
                     cell = [[ProductCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier6];
                 }
-                
-                [cell.rightImageView sd_setImageWithURL:[NSURL URLWithString:resultArray[indexPath.section][@"product_url"]]
+                weakify(self);
+                [cell.rightImageView sd_setImageWithURL:[NSURL URLWithString:_resultArray[indexPath.section][@"product_url"]]
                                        placeholderImage:[UIImage imageNamed:@"loading_Image"]
                                               completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                                   //TODO
-                                                  if ([resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
+                                                  strongify(self);
+                                                  if ([self.resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
                                                       //hidden
                                                       [cell.rightImageView2 setHidden:YES];
                                                   }else {
@@ -1211,19 +1214,19 @@
                                                   }
                                               }];
                 
-                cell.rightTitle.text = resultArray[indexPath.section][@"description"];//商品名
-                cell.rightSubTitle.text = resultArray[indexPath.section][@"capacity_description"];//规格
-                cell.salesArray = resultArray[indexPath.section][@"promo_list"];
+                cell.rightTitle.text = _resultArray[indexPath.section][@"description"];//商品名
+                cell.rightSubTitle.text = _resultArray[indexPath.section][@"capacity_description"];//规格
+                cell.salesArray = _resultArray[indexPath.section][@"promo_list"];
                 
                 NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
                 formatter.numberStyle = NSNumberFormatterCurrencyStyle;
-                float nTotal = [resultArray[indexPath.section][@"dis_price"] floatValue];//价格
+                float nTotal = [self.resultArray[indexPath.section][@"dis_price"] floatValue];//价格
                 NSString *price = [formatter stringFromNumber:[NSNumber numberWithFloat:nTotal]];
                 cell.price.text = price;
             
-                cell.oldPrice = [resultArray[indexPath.section][@"sa_price"] floatValue];
+                cell.oldPrice = [self.resultArray[indexPath.section][@"sa_price"] floatValue];
                 
-                if ([resultArray[indexPath.section][@"dis_price"] isEqualToString:resultArray[indexPath.section][@"sa_price"]]) {
+                if ([self.resultArray[indexPath.section][@"dis_price"] isEqualToString:self.resultArray[indexPath.section][@"sa_price"]]) {
                     [cell.oldPriceLabel setHidden:YES];
                 }else {
                     [cell.oldPriceLabel setHidden:NO];
@@ -1231,11 +1234,11 @@
                 
                 if ([[UserDefaults service] getOperatingState] == YES) {
                     [cell.plus setHidden:NO];
-                    if ([resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
-                        if ([resultArray[indexPath.section][@"on_sale"] isEqualToString:@"1"]) {
+                    if ([self.resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
+                        if ([self.resultArray[indexPath.section][@"on_sale"] isEqualToString:@"1"]) {
                             [cell.plus setSelected:YES];
                             [cell.packageBtn setEnabled:YES];
-                            if ([resultArray[indexPath.section][@"box_unit"] intValue] > 1) {
+                            if ([self.resultArray[indexPath.section][@"box_unit"] intValue] > 1) {
                                 [cell.packageBtn setHidden:NO];
                             }else {
                                 [cell.packageBtn setHidden:YES];
@@ -1256,15 +1259,14 @@
                 }
                 
 //                __weak __typeof(&*cell)weakCell =cell;
-                weakify(self);
                 weakify(cell);
                 cell.plusBlock = ^(NSInteger nCount,BOOL animated)
                 {
                     strongify(self);
                     strongify(cell);
-                    if ([resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
-                    if ([resultArray[indexPath.section][@"on_sale"] isEqualToString:@"1"]) {
-                        NSMutableDictionary *dic = [resultArray[indexPath.section] mutableCopy];
+                    if ([self.resultArray[indexPath.section][@"stock_qty"] intValue] > 0) {
+                    if ([self.resultArray[indexPath.section][@"on_sale"] isEqualToString:@"1"]) {
+                        NSMutableDictionary *dic = [self.resultArray[indexPath.section] mutableCopy];
                         
                         [self storeOrders:dic isAdded:animated];
                         
@@ -1272,17 +1274,17 @@
                         
                         if (animated) {
                             [self JoinCartAnimationWithRect:parentRect];
-                            totalOrders ++;
+                            self.totalOrders ++;
                         }
                         else
                         {
-                            totalOrders --;
+                            self.totalOrders --;
                         }
-                        ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                        self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                         [self setCartImage];
                         [self setTotalMoney];
                         
-                        [resultView reloadData];
+                        [self.resultView reloadData];
                     }else {
                         [self showDetailMsg:@"该商品售卖时间有限，暂时无法购买"];
                     }
@@ -1297,34 +1299,34 @@
                 {
                     strongify(self);
                     strongify(cell);
-                    cell.amount += [resultArray[indexPath.section][@"box_unit"] integerValue];
+                    cell.amount += [self.resultArray[indexPath.section][@"box_unit"] integerValue];
                     
-                    NSMutableDictionary *dic = [resultArray[indexPath.section] mutableCopy];
+                    NSMutableDictionary *dic = [self.resultArray[indexPath.section] mutableCopy];
                     
-                    [self storePackageOrders:dic boxUnit:[resultArray[indexPath.section][@"box_unit"] intValue] isAdded:animated];
+                    [self storePackageOrders:dic boxUnit:[self.resultArray[indexPath.section][@"box_unit"] intValue] isAdded:animated];
                     
                     CGRect parentRect = [cell convertRect:cell.plus.frame toView:self.view];
                     
                     if (animated) {
                         [self JoinCartAnimationWithRect:parentRect];
-                        totalOrders += [resultArray[indexPath.section][@"box_unit"] integerValue];
+                        self.totalOrders += [self.resultArray[indexPath.section][@"box_unit"] integerValue];
                     }
                     
-                    ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                    self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                     [self setCartImage];
                     [self setTotalMoney];
                     
-                    [contentView reloadData];
+                    [self.contentView reloadData];
                     
                 };
                 
                 //刷新父列表(需要强化测试)
-                if (ordersArray.count > 0) {
+                if (_ordersArray.count > 0) {
                     cell.amount = 0;
                    
-                    for (NSMutableDictionary *dic in ordersArray) {
+                    for (NSMutableDictionary *dic in _ordersArray) {
                         
-                        if ([dic[@"product_no"] isEqualToString:resultArray[indexPath.section][@"product_no"]]){
+                        if ([dic[@"product_no"] isEqualToString:_resultArray[indexPath.section][@"product_no"]]){
                             
                             NSInteger nCount = [dic[@"orderCount"] integerValue];
                             cell.amount = nCount;
@@ -1342,7 +1344,7 @@
             return cell;
             }
         
-    }else if (tableView == ShopCartView.OrderList.tableView) {
+    }else if (tableView == _ShopCartView.OrderList.tableView) {
         
         ShoppingCartCell *cell = (ShoppingCartCell *)[tableView dequeueReusableCellWithIdentifier:myCellIdentifier4];
         
@@ -1350,20 +1352,20 @@
             cell=[[ShoppingCartCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier4];
         }
         
-        NSArray *array = [ordersArray[indexPath.row][@"product_no"] componentsSeparatedByString:@","];
+        NSArray *array = [_ordersArray[indexPath.row][@"product_no"] componentsSeparatedByString:@","];
         if ([array count] == 2) {
-            cell.nameLabel.text = [NSString stringWithFormat:@"%@(第二件)", ordersArray[indexPath.row][@"description"]];
+            cell.nameLabel.text = [NSString stringWithFormat:@"%@(第二件)", _ordersArray[indexPath.row][@"description"]];
         }else {
-            cell.nameLabel.text = ordersArray[indexPath.row][@"description"];
+            cell.nameLabel.text = _ordersArray[indexPath.row][@"description"];
         }
         
         NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
         formatter.numberStyle = NSNumberFormatterCurrencyStyle;
-        float nTotal = [ordersArray[indexPath.row][@"dis_price"] floatValue];
+        float nTotal = [_ordersArray[indexPath.row][@"dis_price"] floatValue];
         NSString *price = [formatter stringFromNumber:[NSNumber numberWithFloat:nTotal]];
         cell.priceLabel.text = price;
         
-        NSInteger count = [ordersArray[indexPath.row][@"orderCount"] integerValue];
+        NSInteger count = [_ordersArray[indexPath.row][@"orderCount"] integerValue];
         cell.number = count;
         
         cell.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.6];
@@ -1376,9 +1378,9 @@
         {
             strongify(self);
             strongify(cell);
-            NSMutableDictionary *dic = [ordersArray[indexPath.row] mutableCopy];
+            NSMutableDictionary *dic = [self.ordersArray[indexPath.row] mutableCopy];
             
-            for (NSMutableDictionary *dicc in ordersArray) {
+            for (NSMutableDictionary *dicc in self.ordersArray) {
                 
                 NSArray *array = [dic[@"product_no"] componentsSeparatedByString:@","];
                 if ([array count] == 2) {
@@ -1388,17 +1390,17 @@
                             if ([dic[@"orderCount"] integerValue] < [dicc[@"orderCount"] integerValue]) {
                                 [self storeOrders:dic isAdded:plus];
                                 
-                                totalOrders = plus ? ++totalOrders : --totalOrders;
+                                self.totalOrders = plus ? ++self.totalOrders : --self.totalOrders;
                                 
-                                ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                                self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                                 //刷新父列表
-                                [contentView reloadData];
+                                [self.contentView reloadData];
                                 //
                                 [self setCartImage];
                                 [self setTotalMoney];
                                 
-                                if (totalOrders ==0) {
-                                    [ShopCartView dismissAnimated:YES];
+                                if (self.totalOrders ==0) {
+                                    [self.ShopCartView dismissAnimated:YES];
                                 }
                             }else {
                                 cell.number = nCount -1;
@@ -1409,17 +1411,17 @@
                             
                             [self storeOrders:dic isAdded:plus];
 
-                            totalOrders = plus ? ++totalOrders : --totalOrders;
+                            self.totalOrders = plus ? ++self.totalOrders : --self.totalOrders;
 
-                            ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                            self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                             //刷新父列表
-                            [contentView reloadData];
+                            [self.contentView reloadData];
                             //
                             [self setCartImage];
                             [self setTotalMoney];
 
-                            if (totalOrders ==0) {
-                                [ShopCartView dismissAnimated:YES];
+                            if (self.totalOrders ==0) {
+                                [self.ShopCartView dismissAnimated:YES];
                             }
                             
                             return;
@@ -1431,22 +1433,22 @@
                     if ([dic[@"product_no"] isEqualToString:dicc[@"product_no"]]) {
                         [self storeOrders:dic isAdded:plus];
                         
-                        totalOrders = plus ? ++totalOrders : --totalOrders;
+                        self.totalOrders = plus ? ++self.totalOrders : --self.totalOrders;
                         
-                        ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                        self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                         //刷新父列表
-                        [contentView reloadData];
+                        [self.contentView reloadData];
                         //
                         [self setCartImage];
                         [self setTotalMoney];
 
-                        if (totalOrders ==0) {
-                            [ShopCartView dismissAnimated:YES];
+                        if (self.totalOrders ==0) {
+                            [self.ShopCartView dismissAnimated:YES];
                         }
                         
                         if (plus == NO) {
                             //减掉副品
-                            for (NSMutableDictionary *dicc in ordersArray) {
+                            for (NSMutableDictionary *dicc in self.ordersArray) {
                                 
                                 NSArray *array = [dicc[@"product_no"] componentsSeparatedByString:@","];
                                 if ([array count] == 2) {
@@ -1456,17 +1458,17 @@
                                             
                                             [self storeOrders:dicc isAdded:plus];
                                             
-                                            totalOrders = plus ? ++totalOrders : --totalOrders;
+                                            self.totalOrders = plus ? ++self.totalOrders : --self.totalOrders;
                                             
-                                            ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+                                            self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
                                            //刷新父列表
-                                            [contentView reloadData];
+                                            [self.contentView reloadData];
                               
                                             [self setCartImage];
                                             [self setTotalMoney];
 
-                                            if (totalOrders ==0) {
-                                                [ShopCartView dismissAnimated:YES];
+                                            if (self.totalOrders ==0) {
+                                                [self.ShopCartView dismissAnimated:YES];
                                             }
                                             
                                             return;
@@ -1490,11 +1492,11 @@
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    if (tableView == resultView) {
+    if (tableView == _resultView) {
         [tableView deselectRowAtIndexPath:indexPath animated:NO];
 
             ProductDetailViewController *productDetailViewController = [[ProductDetailViewController alloc] init];
-            [productDetailViewController.paramDictionary setObject:resultArray[indexPath.section][@"product_no"] forKey:@"product_no"];
+            [productDetailViewController.paramDictionary setObject:_resultArray[indexPath.section][@"product_no"] forKey:@"product_no"];
             PUSH(productDetailViewController);
         
     }
@@ -1504,13 +1506,13 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
     
-    if (tableView == contentView) {
+    if (tableView == _contentView) {
         if (section == 0) {
             return 30*SCALE;
         }else {
             return 40*SCALE;
         }
-    }else if (tableView == ShopCartView.OrderList.tableView) {
+    }else if (tableView == _ShopCartView.OrderList.tableView) {
         return SECTION_HEIGHT+TIPS_HEIGHT;
     }else{
         return 0*SCALE;
@@ -1522,7 +1524,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
     
-    if ([tableView isEqual:ShopCartView.OrderList.tableView])
+    if ([tableView isEqual:_ShopCartView.OrderList.tableView])
     {
         return SECTION_HEIGHT/2;
     }
@@ -1533,7 +1535,7 @@
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     
     UIView *headerView = nil;
-    if (tableView == contentView) {
+    if (tableView == _contentView) {
         if (section == 0) {
             headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 30*SCALE)];
             headerView.backgroundColor = [UIColor whiteColor];
@@ -1648,7 +1650,7 @@
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
     
     UIView *footerView = nil;
-    if (tableView == contentView) {
+    if (tableView == _contentView) {
         footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 20*SCALE)];
         footerView.backgroundColor = [UIColor clearColor];
     }
@@ -1703,15 +1705,15 @@
 
     [self hideEmptyView];
     
-    if (resultArray.count > 0) {
-        [resultView setHidden:NO];
-        [ShopCartView setHidden:NO];
-        [contentView setHidden:YES];
+    if (_resultArray.count > 0) {
+        [_resultView setHidden:NO];
+        [_ShopCartView setHidden:NO];
+        [_contentView setHidden:YES];
     }else {
         
-        [resultView setHidden:YES];
-        [ShopCartView setHidden:YES];
-        [contentView setHidden:NO];
+        [_resultView setHidden:YES];
+        [_ShopCartView setHidden:YES];
+        [_contentView setHidden:NO];
     }
 }
 
@@ -1729,9 +1731,9 @@
 
         [self hideEmptyView];
         [tipsViewWithoutShopCartView setHidden:YES];
-        [resultView setHidden:YES];
-        [contentView setHidden:NO];
-        [ShopCartView setHidden:YES];
+        [_resultView setHidden:YES];
+        [_contentView setHidden:NO];
+        [_ShopCartView setHidden:YES];
     }
     
     
@@ -1797,7 +1799,7 @@
     [groups setValue:@"groupsAnimation" forKey:@"animationName"];
     [dotLayer addAnimation:groups forKey:nil];
     
-    [self.view bringSubviewToFront:ShopCartView];
+    [self.view bringSubviewToFront:_ShopCartView];
     
     [self performSelector:@selector(removeFromLayer:) withObject:dotLayer afterDelay:0.4f];
     
@@ -1818,43 +1820,43 @@
         shakeAnimation.fromValue = [NSNumber numberWithFloat:1.2];
         shakeAnimation.toValue = [NSNumber numberWithFloat:0.9];
         //        shakeAnimation.autoreverses = YES;
-        [ShopCartView.shoppingCartBtn.layer addAnimation:shakeAnimation forKey:nil];
+        [_ShopCartView.shoppingCartBtn.layer addAnimation:shakeAnimation forKey:nil];
     }
     
 }
 
 - (void)setCartImage {
     if ([[UserDefaults service] getOperatingState] == YES) {
-        [ShopCartView setHidden:NO];
+        [_ShopCartView setHidden:NO];
         [closeView setHidden:YES];
-    if (totalOrders > 0) {
+    if (self.totalOrders > 0) {
         
-        [ShopCartView setCartImage:@"cart_full"];
+        [_ShopCartView setCartImage:@"cart_full"];
         [tipsViewWithoutShopCartView setHidden:NO];
-        [resultView setFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT-TIPS_HEIGHT)];
+        [_resultView setFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT-TIPS_HEIGHT)];
         
     }else {
-        [ShopCartView setCartImage:@"cart_empty"];
+        [_ShopCartView setCartImage:@"cart_empty"];
         [tipsViewWithoutShopCartView setHidden:YES];
-        [resultView setFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT)];
+        [_resultView setFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT)];
         CartInfoDAL *dal = [[CartInfoDAL alloc] init];
         [dal deleteGift];
    
     }
     }else {
-        [ShopCartView setHidden:YES];
+        [_ShopCartView setHidden:YES];
         [closeView setHidden:NO];
-        [resultView setFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT)];
+        [_resultView setFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT)];
     }
     
 }
 
 - (void)setTotalMoney {
     float nTotal = 0;
-    for (NSMutableDictionary *dic in ordersArray) {
+    for (NSMutableDictionary *dic in _ordersArray) {
         nTotal += [dic[@"orderCount"] integerValue] * [dic[@"dis_price"] floatValue];
     }
-    [ShopCartView setTotalMoney:nTotal];
+    [_ShopCartView setTotalMoney:nTotal];
     NSMutableArray *monyArray = [NSMutableArray array];
     NSMutableArray *monyArray2 = [NSMutableArray array];
     for (int i=0; i<[[self test] count]; i++) {
@@ -1908,13 +1910,13 @@
             
         
             tipsLabelWithShopCartView.text = [NSString stringWithFormat:@"再买%.2f元,%@", min_number, [[self test] objectAtIndex:min_index][@"result"]];
-            [resultView reloadData];
+            [_resultView reloadData];
             
             tipsLabelWithoutShopCartView.text = [NSString stringWithFormat:@"再买%.2f元,%@", min_number, [[self test] objectAtIndex:min_index][@"result"]];
             
         }else if (min_number == INFINITY) {
             tipsLabelWithShopCartView.text = [NSString stringWithFormat:@"已满%.2f元,%@", max_number, [[self test] objectAtIndex:max_index][@"result"]];
-            [resultView reloadData];
+            [_resultView reloadData];
             
             tipsLabelWithoutShopCartView.text = [NSString stringWithFormat:@"已满%.2f元,%@", max_number, [[self test] objectAtIndex:max_index][@"result"]];
         }
@@ -2033,38 +2035,38 @@
     
     if (added) {
         //存入商品 dictionary
-        for (NSMutableDictionary *dic in ordersArray) {
+        for (NSMutableDictionary *dic in _ordersArray) {
             
             if ([dic[@"product_no"] isEqualToString:dictionary[@"product_no"]]){
                 //购物车内有选择的商品
                 NSInteger nCount = [dic[@"orderCount"] integerValue];
                 nCount = nCount+1;
-                [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"orderCount"];
+                [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
                 
                 //更新DB
                 [self updateDB:dic];
                 
-                ShopCartView.OrderList.objects = ordersArray;
-                [ShopCartView.OrderList.tableView reloadData];
+                _ShopCartView.OrderList.objects = _ordersArray;
+                [_ShopCartView.OrderList.tableView reloadData];
                 return;
             }
         }
         
         //购物车内没有商品
         [dictionary setObject:@"1" forKey:@"orderCount"];
-        [ordersArray addObject:dictionary];
+        [_ordersArray addObject:dictionary];
         
         //更新DB
         [self updateDB:dictionary];
         
         
-        ShopCartView.OrderList.objects = ordersArray;
-        [ShopCartView.OrderList.tableView reloadData];
+        _ShopCartView.OrderList.objects = _ordersArray;
+        [_ShopCartView.OrderList.tableView reloadData];
         return;
         
     }else {
         //减法的时候
-        for (NSMutableDictionary *dic in ordersArray) {
+        for (NSMutableDictionary *dic in _ordersArray) {
             
             if ([dic[@"product_no"] isEqualToString:dictionary[@"product_no"]]){
                 
@@ -2078,21 +2080,21 @@
                     //更新DB
                     [dic setObject:@"0" forKey:@"orderCount"];
                     [self updateDB:dic];
-                    [ordersArray removeObject:dic];
+                    [_ordersArray removeObject:dic];
                    
-                    ShopCartView.OrderList.objects = ordersArray;
-                    [ShopCartView updateFrame:ShopCartView.OrderList];
-                    [ShopCartView.OrderList.tableView reloadData];
+                    _ShopCartView.OrderList.objects = _ordersArray;
+                    [_ShopCartView updateFrame:_ShopCartView.OrderList];
+                    [_ShopCartView.OrderList.tableView reloadData];
                     return;
                 }else{
                     //更新
-                    [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"orderCount"];
+                    [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
                     
                     //更新DB
                     [self updateDB:dic];
                     
-                    ShopCartView.OrderList.objects = ordersArray;
-                    [ShopCartView.OrderList.tableView reloadData];
+                    _ShopCartView.OrderList.objects = _ordersArray;
+                    [_ShopCartView.OrderList.tableView reloadData];
                     return;
                 }
             }
@@ -2121,26 +2123,26 @@
     UIAlertAction *OKButton = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
         
     }];
-    
+    weakify(self);
     UIAlertAction *NOButton = [UIAlertAction actionWithTitle:@"清空" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
-        
+        strongify(self);
         CartInfoDAL *dal = [[CartInfoDAL alloc] init];
         
         [dal cleanCartInfo];
         
-        [ordersArray removeAllObjects];
+        [self.ordersArray removeAllObjects];
         
-        totalOrders = 0;
+        self.totalOrders = 0;
         
-        ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)totalOrders];
+        self.ShopCartView.badge.badgeValue = [NSString stringWithFormat:@"%lu",(unsigned long)self.totalOrders];
         
         [self setTotalMoney];
         
         [self setCartImage];
         
-        [ShopCartView dismissAnimated:YES];
+        [self.ShopCartView dismissAnimated:YES];
         
-        [resultView reloadData];
+        [self.resultView reloadData];
         
     }];
     
@@ -2155,32 +2157,32 @@
     
     if (added) {
         //存入商品 dictionary
-        for (NSMutableDictionary *dic in ordersArray) {
+        for (NSMutableDictionary *dic in _ordersArray) {
             
             if ([dic[@"product_no"] isEqualToString:dictionary[@"product_no"]]){
                 //购物车内有选择的商品
                 NSInteger nCount = [dic[@"orderCount"] integerValue];
                 nCount = nCount + boxUnit;
-                [dic setObject:[NSString stringWithFormat:@"%ld",nCount] forKey:@"orderCount"];
+                [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
                
                 [self updateDB:dic];
 
-                ShopCartView.OrderList.objects = ordersArray;
-                [ShopCartView.OrderList.tableView reloadData];
+                _ShopCartView.OrderList.objects = _ordersArray;
+                [_ShopCartView.OrderList.tableView reloadData];
                 return;
             }
         }
         
         //购物车内没有商品
-        [dictionary setObject:[NSString stringWithFormat:@"%zd", boxUnit] forKey:@"orderCount"];
-        [ordersArray addObject:dictionary];
+        [dictionary setObject:[NSString stringWithFormat:@"%d", boxUnit] forKey:@"orderCount"];
+        [_ordersArray addObject:dictionary];
         
         //更新DB
         [self updateDB:dictionary];
         
         
-        ShopCartView.OrderList.objects = ordersArray;
-        [ShopCartView.OrderList.tableView reloadData];
+        _ShopCartView.OrderList.objects = _ordersArray;
+        [_ShopCartView.OrderList.tableView reloadData];
         return;
         
     }
