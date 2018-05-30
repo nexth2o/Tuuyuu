@@ -12,6 +12,6 @@
 
 @property (nonatomic, strong) UILabel *price;
 @property (nonatomic, strong) UILabel *reason;
-@property (copy, nonatomic) void (^reasonBtnBlock)();
+@property (copy, nonatomic) void (^reasonBtnBlock)(void);
 
 @end

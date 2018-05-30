@@ -10,12 +10,12 @@
 
 @interface PopularCell : BaseTableViewCell
 
-@property (copy, nonatomic) void (^friedBtnEvent)();
-@property (copy, nonatomic) void (^fastBtnEvent)();
-@property (copy, nonatomic) void (^breadBtnEvent)();
-@property (copy, nonatomic) void (^juiceBtnEvent)();
-@property (copy, nonatomic) void (^fruitBtnEvent)();
-@property (copy, nonatomic) void (^healthBtnEvent)();
+@property (copy, nonatomic) void (^friedBtnEvent)(void);
+@property (copy, nonatomic) void (^fastBtnEvent)(void);
+@property (copy, nonatomic) void (^breadBtnEvent)(void);
+@property (copy, nonatomic) void (^juiceBtnEvent)(void);
+@property (copy, nonatomic) void (^fruitBtnEvent)(void);
+@property (copy, nonatomic) void (^healthBtnEvent)(void);
 
 @property (strong, nonatomic) UIImageView *friedImage;
 @property (strong, nonatomic) UIImageView *fastImage;

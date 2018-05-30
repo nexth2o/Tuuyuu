@@ -10,13 +10,13 @@
 
 @interface ButtonCell : BaseTableViewCell
 
-@property (copy, nonatomic) void (^categoryBtnEvent)();
-@property (copy, nonatomic) void (^friedBtnEvent)();
-@property (copy, nonatomic) void (^fastBtnEvent)();
-@property (copy, nonatomic) void (^couponBtnEvent)();
-@property (copy, nonatomic) void (^bonusBtnEvent)();
-@property (copy, nonatomic) void (^pointBtnEvent)();
-@property (copy, nonatomic) void (^signBtnEvent)();
-@property (copy, nonatomic) void (^favoriteBtnEvent)();
+@property (copy, nonatomic) void (^categoryBtnEvent)(void);
+@property (copy, nonatomic) void (^friedBtnEvent)(void);
+@property (copy, nonatomic) void (^fastBtnEvent)(void);
+@property (copy, nonatomic) void (^couponBtnEvent)(void);
+@property (copy, nonatomic) void (^bonusBtnEvent)(void);
+@property (copy, nonatomic) void (^pointBtnEvent)(void);
+@property (copy, nonatomic) void (^signBtnEvent)(void);
+@property (copy, nonatomic) void (^favoriteBtnEvent)(void);
 
 @end

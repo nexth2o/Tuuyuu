@@ -22,10 +22,10 @@
 @property (strong, nonatomic) UIButton *leftBtn;
 @property (strong, nonatomic) UIButton *rightBtn;
 
-@property (copy, nonatomic) void (^leftBtnEvent)();
-@property (copy, nonatomic) void (^rightBtnEvent)();
-@property (copy, nonatomic) void (^leftCartBtnEvent)();
-@property (copy, nonatomic) void (^rightCartBtnEvent)();
+@property (copy, nonatomic) void (^leftBtnEvent)(void);
+@property (copy, nonatomic) void (^rightBtnEvent)(void);
+@property (copy, nonatomic) void (^leftCartBtnEvent)(void);
+@property (copy, nonatomic) void (^rightCartBtnEvent)(void);
 
 
 @end

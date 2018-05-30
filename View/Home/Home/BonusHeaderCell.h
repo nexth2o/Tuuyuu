@@ -10,10 +10,10 @@
 
 @interface BonusHeaderCell : BaseTableViewCell
 
-@property (copy, nonatomic) void (^wxBtnBlock)();
-@property (copy, nonatomic) void (^qqBtnBlock)();
-@property (copy, nonatomic) void (^faceBtnBlock)();
-@property (copy, nonatomic) void (^friendBtnBlock)();
-@property (copy, nonatomic) void (^tipsBtnBlock)();
+@property (copy, nonatomic) void (^wxBtnBlock)(void);
+@property (copy, nonatomic) void (^qqBtnBlock)(void);
+@property (copy, nonatomic) void (^faceBtnBlock)(void);
+@property (copy, nonatomic) void (^friendBtnBlock)(void);
+@property (copy, nonatomic) void (^tipsBtnBlock)(void);
 
 @end

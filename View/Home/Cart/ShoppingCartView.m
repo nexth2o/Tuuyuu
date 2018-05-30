@@ -132,14 +132,15 @@
         [_shoppingCartBtn setUserInteractionEnabled:NO];
         return;
     }
-    
+    weakify(self);
     if (_up) {
         [_shoppingCartBtn bringSubviewToFront:_OverlayView];
         [UIView animateWithDuration:0.5 animations:^{
-            _OverlayView.alpha = 0.0;
+            strongify(self);
+            self.OverlayView.alpha = 0.0;
         } completion:^(BOOL finished) {
-            
-            _up = NO;
+            strongify(self);
+            self.up = NO;
         }];
     }else {
         
@@ -147,10 +148,11 @@
         [_OverlayView addSubview:_OrderList];
         
         [UIView animateWithDuration:0.5 animations:^{
+            strongify(self);
             self.OverlayView.alpha = 1.0;
         } completion:^(BOOL finished) {
-            
-            _up = YES;
+            strongify(self);
+            self.up = YES;
         }];
         
     }
@@ -175,12 +177,14 @@
 - (void)dismissAnimated:(BOOL)animated {
     
     [_shoppingCartBtn bringSubviewToFront:_OverlayView];
+    weakify(self);
     [UIView animateWithDuration:0.5 animations:^{
-        _OverlayView.alpha = 0.0;
+        strongify(self);
+        self.OverlayView.alpha = 0.0;
         
     } completion:^(BOOL finished) {
-        
-        _up = NO;
+        strongify(self);
+        self.up = NO;
     }];
 }
 

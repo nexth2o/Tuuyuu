@@ -14,6 +14,6 @@
 @property (nonatomic, strong) UILabel *tipsLabel;
 @property (nonatomic, strong) UIImageView *icon;
 @property (nonatomic, strong) UIButton *tipsBtn;
-@property (copy, nonatomic) void (^plusBlock)();
+@property (copy, nonatomic) void (^plusBlock)(void);
 
 @end

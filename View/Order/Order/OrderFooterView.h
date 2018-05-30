@@ -19,8 +19,8 @@
 @property (nonatomic, strong) UIButton *bBtn;
 @property (nonatomic, strong) UIButton *cBtn;
 
-@property (copy, nonatomic) void (^aBlock)();
-@property (copy, nonatomic) void (^bBlock)();
-@property (copy, nonatomic) void (^cBlock)();
+@property (copy, nonatomic) void (^aBlock)(void);
+@property (copy, nonatomic) void (^bBlock)(void);
+@property (copy, nonatomic) void (^cBlock)(void);
 
 @end

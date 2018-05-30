@@ -29,17 +29,17 @@
 @property (strong, nonatomic) UIButton *storeBtn4;
 @property (strong, nonatomic) UIButton *storeBtn5;
 
-@property (copy, nonatomic) void (^staffBtn1Block)();
-@property (copy, nonatomic) void (^staffBtn2Block)();
-@property (copy, nonatomic) void (^staffBtn3Block)();
-@property (copy, nonatomic) void (^staffBtn4Block)();
-@property (copy, nonatomic) void (^staffBtn5Block)();
+@property (copy, nonatomic) void (^staffBtn1Block)(void);
+@property (copy, nonatomic) void (^staffBtn2Block)(void);
+@property (copy, nonatomic) void (^staffBtn3Block)(void);
+@property (copy, nonatomic) void (^staffBtn4Block)(void);
+@property (copy, nonatomic) void (^staffBtn5Block)(void);
 
-@property (copy, nonatomic) void (^storeBtn1Block)();
-@property (copy, nonatomic) void (^storeBtn2Block)();
-@property (copy, nonatomic) void (^storeBtn3Block)();
-@property (copy, nonatomic) void (^storeBtn4Block)();
-@property (copy, nonatomic) void (^storeBtn5Block)();
+@property (copy, nonatomic) void (^storeBtn1Block)(void);
+@property (copy, nonatomic) void (^storeBtn2Block)(void);
+@property (copy, nonatomic) void (^storeBtn3Block)(void);
+@property (copy, nonatomic) void (^storeBtn4Block)(void);
+@property (copy, nonatomic) void (^storeBtn5Block)(void);
 
 
 @end

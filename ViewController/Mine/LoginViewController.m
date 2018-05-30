@@ -12,11 +12,12 @@
 #import <CommonCrypto/CommonDigest.h>
 
 @interface LoginViewController ()<UITextFieldDelegate> {
-    UIScrollView *contentView;
     
     UITextField *phoneTextField;
     UITextField *psdTextField;
 }
+
+@property (nonatomic, strong) UIScrollView *contentView;
 
 @end
 
@@ -31,35 +32,35 @@
         
         self.view.backgroundColor = [UIColor whiteColor];
         
-        contentView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+        _contentView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
         UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(backGroundClick)];
-        [contentView addGestureRecognizer:tap];
-        [self.view addSubview:contentView];
+        [_contentView addGestureRecognizer:tap];
+        [self.view addSubview:_contentView];
         
         self.automaticallyAdjustsScrollViewInsets = NO;
         
         UIImageView *bgImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
         bgImageView.image = [UIImage imageNamed:@"mine_content_bg"];
-        [contentView addSubview:bgImageView];
+        [_contentView addSubview:bgImageView];
         
         UIImageView *whiteBg = [[UIImageView alloc] initWithFrame:CGRectMake(20*SCALE, SCREEN_HEIGHT-40*SCALE-500*SCALE, SCREEN_WIDTH-40*SCALE, 500*SCALE)];
         whiteBg.image = [UIImage imageNamed:@"mine_white_bg"];
-        [contentView addSubview:whiteBg];
+        [_contentView addSubview:whiteBg];
         
         //请登录
         UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 250*SCALE, SCREEN_WIDTH, 30*SCALE)];
         titleLabel.text = @"请登录";
         titleLabel.font = [UIFont boldSystemFontOfSize:19.0*SCALE];
         titleLabel.textAlignment = NSTextAlignmentCenter;
-        [contentView addSubview:titleLabel];
+        [_contentView addSubview:titleLabel];
         
         UIImageView *phoneImageView = [[UIImageView alloc] initWithFrame:CGRectMake(30*SCALE, 355*SCALE, 22*SCALE, 22*SCALE)];
         phoneImageView.image = [UIImage imageNamed:@"mine_phone"];
-        [contentView addSubview:phoneImageView];
+        [_contentView addSubview:phoneImageView];
         
         UIImageView *psdImageView = [[UIImageView alloc] initWithFrame:CGRectMake(30*SCALE, 415*SCALE, 22*SCALE, 22*SCALE)];
         psdImageView.image = [UIImage imageNamed:@"mine_psd"];
-        [contentView addSubview:psdImageView];
+        [_contentView addSubview:psdImageView];
         
         
         //手机号
@@ -73,11 +74,11 @@
         //        _phoneTextField.secureTextEntry = YES;
         phoneTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
         phoneTextField.inputAccessoryView = [self addToolbar];
-        [contentView addSubview:phoneTextField];
+        [_contentView addSubview:phoneTextField];
         
         UIView *phoneLine = [[UIView alloc] initWithFrame:CGRectMake(60*SCALE, phoneTextField.frame.origin.y+phoneTextField.frame.size.height+10*SCALE, SCREEN_WIDTH-100*SCALE, 1)];
         phoneLine.backgroundColor = [UIColor colorWithRed:(244)/255.0 green:(244)/255.0 blue:(244)/255.0 alpha:1.0];
-        [contentView addSubview:phoneLine];
+        [_contentView addSubview:phoneLine];
         
         
         //密码
@@ -89,11 +90,11 @@
         psdTextField.delegate = self;
         psdTextField.secureTextEntry = YES;
         psdTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
-        [contentView addSubview:psdTextField];
+        [_contentView addSubview:psdTextField];
         
         UIView *psdLine = [[UIView alloc] initWithFrame:CGRectMake(60*SCALE, psdTextField.frame.origin.y+psdTextField.frame.size.height+10*SCALE, SCREEN_WIDTH-100*SCALE, 1)];
         psdLine.backgroundColor = [UIColor colorWithRed:(244)/255.0 green:(244)/255.0 blue:(244)/255.0 alpha:1.0];
-        [contentView addSubview:psdLine];
+        [_contentView addSubview:psdLine];
         
         //忘记密码
         UIButton *forgetBtn = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -103,7 +104,7 @@
                                                                      attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15.f*SCALE],NSForegroundColorAttributeName:MAIN_COLOR}];
         [forgetBtn setAttributedTitle:attrStr forState:UIControlStateNormal];
         [forgetBtn addTarget:self action:@selector(forgetEvent) forControlEvents:UIControlEventTouchUpInside];
-        [contentView addSubview:forgetBtn];
+        [_contentView addSubview:forgetBtn];
         
         // 登录
         UIButton *loginBtn = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -113,7 +114,7 @@
         [loginBtn setTitle:@"登录" forState:UIControlStateNormal];
         [loginBtn setBackgroundImage:[UIImage imageNamed:@"mine_login_btn"] forState:UIControlStateNormal];
         [loginBtn addTarget:self action:@selector(loginEvent) forControlEvents:UIControlEventTouchUpInside];
-        [contentView addSubview:loginBtn];
+        [_contentView addSubview:loginBtn];
         
         //注册
         UIButton *registerBtn = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -125,7 +126,7 @@
         
         [registerBtn setAttributedTitle:registerStr forState:UIControlStateNormal];
         [registerBtn addTarget:self action:@selector(registerEvent) forControlEvents:UIControlEventTouchUpInside];
-        [contentView addSubview:registerBtn];
+        [_contentView addSubview:registerBtn];
         
         [self.view bringSubviewToFront:navigationBar];
     }
@@ -180,15 +181,16 @@
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
     
+    weakify(self);
     if (textField == phoneTextField) {
         
-        int offset = contentView.frame.size.height - 216 - CGRectGetMaxY(textField.frame) - 50 - 35;
+        int offset = _contentView.frame.size.height - 216 - CGRectGetMaxY(textField.frame) - 50 - 35;
         
         if (offset < 0) {
-            
+    
             [UIView animateWithDuration:0.5 animations:^{
-                
-                [contentView setContentOffset:CGPointMake(0, -offset) animated:NO];
+                strongify(self);
+                [self.contentView setContentOffset:CGPointMake(0, -offset) animated:NO];
                 
             }completion:^(BOOL finished) {
                 
@@ -197,13 +199,13 @@
             
         }
     }else{
-        int offset = contentView.frame.size.height - 216 - CGRectGetMaxY(textField.frame) - 50;
+        int offset = _contentView.frame.size.height - 216 - CGRectGetMaxY(textField.frame) - 50;
         
         if (offset < 0) {
             
             [UIView animateWithDuration:0.5 animations:^{
-                
-                [contentView setContentOffset:CGPointMake(0, -offset) animated:NO];
+                strongify(self);
+                [self.contentView setContentOffset:CGPointMake(0, -offset) animated:NO];
                 
             }completion:^(BOOL finished) {
                 
@@ -217,7 +219,7 @@
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
     
-    [contentView setContentOffset:CGPointMake(0, 0) animated:YES];
+    [_contentView setContentOffset:CGPointMake(0, 0) animated:YES];
     
 }
 

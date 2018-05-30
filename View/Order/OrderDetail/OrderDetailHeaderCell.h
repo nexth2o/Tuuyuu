@@ -32,14 +32,14 @@
 @property (nonatomic, strong) UIButton *dBtn;
 @property (nonatomic, strong) UIButton *eBtn;
 
-@property (copy, nonatomic) void (^aBlock)();
-@property (copy, nonatomic) void (^bBlock)();
-@property (copy, nonatomic) void (^cBlock)();
-@property (copy, nonatomic) void (^dBlock)();
-@property (copy, nonatomic) void (^eBlock)();
+@property (copy, nonatomic) void (^aBlock)(void);
+@property (copy, nonatomic) void (^bBlock)(void);
+@property (copy, nonatomic) void (^cBlock)(void);
+@property (copy, nonatomic) void (^dBlock)(void);
+@property (copy, nonatomic) void (^eBlock)(void);
 
-@property (copy, nonatomic) void (^phoneBlock)();
-@property (copy, nonatomic) void (^statusBlock)();
+@property (copy, nonatomic) void (^phoneBlock)(void);
+@property (copy, nonatomic) void (^statusBlock)(void);
 
 
 @end

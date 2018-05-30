@@ -10,7 +10,7 @@
 
 @interface CustomEmptyView : BaseView
 
-@property (copy, nonatomic) void (^reloadBlock)();
+@property (copy, nonatomic) void (^reloadBlock)(void);
 
 - (void)setEmptyViewTitle:(NSString *)title;
 - (void)setEmptyViewStyle:(EmptyViewStyle)style;

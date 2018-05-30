@@ -17,6 +17,6 @@
 
 @property (nonatomic, strong) NSMutableArray *storeSalesArray;
 
-@property (copy, nonatomic) void (^openBlock)();
+@property (copy, nonatomic) void (^openBlock)(void);
 
 @end

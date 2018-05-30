@@ -17,7 +17,7 @@
 @property (strong, nonatomic) UIImageView *allIcon;
 @property (strong, nonatomic) UIImageView *otherIcon;
 
-@property (copy, nonatomic) void (^allBtnBlock)();
-@property (copy, nonatomic) void (^otherBtnBlock)();
+@property (copy, nonatomic) void (^allBtnBlock)(void);
+@property (copy, nonatomic) void (^otherBtnBlock)(void);
 
 @end

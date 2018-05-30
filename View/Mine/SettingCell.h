@@ -14,6 +14,6 @@
 @property(strong, nonatomic) UILabel *subTitleLabel;
 @property(strong, nonatomic) UISwitch *switchBtn;
 
-@property (copy, nonatomic) void (^switchActionBlock)();
+@property (copy, nonatomic) void (^switchActionBlock)(void);
 
 @end

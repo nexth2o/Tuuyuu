@@ -14,7 +14,7 @@
 @property (strong, nonatomic) UIButton *upBtn;
 @property (strong, nonatomic) UIButton *downBtn;
 
-@property (copy, nonatomic) void (^upBtnBlock)();
-@property (copy, nonatomic) void (^downBtnBlock)();
+@property (copy, nonatomic) void (^upBtnBlock)(void);
+@property (copy, nonatomic) void (^downBtnBlock)(void);
 
 @end

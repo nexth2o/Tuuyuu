@@ -20,10 +20,10 @@
 
 @interface SeckillCell : BaseTableViewCell
 
-@property (copy, nonatomic) void (^saleBtnEvent)();
-@property (copy, nonatomic) void (^halfBtnEvent)();
-@property (copy, nonatomic) void (^freeBtnEvent)();
-@property (copy, nonatomic) void (^newBtnEvent)();
+@property (copy, nonatomic) void (^saleBtnEvent)(void);
+@property (copy, nonatomic) void (^halfBtnEvent)(void);
+@property (copy, nonatomic) void (^freeBtnEvent)(void);
+@property (copy, nonatomic) void (^newBtnEvent)(void);
 
 @property (strong, nonatomic) SeckillScrollView *scrImage;
 

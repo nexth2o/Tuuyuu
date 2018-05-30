@@ -28,8 +28,8 @@
 
 @property (strong, nonatomic) UILabel *type;
 
-@property (copy, nonatomic) void (^shareBtnBlock)();
-@property (copy, nonatomic) void (^deleteBtnBlock)();
+@property (copy, nonatomic) void (^shareBtnBlock)(void);
+@property (copy, nonatomic) void (^deleteBtnBlock)(void);
 
 @property (strong, nonatomic) UILabel *storeTitle;
 @property (strong, nonatomic) UIImageView *userIcon;

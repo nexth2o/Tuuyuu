@@ -17,6 +17,6 @@
 @property (nonatomic, strong) UILabel *orderTime;
 @property (nonatomic, strong) UILabel *pay;
 
-@property (copy, nonatomic) void (^phoneBlock)();
+@property (copy, nonatomic) void (^phoneBlock)(void);
 
 @end
