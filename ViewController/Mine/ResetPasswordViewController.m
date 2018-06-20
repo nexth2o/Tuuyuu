@@ -10,15 +10,16 @@
 #import<CommonCrypto/CommonDigest.h>
 
 @interface ResetPasswordViewController ()<UITextFieldDelegate> {
-    UIScrollView *contentView;
     UITextField *phoneTextField;
     UITextField *psdTextField;
     UITextField *psd2TextField;
     UITextField *codeTextField;
-    UIButton *codeBtn;
-    UILabel *codeLabel;
-    int timeout;
 }
+
+@property(nonatomic, strong) UIScrollView *contentView;
+@property(nonatomic, assign) int timeout;
+@property(nonatomic, strong) UIButton *codeBtn;
+@property(nonatomic, strong) UILabel *codeLabel;
 
 @end
 
@@ -35,47 +36,47 @@
         
         self.view.backgroundColor = [UIColor whiteColor];
         
-        contentView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+        _contentView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
         UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(backGroundClick)];
-        [contentView addGestureRecognizer:tap];
-        [self.view addSubview:contentView];
+        [_contentView addGestureRecognizer:tap];
+        [self.view addSubview:_contentView];
         
         self.automaticallyAdjustsScrollViewInsets = NO;
         
         UIImageView *bgImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
         bgImageView.image = [UIImage imageNamed:@"mine_content_bg"];
-        [contentView addSubview:bgImageView];
+        [_contentView addSubview:bgImageView];
         
         UIImageView *whiteBg = [[UIImageView alloc] initWithFrame:CGRectMake(20*SCALE, SCREEN_HEIGHT-40*SCALE-500*SCALE, SCREEN_WIDTH-40*SCALE, 500*SCALE)];
         whiteBg.image = [UIImage imageNamed:@"mine_white_bg"];
-        [contentView addSubview:whiteBg];
+        [_contentView addSubview:whiteBg];
         
         //重置密码
         UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 200*SCALE, SCREEN_WIDTH, 30*SCALE)];
         titleLabel.text = @"重置密码";
         titleLabel.font = [UIFont boldSystemFontOfSize:19.0*SCALE];
         titleLabel.textAlignment = NSTextAlignmentCenter;
-        [contentView addSubview:titleLabel];
+        [_contentView addSubview:titleLabel];
         
         //手机号
         UIImageView *phoneImageView = [[UIImageView alloc] initWithFrame:CGRectMake(30*SCALE, 280*SCALE, 22*SCALE, 22*SCALE)];
         phoneImageView.image = [UIImage imageNamed:@"mine_phone"];
-        [contentView addSubview:phoneImageView];
+        [_contentView addSubview:phoneImageView];
         
         //密码
         UIImageView *psdImageView = [[UIImageView alloc] initWithFrame:CGRectMake(30*SCALE, 345*SCALE, 22*SCALE, 22*SCALE)];
         psdImageView.image = [UIImage imageNamed:@"mine_psd"];
-        [contentView addSubview:psdImageView];
+        [_contentView addSubview:psdImageView];
         
         //再次密码
         UIImageView *psd2ImageView = [[UIImageView alloc] initWithFrame:CGRectMake(30*SCALE, 410*SCALE, 22*SCALE, 22*SCALE)];
         psd2ImageView.image = [UIImage imageNamed:@"mine_psd"];
-        [contentView addSubview:psd2ImageView];
+        [_contentView addSubview:psd2ImageView];
         
         //验证码
         UIImageView *codeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(30*SCALE, 475*SCALE, 22*SCALE, 22*SCALE)];
         codeImageView.image = [UIImage imageNamed:@"mine_code"];
-        [contentView addSubview:codeImageView];
+        [_contentView addSubview:codeImageView];
         
         //手机号
         phoneTextField = [[UITextField alloc] initWithFrame:CGRectMake(phoneImageView.frame.origin.x+phoneImageView.frame.size.width+10*SCALE, 275*SCALE, 180*SCALE, 30*SCALE)];
@@ -87,11 +88,11 @@
         phoneTextField.keyboardType = UIKeyboardTypeNumberPad;
         phoneTextField.inputAccessoryView = [self addToolbar];
         phoneTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
-        [contentView addSubview:phoneTextField];
+        [_contentView addSubview:phoneTextField];
         
         UIView *phoneLine = [[UIView alloc] initWithFrame:CGRectMake(60*SCALE, phoneTextField.frame.origin.y+phoneTextField.frame.size.height+10*SCALE, SCREEN_WIDTH-100*SCALE, 1)];
         phoneLine.backgroundColor = [UIColor colorWithRed:(244)/255.0 green:(244)/255.0 blue:(244)/255.0 alpha:1.0];
-        [contentView addSubview:phoneLine];
+        [_contentView addSubview:phoneLine];
         
         //密码
         psdTextField = [[UITextField alloc] initWithFrame:CGRectMake(psdImageView.frame.origin.x+psdImageView.frame.size.width+10*SCALE, 340*SCALE, 180*SCALE, 30*SCALE)];
@@ -102,11 +103,11 @@
         psdTextField.delegate = self;
         psdTextField.secureTextEntry = YES;
         psdTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
-        [contentView addSubview:psdTextField];
+        [_contentView addSubview:psdTextField];
         
         UIView *psdLine = [[UIView alloc] initWithFrame:CGRectMake(60*SCALE, psdTextField.frame.origin.y+psdTextField.frame.size.height+10*SCALE, SCREEN_WIDTH-100*SCALE, 1)];
         psdLine.backgroundColor = [UIColor colorWithRed:(244)/255.0 green:(244)/255.0 blue:(244)/255.0 alpha:1.0];
-        [contentView addSubview:psdLine];
+        [_contentView addSubview:psdLine];
         
         //再次密码
         psd2TextField = [[UITextField alloc] initWithFrame:CGRectMake(phoneImageView.frame.origin.x+phoneImageView.frame.size.width+10*SCALE, 405*SCALE, 180*SCALE, 30*SCALE)];
@@ -117,11 +118,11 @@
         psd2TextField.delegate = self;
         psd2TextField.secureTextEntry = YES;
         psd2TextField.clearButtonMode = UITextFieldViewModeWhileEditing;
-        [contentView addSubview:psd2TextField];
+        [_contentView addSubview:psd2TextField];
         
         UIView *psd2Line = [[UIView alloc] initWithFrame:CGRectMake(60*SCALE, psd2TextField.frame.origin.y+psd2TextField.frame.size.height+10*SCALE, SCREEN_WIDTH-100*SCALE, 1)];
         psd2Line.backgroundColor = [UIColor colorWithRed:(244)/255.0 green:(244)/255.0 blue:(244)/255.0 alpha:1.0];
-        [contentView addSubview:psd2Line];
+        [_contentView addSubview:psd2Line];
         
         
         //验证码
@@ -134,31 +135,30 @@
         codeTextField.keyboardType = UIKeyboardTypeNumberPad;
         codeTextField.inputAccessoryView = [self addToolbar2];
         codeTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
-        [contentView addSubview:codeTextField];
+        [_contentView addSubview:codeTextField];
         
         UIView *codeLine = [[UIView alloc] initWithFrame:CGRectMake(60*SCALE, codeTextField.frame.origin.y+codeTextField.frame.size.height+10*SCALE, SCREEN_WIDTH-100*SCALE, 1)];
         codeLine.backgroundColor = [UIColor colorWithRed:(244)/255.0 green:(244)/255.0 blue:(244)/255.0 alpha:1.0];
-        [contentView addSubview:codeLine];
+        [_contentView addSubview:codeLine];
         
         //获取验证码
-        codeBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+        _codeBtn = [UIButton buttonWithType:UIButtonTypeSystem];
         
-        [codeBtn setFrame:CGRectMake(codeTextField.frame.origin.x+codeTextField.frame.size.width+40*SCALE, 460*SCALE, 100*SCALE, 44*SCALE)];
+        [_codeBtn setFrame:CGRectMake(codeTextField.frame.origin.x+codeTextField.frame.size.width+40*SCALE, 460*SCALE, 100*SCALE, 44*SCALE)];
         //        [codeBtn setTitleColor:MAIN_COLOR forState:UIControlStateNormal];
         NSAttributedString *attrStr = [[NSAttributedString alloc]initWithString:@"获取验证码"
                                                                      attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15.f*SCALE],NSForegroundColorAttributeName:MAIN_COLOR}];
-        [codeBtn addTarget:self action:@selector(codeEvent) forControlEvents:UIControlEventTouchUpInside];
-        [contentView addSubview:codeBtn];
+        [_codeBtn addTarget:self action:@selector(codeEvent) forControlEvents:UIControlEventTouchUpInside];
+        [_contentView addSubview:_codeBtn];
         
-        codeLabel = [[UILabel alloc] initWithFrame:codeBtn.frame];
-        [codeLabel setAttributedText:attrStr];
-        [contentView addSubview:codeLabel];
+        _codeLabel = [[UILabel alloc] initWithFrame:_codeBtn.frame];
+        [_codeLabel setAttributedText:attrStr];
+        [_contentView addSubview:_codeLabel];
         
         //重置密码
         UIButton *registerBtn = [UIButton buttonWithType:UIButtonTypeSystem];
         
-        
-        [registerBtn setFrame:CGRectMake(50*SCALE, CGRectGetMaxY(codeBtn.frame)+30*SCALE, SCREEN_WIDTH-100*SCALE, 44*SCALE)];
+        [registerBtn setFrame:CGRectMake(50*SCALE, CGRectGetMaxY(_codeBtn.frame)+30*SCALE, SCREEN_WIDTH-100*SCALE, 44*SCALE)];
         [registerBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         registerBtn.titleLabel.font = [UIFont systemFontOfSize:17.0*SCALE];
         [registerBtn setTitle:@"重置密码" forState:UIControlStateNormal];
@@ -245,13 +245,13 @@
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
     
-    int offset = contentView.frame.size.height - 216 - CGRectGetMaxY(textField.frame) - 50;
+    int offset = _contentView.frame.size.height - 216 - CGRectGetMaxY(textField.frame) - 50;
     
     if (offset < 0) {
-        
+        weakify(self);
         [UIView animateWithDuration:0.5 animations:^{
-            
-            [contentView setContentOffset:CGPointMake(0, -offset) animated:NO];
+            strongify(self);
+            [self.contentView setContentOffset:CGPointMake(0, -offset) animated:NO];
             
         }completion:^(BOOL finished) {
             
@@ -261,7 +261,7 @@
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
     
-    [contentView setContentOffset:CGPointMake(0, 0) animated:YES];
+    [_contentView setContentOffset:CGPointMake(0, 0) animated:YES];
     
 }
 
@@ -292,9 +292,9 @@
     if (phoneTextField.text.length > 0 && phoneTextField.text.length == 11) {
         
         NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:phoneTextField.text, @"tel_no", nil];
-        
+        weakify(self);
         [HttpClientService requestVerificationCode:paramDic success:^(id responseObject) {
-            
+            strongify(self);
             NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
             
             int status = [[jsonDic objectForKey:@"status"] intValue];
@@ -303,22 +303,23 @@
                 [self showMsg:@"获取验证码成功"];
             }else if (status == 2) {
                 [self showMsg:@"注册的用户已存在"];
-                timeout = 0;
+                self.timeout = 0;
             }else if (status == 4){
                 [self showMsg:@"请求太频烦，每分钟只能请求一次"];
             }else if (status == 5){
                 [self showMsg:@"验证码发送出错"];
-                timeout = 0;
+                self.timeout = 0;
             }else {
                 [self showMsg:@"获取验证码失败"];
-                timeout = 0;
+                self.timeout = 0;
             }
         } failure:^(NSError *error) {
+            strongify(self);
             [self showMsg:@"获取验证码失败"];
-            timeout = 0;
+            self.timeout = 0;
         }];
         
-        timeout = 60;
+        self.timeout = 60;
         
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         
@@ -328,22 +329,22 @@
         
         dispatch_source_set_event_handler(_timer, ^{
             
-            if(timeout <= 0){
+            if(self.timeout <= 0){
                 
                 dispatch_source_cancel(_timer);
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     NSAttributedString *attrStr = [[NSAttributedString alloc]initWithString:@"获取验证码"
                                                                                  attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15.f*SCALE],NSForegroundColorAttributeName:MAIN_COLOR}];
-                    [codeLabel setAttributedText:attrStr];
+                    [self.codeLabel setAttributedText:attrStr];
                     
-                    codeBtn.userInteractionEnabled = YES;
+                    self.codeBtn.userInteractionEnabled = YES;
                     
                 });
                 
             }else {
                 
-                int seconds = timeout;
+                int seconds = self.timeout;
                 
                 NSString *strTime = [NSString stringWithFormat:@"%.2d", seconds];
                 
@@ -351,13 +352,13 @@
                     NSString *codeStr = [NSString stringWithFormat:@"重新获取(%@)",strTime];
                     NSAttributedString *attrStr = [[NSAttributedString alloc]initWithString:codeStr
                                                                                  attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15.f*SCALE],NSForegroundColorAttributeName:[UIColor grayColor]}];
-                    [codeLabel setAttributedText:attrStr];
+                    [self.codeLabel setAttributedText:attrStr];
                     
-                    codeBtn.userInteractionEnabled = NO;
+                    self.codeBtn.userInteractionEnabled = NO;
                     
                 });
                 
-                timeout--;
+                self.timeout--;
                 
             }
             

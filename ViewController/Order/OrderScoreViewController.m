@@ -13,18 +13,17 @@
 #import "LoginViewController.h"
 
 @interface OrderScoreViewController ()<UITableViewDelegate, UITableViewDataSource, UITextViewDelegate> {
-    UITableView *contentView;
-    NSMutableDictionary *orderScoreDic;
-    
-    NSMutableArray *productArray;
-    
-    //接口入参数组
-    NSMutableArray *orderratesubmit;
-    
-    NSString *staff_rate;//骑士评分
-    NSString *cvs_rate;//订单评分
     NSString *rate_msg;//订单评价内容
 }
+
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, strong) NSMutableDictionary *orderScoreDic;
+@property(nonatomic, strong) NSMutableArray *productArray;
+//接口入参数组
+@property(nonatomic, strong) NSMutableArray *orderratesubmit;
+
+@property(nonatomic, copy) NSString *staff_rate;//骑士评分
+@property(nonatomic, copy) NSString *cvs_rate;//订单评分
 
 @end
 
@@ -50,26 +49,26 @@
         
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+1, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-1) style:UITableViewStylePlain];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+1, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-1) style:UITableViewStylePlain];
         
-        contentView.delegate = self;
+        _contentView.delegate = self;
         
-        contentView.dataSource = self;
+        _contentView.dataSource = self;
         
-        contentView.separatorStyle = NO;
+        _contentView.separatorStyle = NO;
         
-        contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
         //去除底部多余分割线
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
         _orderDictionary = [[NSMutableDictionary alloc] init];
         
-        staff_rate = @"0";
-        cvs_rate = @"0";
+        _staff_rate = @"0";
+        _cvs_rate = @"0";
         rate_msg = @"";
         
         
@@ -89,7 +88,7 @@
     
     self.tabBarController.tabBar.hidden = YES;
     
-    [contentView setHidden:YES];
+    [_contentView setHidden:YES];
     
     [self loadNewData];
 }
@@ -99,32 +98,32 @@
     [self showLoadHUDMsg:@"努力加载中..."];
     
     //提交接口入参数组
-    orderratesubmit = [[NSMutableArray alloc] init];
+    _orderratesubmit = [[NSMutableArray alloc] init];
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderDictionary[@"order_id"], @"order_id", nil];
-    
+    weakify(self);
     [HttpClientService requestOrderrate:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            orderScoreDic = [[NSMutableDictionary alloc] initWithDictionary:jsonDic];
+            self.orderScoreDic = [[NSMutableDictionary alloc] initWithDictionary:jsonDic];
             
-            productArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"orderrate"]];
+            self.productArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"orderrate"]];
             
-            [contentView reloadData];
+            [self.contentView reloadData];
             
-            [contentView setHidden:NO];
+            [self.contentView setHidden:NO];
             
             //构造参数
-            for (int i = 0; i < productArray.count; i++) {
+            for (int i = 0; i < self.productArray.count; i++) {
                 NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
-                [tempDic setObject:productArray[i][@"product_no"] forKey:@"product_no"];
+                [tempDic setObject:self.productArray[i][@"product_no"] forKey:@"product_no"];
                 [tempDic setObject:@"1" forKey:@"product_rate"];
-                [orderratesubmit addObject:tempDic];
+                [self.orderratesubmit addObject:tempDic];
             }
             
             
@@ -164,7 +163,7 @@
     if (section == 0) {
         return 1;
     }else {
-        return [productArray count];
+        return [_productArray count];
     }
     
 }
@@ -195,122 +194,133 @@
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
         //骑手名称
-        cell.staffLabel.text = orderScoreDic[@"staff_name"];
+        cell.staffLabel.text = _orderScoreDic[@"staff_name"];
         
-        [cell.staffIcon sd_setImageWithURL:orderScoreDic[@"staff_portrait"]
+        [cell.staffIcon sd_setImageWithURL:_orderScoreDic[@"staff_portrait"]
                               placeholderImage:[UIImage imageNamed:@"order_logo"]
                                      completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                          //TODO
                                      }];
         
         //店铺名称
-        cell.storeLabel.text = orderScoreDic[@"cvs_name"];
+        cell.storeLabel.text = _orderScoreDic[@"cvs_name"];
 
         
 //        __weak __typeof(&*cell)weakCell = cell;
         weakify(cell);
+        weakify(self);
         cell.staffBtn1Block = ^() {
             strongify(cell);
+            strongify(self);
             [cell.staffBtn1 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn2 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             [cell.staffBtn3 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             [cell.staffBtn4 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             [cell.staffBtn5 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             
-            staff_rate = @"1";
+            self.staff_rate = @"1";
         };
         cell.staffBtn2Block = ^() {
             strongify(cell);
+            strongify(self);
             [cell.staffBtn1 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn2 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn3 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             [cell.staffBtn4 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             [cell.staffBtn5 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             
-            staff_rate = @"2";
+            self.staff_rate = @"2";
         };
         cell.staffBtn3Block = ^() {
             strongify(cell);
+            strongify(self);
             [cell.staffBtn1 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn2 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn3 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn4 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             [cell.staffBtn5 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             
-            staff_rate = @"3";
+            self.staff_rate = @"3";
         };
         cell.staffBtn4Block = ^() {
             strongify(cell);
+            strongify(self);
             [cell.staffBtn1 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn2 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn3 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn4 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn5 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             
-            staff_rate = @"4";
+            self.staff_rate = @"4";
         };
         cell.staffBtn5Block = ^() {
             strongify(cell);
+            strongify(self);
             [cell.staffBtn1 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn2 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn3 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn4 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.staffBtn5 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             
-            staff_rate = @"5";
+            self.staff_rate = @"5";
         };
         
         
         
         cell.storeBtn1Block = ^() {
             strongify(cell);
+            strongify(self);
             [cell.storeBtn1 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn2 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             [cell.storeBtn3 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             [cell.storeBtn4 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             [cell.storeBtn5 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             
-            cvs_rate = @"1";
+            self.cvs_rate = @"1";
         };
         cell.storeBtn2Block = ^() {
             strongify(cell);
+            strongify(self);
             [cell.storeBtn1 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn2 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn3 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             [cell.storeBtn4 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             [cell.storeBtn5 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             
-            cvs_rate = @"2";
+            self.cvs_rate = @"2";
         };
         cell.storeBtn3Block = ^() {
             strongify(cell);
+            strongify(self);
             [cell.storeBtn1 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn2 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn3 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn4 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             [cell.storeBtn5 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             
-            cvs_rate = @"3";
+            self.cvs_rate = @"3";
         };
         cell.storeBtn4Block = ^() {
             strongify(cell);
+            strongify(self);
             [cell.storeBtn1 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn2 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn3 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn4 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn5 setImage:[UIImage imageNamed:@"score_star_gray"] forState:UIControlStateNormal];
             
-            cvs_rate = @"4";
+            self.cvs_rate = @"4";
         };
         cell.storeBtn5Block = ^() {
             strongify(cell);
+            strongify(self);
             [cell.storeBtn1 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn2 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn3 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn4 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             [cell.storeBtn5 setImage:[UIImage imageNamed:@"score_star_yellow"] forState:UIControlStateNormal];
             
-            cvs_rate = @"5";
+            self.cvs_rate = @"5";
         };
         
         cell.storeTextView.delegate = self;
@@ -327,37 +337,39 @@
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         
-        cell.product.text = productArray[indexPath.row][@"description"];
+        cell.product.text = _productArray[indexPath.row][@"description"];
         
 //        __weak __typeof(&*cell)weakCell = cell;
         weakify(cell);
+        weakify(self);
         cell.upBtnBlock = ^() {
             strongify(cell);
+            strongify(self);
             [cell.upBtn setImage:[UIImage imageNamed:@"score_up_selected"] forState:UIControlStateNormal];
             [cell.downBtn setImage:[UIImage imageNamed:@"score_down"] forState:UIControlStateNormal];
             
-            
-            for (int i = 0; i < orderratesubmit.count; i++) {
+            for (int i = 0; i < self.orderratesubmit.count; i++) {
                 
-                NSMutableDictionary *dic = [orderratesubmit[i] mutableCopy];
-                if ([dic[@"product_no"] isEqualToString:orderratesubmit[indexPath.row][@"product_no"]]){
+                NSMutableDictionary *dic = [self.orderratesubmit[i] mutableCopy];
+                if ([dic[@"product_no"] isEqualToString:self.orderratesubmit[indexPath.row][@"product_no"]]){
                     [dic setObject:@"1" forKey:@"product_rate"];
-                    [orderratesubmit replaceObjectAtIndex:indexPath.row withObject:dic];
+                    [self.orderratesubmit replaceObjectAtIndex:indexPath.row withObject:dic];
                 }
             }
         };
         
         cell.downBtnBlock = ^() {
             strongify(cell);
+            strongify(self);
             [cell.upBtn setImage:[UIImage imageNamed:@"score_up"] forState:UIControlStateNormal];
             [cell.downBtn setImage:[UIImage imageNamed:@"score_down_selected"] forState:UIControlStateNormal];
             
-            for (int i = 0; i < orderratesubmit.count; i++) {
+            for (int i = 0; i < self.orderratesubmit.count; i++) {
                 
-                NSMutableDictionary *dic = [orderratesubmit[i] mutableCopy];
-                if ([dic[@"product_no"] isEqualToString:orderratesubmit[indexPath.row][@"product_no"]]){
+                NSMutableDictionary *dic = [self.orderratesubmit[i] mutableCopy];
+                if ([dic[@"product_no"] isEqualToString:self.orderratesubmit[indexPath.row][@"product_no"]]){
                     [dic setObject:@"0" forKey:@"product_rate"];
-                    [orderratesubmit replaceObjectAtIndex:indexPath.row withObject:dic];
+                    [self.orderratesubmit replaceObjectAtIndex:indexPath.row withObject:dic];
                 }
             }
         };
@@ -417,13 +429,13 @@
 //评价动作请求
 - (void)requestOrderratesubmit {
     
-    if ([staff_rate isEqualToString:@"0"]) {
+    if ([_staff_rate isEqualToString:@"0"]) {
         [self showMsg:@"您还未对骑手评分"];
         
         return;
     }
     
-    if ([cvs_rate isEqualToString:@"0"]) {
+    if ([_cvs_rate isEqualToString:@"0"]) {
         [self showMsg:@"您还未对订单评分"];
         
         return;
@@ -435,7 +447,7 @@
     
     [self showLoadHUDMsg:@"处理中..."];
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:orderScoreDic[@"order_id"], @"order_id", orderScoreDic[@"staff_id"], @"staff_id", staff_rate, @"staff_rate", cvs_rate, @"cvs_rate", orderScoreDic[@"cvs_no"], @"cvs_no", rate_msg, @"rate_msg", orderratesubmit, @"orderratesubmit", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderScoreDic[@"order_id"], @"order_id", _orderScoreDic[@"staff_id"], @"staff_id", _staff_rate, @"staff_rate", _cvs_rate, @"cvs_rate", _orderScoreDic[@"cvs_no"], @"cvs_no", rate_msg, @"rate_msg", _orderratesubmit, @"orderratesubmit", nil];
     
     [HttpClientService requestOrderratesubmit:paramDic success:^(id responseObject) {
         

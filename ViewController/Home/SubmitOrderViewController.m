@@ -32,34 +32,27 @@
 
 
 @interface SubmitOrderViewController ()<UITableViewDelegate, UITableViewDataSource> {
-    UITableView *contentView;
-    NSDictionary *orderDictionary;
-    NSMutableArray *giftArray;
-    
     NSMutableArray *ordersArray;
-    
     NSMutableArray *settle;
-    
-    //底部结算
-    UILabel *money;
-    UILabel *sumMoney;
-    
-    //支付类型
-    NSString *payType;
-    
-    //是否使用兔币
-    NSString *useIntegral;
-    
-    UIView *OverlayView;
-    
-    NSMutableArray *deliveryDatesArray;
-    NSInteger index;
-    
-    NSString *deliveryDatesTime;
-    NSInteger deliveryDatesIndex;
-    
-    BOOL first;
 }
+
+@property(nonatomic, strong) UIView *OverlayView;
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, strong) NSDictionary *orderDictionary;
+@property(nonatomic, strong) NSMutableArray *giftArray;
+//底部结算
+@property(nonatomic, strong) UILabel *money;
+@property(nonatomic, strong) UILabel *sumMoney;
+//支付类型
+@property(nonatomic, copy) NSString *payType;
+//是否使用兔币
+@property(nonatomic, copy) NSString *useIntegral;
+
+@property(nonatomic, strong) NSMutableArray *deliveryDatesArray;
+@property(nonatomic, copy) NSString *deliveryDatesTime;
+@property(nonatomic, assign) NSInteger deliveryDatesIndex;
+@property(nonatomic, assign) NSInteger index;
+@property(nonatomic, assign) BOOL first;
 
 @end
 
@@ -74,19 +67,19 @@
         
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        OverlayView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
-        [self.view addSubview:OverlayView];
+        _OverlayView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+        [self.view addSubview:_OverlayView];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+1, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT-1) style:UITableViewStylePlain];
-        contentView.delegate = self;
-        contentView.dataSource = self;
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+1, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT-1) style:UITableViewStylePlain];
+        _contentView.delegate = self;
+        _contentView.dataSource = self;
         
-        [contentView setSeparatorColor:UIColorFromRGB(240,240,240)];
-        contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-        contentView.contentInset = UIEdgeInsetsMake(0, 0, -10*SCALE, 0);
+        [_contentView setSeparatorColor:UIColorFromRGB(240,240,240)];
+        _contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView.contentInset = UIEdgeInsetsMake(0, 0, -10*SCALE, 0);
 
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
         [self.view bringSubviewToFront:navigationBar];
         
@@ -102,16 +95,16 @@
         [submitView addSubview:line];
         
         //购物金额提示框
-        money = [[UILabel alloc] initWithFrame:CGRectMake(10*SCALE, 10*SCALE, 100*SCALE, 30*SCALE)];
-        [money setTextColor:[UIColor whiteColor]];
-        [money setFont:[UIFont systemFontOfSize:13.0]];
-        [submitView addSubview:money];
+        _money = [[UILabel alloc] initWithFrame:CGRectMake(10*SCALE, 10*SCALE, 100*SCALE, 30*SCALE)];
+        [_money setTextColor:[UIColor whiteColor]];
+        [_money setFont:[UIFont systemFontOfSize:13.0]];
+        [submitView addSubview:_money];
         
-        sumMoney = [[UILabel alloc] initWithFrame:CGRectMake(140*SCALE, 10*SCALE, 120*SCALE, 30*SCALE)];
-        [sumMoney setTextColor:[UIColor whiteColor]];
-        [sumMoney setFont:[UIFont systemFontOfSize:17.0]];
-        sumMoney.textAlignment = NSTextAlignmentRight;
-        [submitView addSubview:sumMoney];
+        _sumMoney = [[UILabel alloc] initWithFrame:CGRectMake(140*SCALE, 10*SCALE, 120*SCALE, 30*SCALE)];
+        [_sumMoney setTextColor:[UIColor whiteColor]];
+        [_sumMoney setFont:[UIFont systemFontOfSize:17.0]];
+        _sumMoney.textAlignment = NSTextAlignmentRight;
+        [submitView addSubview:_sumMoney];
         
         //结账按钮
         UIButton *_accountBtn = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -124,11 +117,11 @@
         [submitView addSubview:_accountBtn];
         
         //初始化 支付默认在线支付
-        payType = @"2";
+        _payType = @"2";
         //初始化 不使用兔币
-        useIntegral = @"0";
+        _useIntegral = @"0";
         
-        first = YES;
+        _first = YES;
         
     }
     
@@ -142,12 +135,12 @@
         NSMutableDictionary *dic = [array objectAtIndex:i];
         if ([dic[@"selected"] isEqualToString:@"1"]) {
             
-            deliveryDatesTime = dic[@"time"];
+            _deliveryDatesTime = dic[@"time"];
           
-            deliveryDatesIndex = [dic[@"index"] integerValue];
+            _deliveryDatesIndex = [dic[@"index"] integerValue];
         }
     }
-    [contentView reloadData];
+    [_contentView reloadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -215,17 +208,20 @@
 
 - (void)close {
     
+    weakify(self);
     [UIView animateWithDuration:0.5 animations:^{
-        OverlayView.backgroundColor = [UIColor clearColor];
+        strongify(self);
+        self.OverlayView.backgroundColor = [UIColor clearColor];
         
     }completion:^(BOOL finished) {
-        [self.view sendSubviewToBack:OverlayView];
+        strongify(self);
+        [self.view sendSubviewToBack:self.OverlayView];
     }];
     
 }
 
 - (void)requestData {
-    [contentView setHidden:YES];
+    [_contentView setHidden:YES];
     [self showLoadHUDMsg:@"努力加载中..."];
     
     //构造参数
@@ -241,51 +237,51 @@
     
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:settle, @"settle", [[UserDefaults service] getStoreId], @"cvs_no", @"0", @"use_integral", nil];
-    
+    weakify(self);
     [HttpClientService requestSettle:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            [contentView setHidden:NO];
+            [self.contentView setHidden:NO];
             
-            orderDictionary = [[NSDictionary alloc] initWithDictionary:jsonDic];
+            self.orderDictionary = [[NSDictionary alloc] initWithDictionary:jsonDic];
             
             //换购商品
-            NSMutableArray *tempArr = [[NSMutableArray alloc] initWithArray:orderDictionary[@"exchg"]];
+            NSMutableArray *tempArr = [[NSMutableArray alloc] initWithArray:self.orderDictionary[@"exchg"]];
             
-            giftArray = [NSMutableArray array];
+            self.giftArray = [NSMutableArray array];
             for (int i=0; i<[tempArr count]; i++) {
                 NSMutableDictionary *dic = tempArr[i];
                 if ([dic[@"stock_qty"] integerValue] > 0) {
-                    [giftArray addObject:dic];
+                    [self.giftArray addObject:dic];
                 }
             }
             
             
-            money.text = [NSString stringWithFormat:@"已优惠 %@", orderDictionary[@"discount"]];
+            self.money.text = [NSString stringWithFormat:@"已优惠 %@", self.orderDictionary[@"discount"]];
             
             
-            if ([useIntegral isEqualToString:@"0"]) {
-                sumMoney.text = [NSString stringWithFormat:@"实付 %@", orderDictionary[@"money"]];
+            if ([self.useIntegral isEqualToString:@"0"]) {
+                self.sumMoney.text = [NSString stringWithFormat:@"实付 %@", self.orderDictionary[@"money"]];
             }else {
                 
-                if ([orderDictionary[@"money"] doubleValue] - [orderDictionary[@"integral_usable"] doubleValue] > 0) {
-                    sumMoney.text = [NSString stringWithFormat:@"实付 %.2f", [orderDictionary[@"money"] doubleValue] - [orderDictionary[@"integral_usable"] doubleValue]];
+                if ([self.orderDictionary[@"money"] doubleValue] - [self.orderDictionary[@"integral_usable"] doubleValue] > 0) {
+                    self.sumMoney.text = [NSString stringWithFormat:@"实付 %.2f", [self.orderDictionary[@"money"] doubleValue] - [self.orderDictionary[@"integral_usable"] doubleValue]];
                 }else {
-                    sumMoney.text = @"实付 0.00";
+                    self.sumMoney.text = @"实付 0.00";
                 }
             }
             
-            if (first == YES) {
+            if (self.first == YES) {
 
-                first = NO;
+                self.first = NO;
 
-                NSString *startStr1 = [orderDictionary[@"deliver_beg"] stringByReplacingOccurrencesOfString:@":" withString:@""];
-                NSString *endStr1 = [orderDictionary[@"deliver_end"] stringByReplacingOccurrencesOfString:@":" withString:@""];
+                NSString *startStr1 = [self.orderDictionary[@"deliver_beg"] stringByReplacingOccurrencesOfString:@":" withString:@""];
+                NSString *endStr1 = [self.orderDictionary[@"deliver_end"] stringByReplacingOccurrencesOfString:@":" withString:@""];
 
                 NSString *startStr2 = [startStr1 stringByReplacingOccurrencesOfString:@" " withString:@""];
                 NSString *endStr2 = [endStr1 stringByReplacingOccurrencesOfString:@" " withString:@""];
@@ -298,32 +294,32 @@
                 NSDate *startDate = [formatter dateFromString:startStr3];
                 NSDate *endDate = [formatter dateFromString:endStr3];
 
-                deliveryDatesArray = [NSMutableArray array];
+                self.deliveryDatesArray = [NSMutableArray array];
 
-                index = -1;
+                self.index = -1;
                 while ([startDate timeIntervalSinceDate:endDate] <= 0.0) {
 
                     NSString *destDateString = [formatter stringFromDate:startDate];
                     
-                    index++;
+                    self.index++;
                     NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
 
                     [dic setObject:destDateString forKey:@"time"];
-                    [dic setObject:[NSNumber numberWithInteger:index] forKey:@"index"];
+                    [dic setObject:[NSNumber numberWithInteger:self.index] forKey:@"index"];
                     [dic setObject:@"0" forKey:@"selected"];
 
-                    [deliveryDatesArray addObject:dic];
+                    [self.deliveryDatesArray addObject:dic];
 
-                    startDate = [startDate dateByAddingTimeInterval:[orderDictionary[@"deliver_interval"] integerValue]];
+                    startDate = [startDate dateByAddingTimeInterval:[self.orderDictionary[@"deliver_interval"] integerValue]];
 
                 }
 
-                NSMutableDictionary *dic2 = [[NSMutableDictionary alloc] initWithDictionary:deliveryDatesArray[0]];
+                NSMutableDictionary *dic2 = [[NSMutableDictionary alloc] initWithDictionary:self.deliveryDatesArray[0]];
                 [dic2 setObject:@"1" forKey:@"selected"];
 
                 NSMutableArray *tarray = [NSMutableArray array];
-                for (int i = 0; i<[deliveryDatesArray count]; i++) {
-                    NSMutableDictionary *dic = [deliveryDatesArray[i] mutableCopy];
+                for (int i = 0; i<[self.deliveryDatesArray count]; i++) {
+                    NSMutableDictionary *dic = [self.deliveryDatesArray[i] mutableCopy];
                     [dic setObject:@"0" forKey:@"selected"];
                     if (i == 0) {
 
@@ -342,8 +338,8 @@
 
                 NSMutableDictionary *dic = [array objectAtIndex:0];
 
-                deliveryDatesTime = dic[@"time"];
-                deliveryDatesIndex = -1;
+                self.deliveryDatesTime = dic[@"time"];
+                self.deliveryDatesIndex = -1;
             }else {
                 NSMutableArray *array = [[UserDefaults service] getDeliveryDates];
 
@@ -351,13 +347,13 @@
                     NSMutableDictionary *dic = [array objectAtIndex:i];
                     if ([dic[@"selected"] isEqualToString:@"1"]) {
 
-                        deliveryDatesTime = dic[@"time"];
-                        deliveryDatesIndex = [dic[@"index"] integerValue];
+                        self.deliveryDatesTime = dic[@"time"];
+                        self.deliveryDatesIndex = [dic[@"index"] integerValue];
                     }
                 }
             }
             
-            [contentView reloadData];
+            [self.contentView reloadData];
             [self hideLoadHUD:YES];
             
             
@@ -376,14 +372,14 @@
 
 - (void)updateMoney {
     
-    if ([useIntegral isEqualToString:@"0"]) {
-        sumMoney.text = [NSString stringWithFormat:@"实付 %@", orderDictionary[@"money"]];
+    if ([_useIntegral isEqualToString:@"0"]) {
+        _sumMoney.text = [NSString stringWithFormat:@"实付 %@", self.orderDictionary[@"money"]];
     }else {
         
-        if ([orderDictionary[@"money"] doubleValue] - [orderDictionary[@"integral_usable"] doubleValue] > 0) {
-            sumMoney.text = [NSString stringWithFormat:@"实付 %.2f", [orderDictionary[@"money"] doubleValue] - [orderDictionary[@"integral_usable"] doubleValue]];
+        if ([self.orderDictionary[@"money"] doubleValue] - [self.orderDictionary[@"integral_usable"] doubleValue] > 0) {
+            _sumMoney.text = [NSString stringWithFormat:@"实付 %.2f", [self.orderDictionary[@"money"] doubleValue] - [self.orderDictionary[@"integral_usable"] doubleValue]];
         }else {
-            sumMoney.text = @"实付 0.00";
+            _sumMoney.text = @"实付 0.00";
         }
     }
 }
@@ -396,10 +392,10 @@
     if (section == 0) {//用户信息区
         return 2;
     }else if (section == 1) {//商品区
-        return [(NSArray *)orderDictionary[@"settle_info"] count]+[(NSArray *)orderDictionary[@"gift"] count];
+        return [(NSArray *)_orderDictionary[@"settle_info"] count]+[(NSArray *)_orderDictionary[@"gift"] count];
         
     }else if (section == 2) {//优惠区
-        return [(NSArray *)orderDictionary[@"promo_list"] count]+1;
+        return [(NSArray *)_orderDictionary[@"promo_list"] count]+1;
     }else {
         return 4;//换购+积分+支付方式+备注
     }
@@ -502,11 +498,11 @@
             
             cell.icon.image = [UIImage imageNamed:@"order_time"];
             
-            NSString *hhStr = [deliveryDatesTime substringWithRange:NSMakeRange(8,2)];
-            NSString *mmStr = [deliveryDatesTime substringWithRange:NSMakeRange(10,2)];
+            NSString *hhStr = [_deliveryDatesTime substringWithRange:NSMakeRange(8,2)];
+            NSString *mmStr = [_deliveryDatesTime substringWithRange:NSMakeRange(10,2)];
             NSString *hhmmStr = [NSString stringWithFormat:@"%@:%@", hhStr, mmStr];
             
-            if (deliveryDatesIndex == 0 ||deliveryDatesIndex == -1) {
+            if (_deliveryDatesIndex == 0 ||_deliveryDatesIndex == -1) {
                 
                 cell.title.text = [NSString stringWithFormat:@"立即送出（大约%@送达）", hhmmStr];
             }else {
@@ -535,25 +531,25 @@
         
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         
-        if (indexPath.row+1 > [(NSArray *)orderDictionary[@"settle_info"] count]) {
+        if (indexPath.row+1 > [(NSArray *)_orderDictionary[@"settle_info"] count]) {
             //赠品
-            [cell.image sd_setImageWithURL:[NSURL URLWithString:orderDictionary[@"gift"][indexPath.row-[(NSArray *)orderDictionary[@"settle_info"] count]][@"product_url"]]
+            [cell.image sd_setImageWithURL:[NSURL URLWithString:_orderDictionary[@"gift"][indexPath.row-[(NSArray *)_orderDictionary[@"settle_info"] count]][@"product_url"]]
                           placeholderImage:[UIImage imageNamed:@"loading_Image"]
                                  completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                      //TODO
                                  }];
             
-            cell.title.text = orderDictionary[@"gift"][indexPath.row-[(NSArray *)orderDictionary[@"settle_info"] count]][@"description"];//商品名
-            cell.subTitle.text = orderDictionary[@"gift"][indexPath.row-[(NSArray *)orderDictionary[@"settle_info"] count]][@"cap_description"];//规格
-            cell.count.text = [NSString stringWithFormat:@"x%@", orderDictionary[@"gift"][indexPath.row-[(NSArray *)orderDictionary[@"settle_info"] count]][@"count"]];//数量
-            cell.oldPrice = [orderDictionary[@"gift"][indexPath.row-[(NSArray *)orderDictionary[@"settle_info"] count]][@"sa_price"] floatValue];//原价
-            cell.newPrice = [orderDictionary[@"gift"][indexPath.row-[(NSArray *)orderDictionary[@"settle_info"] count]][@"dis_price"] floatValue];//现价
+            cell.title.text = _orderDictionary[@"gift"][indexPath.row-[(NSArray *)_orderDictionary[@"settle_info"] count]][@"description"];//商品名
+            cell.subTitle.text = _orderDictionary[@"gift"][indexPath.row-[(NSArray *)_orderDictionary[@"settle_info"] count]][@"cap_description"];//规格
+            cell.count.text = [NSString stringWithFormat:@"x%@", _orderDictionary[@"gift"][indexPath.row-[(NSArray *)_orderDictionary[@"settle_info"] count]][@"count"]];//数量
+            cell.oldPrice = [_orderDictionary[@"gift"][indexPath.row-[(NSArray *)_orderDictionary[@"settle_info"] count]][@"sa_price"] floatValue];//原价
+            cell.newPrice = [_orderDictionary[@"gift"][indexPath.row-[(NSArray *)_orderDictionary[@"settle_info"] count]][@"dis_price"] floatValue];//现价
             
             return cell;
         }else {
             
             //商品
-            if ([@"11" isEqualToString:orderDictionary[@"settle_info"][indexPath.row][@"l_kind_code"]]) {
+            if ([@"11" isEqualToString:_orderDictionary[@"settle_info"][indexPath.row][@"l_kind_code"]]) {
                 [cell.title setFrame:CGRectMake(10*SCALE, 10*SCALE, 200*SCALE, 20*SCALE)];
                 [cell.subTitle setFrame:CGRectMake(10*SCALE, CGRectGetMaxY(cell.title.frame)+3*SCALE, 200*SCALE, 20*SCALE)];
                 [cell.count setFrame:CGRectMake(10*SCALE, CGRectGetMaxY(cell.subTitle.frame)+8*SCALE, 200*SCALE, 20*SCALE)];
@@ -561,20 +557,20 @@
                 [cell.title setFrame:CGRectMake(90*SCALE, 10*SCALE, 200*SCALE, 20*SCALE)];
                 [cell.subTitle setFrame:CGRectMake(90*SCALE, CGRectGetMaxY(cell.title.frame)+3*SCALE, 200*SCALE, 20*SCALE)];
                 [cell.count setFrame:CGRectMake(90*SCALE, CGRectGetMaxY(cell.subTitle.frame)+8*SCALE, 200*SCALE, 20*SCALE)];
-                [cell.image sd_setImageWithURL:[NSURL URLWithString:orderDictionary[@"settle_info"][indexPath.row][@"product_url"]]
+                [cell.image sd_setImageWithURL:[NSURL URLWithString:_orderDictionary[@"settle_info"][indexPath.row][@"product_url"]]
                               placeholderImage:[UIImage imageNamed:@"loading_Image"]
                                      completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                          //TODO
                                      }];
             }
             
-            cell.title.text = orderDictionary[@"settle_info"][indexPath.row][@"description"];//商品名
-            cell.subTitle.text = orderDictionary[@"settle_info"][indexPath.row][@"cap_description"];//规格
-            cell.count.text = [NSString stringWithFormat:@"x%@", orderDictionary[@"settle_info"][indexPath.row][@"count"]];//数量
-            cell.oldPrice = [orderDictionary[@"settle_info"][indexPath.row][@"sa_total"] floatValue];//原价
-            cell.newPrice = [orderDictionary[@"settle_info"][indexPath.row][@"price"] floatValue];//现价
+            cell.title.text = _orderDictionary[@"settle_info"][indexPath.row][@"description"];//商品名
+            cell.subTitle.text = _orderDictionary[@"settle_info"][indexPath.row][@"cap_description"];//规格
+            cell.count.text = [NSString stringWithFormat:@"x%@", _orderDictionary[@"settle_info"][indexPath.row][@"count"]];//数量
+            cell.oldPrice = [_orderDictionary[@"settle_info"][indexPath.row][@"sa_total"] floatValue];//原价
+            cell.newPrice = [_orderDictionary[@"settle_info"][indexPath.row][@"price"] floatValue];//现价
             
-            if ([orderDictionary[@"settle_info"][indexPath.row][@"sa_total"] isEqualToString:orderDictionary[@"settle_info"][indexPath.row][@"price"]]) {
+            if ([_orderDictionary[@"settle_info"][indexPath.row][@"sa_total"] isEqualToString:_orderDictionary[@"settle_info"][indexPath.row][@"price"]]) {
                 [cell.oldPriceLabel setHidden:YES];
             }else {
                 [cell.oldPriceLabel setHidden:NO];
@@ -585,7 +581,7 @@
         
     }else if (indexPath.section == 2) {//优惠区
         
-        if ([(NSArray *)orderDictionary[@"promo_list"] count] == indexPath.row) {//合计行 促销行数加1
+        if ([(NSArray *)_orderDictionary[@"promo_list"] count] == indexPath.row) {//合计行 促销行数加1
             
             SubmitOrderSumCell *cell = [tableView dequeueReusableCellWithIdentifier:orderCellIdentifier3];
             if (!cell) {
@@ -594,15 +590,15 @@
             
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
-            cell.totalTitle.text = [NSString stringWithFormat:@"总计 %@", orderDictionary[@"total"]];
-            cell.title.text = [NSString stringWithFormat:@"已优惠 %@", orderDictionary[@"discount"]];
+            cell.totalTitle.text = [NSString stringWithFormat:@"总计 %@", _orderDictionary[@"total"]];
+            cell.title.text = [NSString stringWithFormat:@"已优惠 %@", _orderDictionary[@"discount"]];
             
-            if ([useIntegral isEqualToString:@"0"]) {
-                cell.subTitle.text = [NSString stringWithFormat:@"实付 %@", orderDictionary[@"money"]];
+            if ([_useIntegral isEqualToString:@"0"]) {
+                cell.subTitle.text = [NSString stringWithFormat:@"实付 %@", _orderDictionary[@"money"]];
             }else {
                 
-                if ([orderDictionary[@"money"] doubleValue] - [orderDictionary[@"integral_usable"] doubleValue] > 0) {
-                    cell.subTitle.text = [NSString stringWithFormat:@"实付 %.2f", [orderDictionary[@"money"] doubleValue] - [orderDictionary[@"integral_usable"] doubleValue]];
+                if ([_orderDictionary[@"money"] doubleValue] - [_orderDictionary[@"integral_usable"] doubleValue] > 0) {
+                    cell.subTitle.text = [NSString stringWithFormat:@"实付 %.2f", [_orderDictionary[@"money"] doubleValue] - [_orderDictionary[@"integral_usable"] doubleValue]];
                 }else {
                     cell.subTitle.text = @"实付 0.00";
                 }
@@ -620,9 +616,9 @@
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
             
-            cell.icon.image = [UIImage imageNamed:orderDictionary[@"promo_list"][indexPath.row][@"ptag"]];
-            cell.title.text = orderDictionary[@"promo_list"][indexPath.row][@"info"];
-            cell.subTitle.text = [NSString stringWithFormat:@"-%@", orderDictionary[@"promo_list"][indexPath.row][@"discount"]];
+            cell.icon.image = [UIImage imageNamed:_orderDictionary[@"promo_list"][indexPath.row][@"ptag"]];
+            cell.title.text = _orderDictionary[@"promo_list"][indexPath.row][@"info"];
+            cell.subTitle.text = [NSString stringWithFormat:@"-%@", _orderDictionary[@"promo_list"][indexPath.row][@"discount"]];
             
             return cell;
         }
@@ -651,8 +647,8 @@
                 }
             }
             
-            if ([orderDictionary[@"money"] doubleValue] > [moneyStr doubleValue]) {
-                if (giftArray.count > 0) {
+            if ([_orderDictionary[@"money"] doubleValue] > [moneyStr doubleValue]) {
+                if (_giftArray.count > 0) {
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     cell.subTitle.text = @"请选择换购商品";
                 }else {
@@ -675,7 +671,7 @@
             }
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
-            cell.title.text = [NSString stringWithFormat:@"是否使用兔币 (可用兔币%@)", orderDictionary[@"integral_usable"]];
+            cell.title.text = [NSString stringWithFormat:@"是否使用兔币 (可用兔币%@)", _orderDictionary[@"integral_usable"]];
             [cell.subTitle setHidden:YES];
             [cell.switchBtn setHidden:NO];
             
@@ -687,13 +683,13 @@
                 strongify(self);
                 strongify(cell);
                 if (cell.switchBtn.on == YES) {
-                    useIntegral = @"1";
+                    self.useIntegral = @"1";
                     [self updateMoney];
-                    [contentView reloadData];
+                    [self.contentView reloadData];
                 }else {
-                    useIntegral = @"0";
+                    self.useIntegral = @"0";
                     [self updateMoney];
-                    [contentView reloadData];
+                    [self.contentView reloadData];
                 }
             };
             
@@ -710,7 +706,7 @@
             cell.title.text = @"支付方式";
             [cell.subTitle setHidden:NO];
             [cell.switchBtn setHidden:YES];
-            if ([payType isEqualToString:@"2"]) {
+            if ([_payType isEqualToString:@"2"]) {
                 cell.subTitle.text = @"在线支付";
             }else {
                 cell.subTitle.text = @"货到付款";
@@ -771,13 +767,15 @@
             [self addChildViewController:getDeliveryDatesViewController];
             
             
-            [self.view bringSubviewToFront:OverlayView];
+            [self.view bringSubviewToFront:_OverlayView];
             [self.view addSubview:getDeliveryDatesViewController.view];
             
             //View出现动画
+            weakify(self);
             getDeliveryDatesViewController.view.transform = CGAffineTransformMakeTranslation(0, SCREEN_HEIGHT);
             [UIView animateWithDuration:0.5 animations:^{
-                OverlayView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6];
+                strongify(self);
+                self.OverlayView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6];
                 getDeliveryDatesViewController.view.transform = CGAffineTransformMakeTranslation(0, 0);
             } completion:^(BOOL finished) {
                 
@@ -792,10 +790,10 @@
         
         if (indexPath.row == 0) {
             
-            if (giftArray.count > 0) {//如果有换购商品
+            if (_giftArray.count > 0) {//如果有换购商品
                 
                 GiftProductViewController *giftProductViewController = [[GiftProductViewController alloc] init];
-                giftProductViewController.paramArray = giftArray;
+                giftProductViewController.paramArray = _giftArray;
                 PUSH(giftProductViewController);
             }
             
@@ -805,15 +803,17 @@
             UIAlertAction *cancle = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *_Nonnull action) {
                 
             }];
-            
+            weakify(self);
             UIAlertAction *online = [UIAlertAction actionWithTitle:@"在线支付" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-                payType = @"2";
-                [contentView reloadData];
+                strongify(self);
+                self.payType = @"2";
+                [self.contentView reloadData];
             }];
             
             UIAlertAction *offline = [UIAlertAction actionWithTitle:@"货到付款" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-                payType = @"1";
-                [contentView reloadData];
+                strongify(self);
+                self.payType = @"1";
+                [self.contentView reloadData];
             }];
             
             if ([[UIDevice currentDevice].systemVersion floatValue] >= 9.0) {
@@ -973,7 +973,7 @@
     }
     
     //货到付款
-    if ([payType isEqualToString:@"1"]) {
+    if ([_payType isEqualToString:@"1"]) {
         UIAlertController *storeExistAlert = [UIAlertController alertControllerWithTitle:@"确认货到付款吗？" message:@"" preferredStyle:(UIAlertControllerStyleAlert)];
         
         UIAlertAction *OKButton = [UIAlertAction actionWithTitle:@"否" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
@@ -996,10 +996,10 @@
 
 - (void)submitOrder {
     [self showLoadHUDMsg:@"努力加载中..."];
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:settle, @"ordersubmit", @"1", @"cart_delete", payType, @"pay_type", [[UserDefaults service] getStoreId], @"cvs_no", useIntegral, @"use_integral", [[UserDefaults service] getAddress], @"address", [[UserDefaults service] getBuilding], @"building", [[UserDefaults service] getAddressLongitude], @"longitude", [[UserDefaults service] getAddressLatitude], @"latitude", [[UserDefaults service] getName], @"name", [[UserDefaults service] getAddressPhone], @"tel_no", [[UserDefaults service] getOrderNote], @"comments", deliveryDatesTime, @"delay_time", nil];
-    
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:settle, @"ordersubmit", @"1", @"cart_delete", _payType, @"pay_type", [[UserDefaults service] getStoreId], @"cvs_no", _useIntegral, @"use_integral", [[UserDefaults service] getAddress], @"address", [[UserDefaults service] getBuilding], @"building", [[UserDefaults service] getAddressLongitude], @"longitude", [[UserDefaults service] getAddressLatitude], @"latitude", [[UserDefaults service] getName], @"name", [[UserDefaults service] getAddressPhone], @"tel_no", [[UserDefaults service] getOrderNote], @"comments", _deliveryDatesTime, @"delay_time", nil];
+    weakify(self);
     [HttpClientService requestOrdersubmit:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
@@ -1008,9 +1008,9 @@
             
             [self hideLoadHUD:YES];
             
-            if ([useIntegral isEqualToString:@"0"]) {
+            if ([self.useIntegral isEqualToString:@"0"]) {
                 //未使用积分
-                if ([payType isEqualToString:@"2"]) {
+                if ([self.payType isEqualToString:@"2"]) {
                     PaymentViewController *paymentViewController = [[PaymentViewController alloc] init];
                     [paymentViewController.orderDictionary setObject:[jsonDic objectForKey:@"order_id"] forKey:@"order_id"];
                     paymentViewController.startDate = [NSDate date];
@@ -1034,8 +1034,8 @@
                 }
             }else {
                 
-                if ([orderDictionary[@"money"] doubleValue] - [orderDictionary[@"integral_usable"] doubleValue] > 0){
-                    if ([payType isEqualToString:@"2"]) {
+                if ([self.orderDictionary[@"money"] doubleValue] - [self.orderDictionary[@"integral_usable"] doubleValue] > 0){
+                    if ([self.payType isEqualToString:@"2"]) {
                         PaymentViewController *paymentViewController = [[PaymentViewController alloc] init];
                         [paymentViewController.orderDictionary setObject:[jsonDic objectForKey:@"order_id"] forKey:@"order_id"];
                         paymentViewController.startDate = [NSDate date];
@@ -1129,19 +1129,14 @@
     //获取当前时间
     NSDate *currentDate = [NSDate date];
     
-    NSCalendar *currentCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *currentCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     
     NSDateComponents *currentComps = [[NSDateComponents alloc] init];
-    
-    
-    
-    NSInteger unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit | NSWeekdayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit;
-    
+
+    NSInteger unitFlags = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitWeekday | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
     
     
     currentComps = [currentCalendar components:unitFlags fromDate:currentDate];
-    
-    
     
     //设置当天的某个点
     
@@ -1155,9 +1150,7 @@
     
     [resultComps setHour:hour];
     
-    
-    
-    NSCalendar *resultCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *resultCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     
     return [resultCalendar dateFromComponents:resultComps];
     
@@ -1175,7 +1168,7 @@
     
     
     //去掉UItableview的section的headerview黏性
-    if (scrollView == contentView) {
+    if (scrollView == _contentView) {
         CGFloat sectionHeaderHeight = 6*SCALE;
         if (scrollView.contentOffset.y<=sectionHeaderHeight && scrollView.contentOffset.y>=0) {
             scrollView.contentInset = UIEdgeInsetsMake(-scrollView.contentOffset.y, 0, 0, 0);

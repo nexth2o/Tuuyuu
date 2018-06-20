@@ -21,15 +21,14 @@
 #import "MJDIYAutoFooter.h"
 #import "MJDIYBackFooter.h"
 
-@interface MineFriendViewController ()<UITableViewDelegate, UITableViewDataSource> {
-    UITableView *contentView;
-    NSDictionary *jsonDic;
-    NSMutableArray *friendArray;
-    UIImageView *bg;
-    NSInteger pageNumber;
-    NSInteger pageLen;
-    
-}
+@interface MineFriendViewController ()<UITableViewDelegate, UITableViewDataSource>
+
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, strong) NSDictionary *jsonDic;
+@property(nonatomic, strong) NSMutableArray *friendArray;
+@property(nonatomic, strong) UIImageView *bg;
+@property(nonatomic, assign) NSInteger pageNumber;
+@property(nonatomic, assign) NSInteger pageLen;
 
 @end
 
@@ -49,27 +48,27 @@
         //iOS7新增属性 TODO
         self.automaticallyAdjustsScrollViewInsets = NO;
         
-        bg = [[UIImageView alloc] initWithFrame:self.view.frame];
-        bg.image = [UIImage imageNamed:@"mine_content_bg"];
-        [self.view addSubview:bg];
+        _bg = [[UIImageView alloc] initWithFrame:self.view.frame];
+        _bg.image = [UIImage imageNamed:@"mine_content_bg"];
+        [self.view addSubview:_bg];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT) style:UITableViewStylePlain];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT) style:UITableViewStylePlain];
         
-        contentView.delegate = self;
+        _contentView.delegate = self;
         
-        contentView.dataSource = self;
+        _contentView.dataSource = self;
         
         //        contentView.separatorStyle = NO;
         
-        contentView.backgroundColor = [UIColor clearColor];
+        _contentView.backgroundColor = [UIColor clearColor];
         
         // 上拉刷新
-        contentView.mj_footer = [MJChiBaoZiFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
+        _contentView.mj_footer = [MJChiBaoZiFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
         
         //去除底部多余分割线
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
         [self.view bringSubviewToFront:navigationBar];
         
@@ -97,36 +96,36 @@
 }
 
 - (void)requestFriendslist {
-    [contentView setHidden:YES];
-    [bg setHidden:YES];
+    [_contentView setHidden:YES];
+    [_bg setHidden:YES];
     
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    pageNumber = 0;
-    pageLen = 20;
+    _pageNumber = 0;
+    _pageLen = 20;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:@"0", @"user_id", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
-    
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:@"0", @"user_id", [NSString stringWithFormat:@"%ld", (long)_pageNumber], @"page", nil];
+    weakify(self);
     [HttpClientService requestFriendslist:paramDic success:^(id responseObject) {
+        strongify(self);
+        self.jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
-        jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
-        
-        int status = [[jsonDic objectForKey:@"status"] intValue];
+        int status = [[self.jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            [contentView setHidden:NO];
-            [bg setHidden:NO];
-            friendArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"friends"]];
+            [self.contentView setHidden:NO];
+            [self.bg setHidden:NO];
+            self.friendArray = [NSMutableArray arrayWithArray:[self.jsonDic objectForKey:@"friends"]];
             
-            [contentView reloadData];
+            [self.contentView reloadData];
             
             
             [self hideLoadHUD:YES];
-            if ([friendArray count] < 20) {
-                [contentView.mj_footer endRefreshingWithNoMoreData];
+            if ([self.friendArray count] < 20) {
+                [self.contentView.mj_footer endRefreshingWithNoMoreData];
             }
-            pageNumber++;
+            self.pageNumber++;
         }else if (status == 202) {
             [self showMsg:@"您的登录状态失效，请重新登录"];
             [self hideLoadHUD:YES];
@@ -150,11 +149,11 @@
 - (void)loadMoreData {
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:@"0", @"user_id", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:@"0", @"user_id", [NSString stringWithFormat:@"%ld", (long)_pageNumber], @"page", nil];
 
-    //查询取餐列表
+    weakify(self);
     [HttpClientService requestFriendslist:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
@@ -169,9 +168,9 @@
                 
                 [self showMsg:@"没有更多好友了"];
                 
-                [contentView.mj_footer endRefreshingWithNoMoreData];
+                [self.contentView.mj_footer endRefreshingWithNoMoreData];
                 
-            }else if (array.count > 0 && array.count < pageLen) {
+            }else if (array.count > 0 && array.count < self.pageLen) {
                 
                 for (int i = 0; i<array.count; i++) {
                     
@@ -179,14 +178,14 @@
                     
                     dic = [array objectAtIndex:i];
                     
-                    [friendArray addObject:dic];
+                    [self.friendArray addObject:dic];
                 }
                 
-                [contentView reloadData];
+                [self.contentView reloadData];
                 
                 [self hideLoadHUD:YES];
                 
-                [contentView.mj_footer endRefreshingWithNoMoreData];
+                [self.contentView.mj_footer endRefreshingWithNoMoreData];
                 
                 
             }else {
@@ -197,27 +196,27 @@
                     
                     dic = [array objectAtIndex:i];
                     
-                    [friendArray addObject:dic];
+                    [self.friendArray addObject:dic];
                 }
-                pageNumber++;
+                self.pageNumber++;
                 
-                [contentView reloadData];
+                [self.contentView reloadData];
                 
                 [self hideLoadHUD:YES];
                 
-                [contentView.mj_footer endRefreshing];
+                [self.contentView.mj_footer endRefreshing];
                 
             }
             
         }
         
     } failure:^(NSError *error) {
-        
+        strongify(self);
         [self hideLoadHUD:YES];//TODO 需要回到主线程
         
         [self showMsg:@"加载好友失败"];
         
-        [contentView.mj_footer endRefreshing];
+        [self.contentView.mj_footer endRefreshing];
         
     }];
 }
@@ -228,7 +227,7 @@
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return [friendArray count]+2;
+    return [_friendArray count]+2;
 }
 
 - (NSInteger )tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -264,21 +263,21 @@
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         
         //例如
-        cell.name.text = [jsonDic objectForKey:@"nick_name"];
+        cell.name.text = [_jsonDic objectForKey:@"nick_name"];
         
-        if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"0"]) {
+        if ([[_jsonDic objectForKey:@"member_type"] isEqualToString:@"0"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_0"];
             cell.grade.text = @"注册会员";
-        }else if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"1"]) {
+        }else if ([[_jsonDic objectForKey:@"member_type"] isEqualToString:@"1"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_1"];
             cell.grade.text = @"铜牌会员";
-        }else if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"2"]) {
+        }else if ([[_jsonDic objectForKey:@"member_type"] isEqualToString:@"2"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_2"];
             cell.grade.text = @"银牌会员";
-        }else if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"3"]) {
+        }else if ([[_jsonDic objectForKey:@"member_type"] isEqualToString:@"3"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_3"];
             cell.grade.text = @"金牌会员";
-        }else if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"4"]) {
+        }else if ([[_jsonDic objectForKey:@"member_type"] isEqualToString:@"4"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_4"];
             cell.grade.text = @"钻石会员";
         }
@@ -294,9 +293,9 @@
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         
-        cell.number.text = [jsonDic objectForKey:@"total"];
+        cell.number.text = [_jsonDic objectForKey:@"total"];
         cell.numberTitle.text = @"直接好友数";
-        cell.count.text = [jsonDic objectForKey:@"integral"];
+        cell.count.text = [_jsonDic objectForKey:@"integral"];
         
         
         return cell;
@@ -307,13 +306,13 @@
             cell = [[MineFriendCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier3];
         }
 
-    cell.name.text = friendArray[indexPath.section-2][@"nick_name"];
+    cell.name.text = _friendArray[indexPath.section-2][@"nick_name"];
         
-        cell.time.text = [NSString stringWithFormat:@"加入时间：%@", friendArray[indexPath.section-2][@"register_time"]];
+        cell.time.text = [NSString stringWithFormat:@"加入时间：%@", _friendArray[indexPath.section-2][@"register_time"]];
         
         cell.type.text = @"直接好友贡献";
         
-        cell.coinCount.text = friendArray[indexPath.section-2][@"integral"];
+        cell.coinCount.text = _friendArray[indexPath.section-2][@"integral"];
         
         return cell;
     }
@@ -327,7 +326,7 @@ return cell;
         [tableView deselectRowAtIndexPath:indexPath animated:NO];
         
         MineFriendSubViewController *mineFriendSubViewController = [[MineFriendSubViewController alloc] init];
-        [mineFriendSubViewController.orderDictionary setObject:friendArray[indexPath.section-2][@"user_id"] forKey:@"user_id"];
+        [mineFriendSubViewController.orderDictionary setObject:_friendArray[indexPath.section-2][@"user_id"] forKey:@"user_id"];
        
         PUSH(mineFriendSubViewController);
     }

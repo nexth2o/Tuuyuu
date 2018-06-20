@@ -10,13 +10,11 @@
 #import "SettingCell.h"
 #import "LoginViewController.h"
 
-@interface SettingViewController ()<UITableViewDelegate, UITableViewDataSource> {
-    
-    UITableView *contentView;
-    
-    NSString *notify;
-    NSString *nightNotify;
-}
+@interface SettingViewController ()<UITableViewDelegate, UITableViewDataSource>
+
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, copy) NSString *notify;
+@property(nonatomic, copy) NSString *nightNotify;
 
 @end
 
@@ -32,20 +30,20 @@
         navigationBar.titleLabel.text = @"设置";
         [navigationBar.leftButton setHidden:NO];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT) style:UITableViewStyleGrouped];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT) style:UITableViewStyleGrouped];
         
-        contentView.delegate = self;
+        _contentView.delegate = self;
         
-        contentView.dataSource = self;
+        _contentView.dataSource = self;
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
         self.automaticallyAdjustsScrollViewInsets = NO;
         
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        notify = @"0";
-        nightNotify = @"0";
+        _notify = @"0";
+        _nightNotify = @"0";
         
     }
     
@@ -65,19 +63,19 @@
     [self showLoadHUDMsg:@"努力加载中..."];
     
     NSDictionary *paramDic = [[NSDictionary alloc] init];
-    
+    weakify(self);
     [HttpClientService requestIntegralconfig:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            notify = [jsonDic objectForKey:@"code_notify"];
-            nightNotify = [jsonDic objectForKey:@"is_night_notify_for_code"];
+            self.notify = [jsonDic objectForKey:@"code_notify"];
+            self.nightNotify = [jsonDic objectForKey:@"is_night_notify_for_code"];
 
-            [contentView reloadData];
+            [self.contentView reloadData];
             
             [self hideLoadHUD:YES];
          
@@ -105,17 +103,17 @@
 - (void)requestSetData {
     [self showLoadHUDMsg:@"设置中..."];
     
-        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:notify, @"code_notify", nightNotify, @"is_night_notify_for_code", nil];
-    
+        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_notify, @"code_notify", _nightNotify, @"is_night_notify_for_code", nil];
+    weakify(self);
     [HttpClientService requestIntegralconfigure:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            [contentView reloadData];
+            [self.contentView reloadData];
             
             [self hideLoadHUD:YES];
             
@@ -172,7 +170,7 @@
         [cell.subTitleLabel setHidden:YES];
         [cell.switchBtn setHidden:NO];
         
-        if ([notify isEqualToString:@"1"]) {
+        if ([_notify isEqualToString:@"1"]) {
             [cell.switchBtn setOn:YES];
         }else {
             [cell.switchBtn setOn:NO];
@@ -180,13 +178,15 @@
         
 //        __weak __typeof(&*cell)weakCell =cell;
         weakify(cell);
+        weakify(self);
         cell.switchActionBlock = ^()
         {
             strongify(cell);
+            strongify(self);
             if (cell.switchBtn.on == YES) {
-                notify = @"1";
+                self.notify = @"1";
             }else {
-                notify = @"0";
+                self.notify = @"0";
             }
             
             [self requestSetData];
@@ -224,13 +224,13 @@
     //清除缓存
     if (indexPath.row == 0) {
         UIAlertController *tipsAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否清除缓存？" preferredStyle:(UIAlertControllerStyleAlert)];
-        
+        weakify(self);
         UIAlertAction *OKButton = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
-            
+            strongify(self);
             [[SDImageCache sharedImageCache] clearDisk];
             [[SDImageCache sharedImageCache] clearMemory];
             [self showMsg:@"缓存清理成功"];
-            [contentView reloadData];
+            [self.contentView reloadData];
 
         }];
         

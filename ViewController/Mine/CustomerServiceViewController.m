@@ -10,11 +10,11 @@
 
 #import "LoginViewController.h"
 
-@interface CustomerServiceViewController () {
-    UILabel *storeNum;
-    UILabel *serviceNum;
-    UIImageView *contentView;
-}
+@interface CustomerServiceViewController ()
+
+@property(nonatomic, strong) UILabel *storeNum;
+@property(nonatomic, strong) UILabel *serviceNum;
+@property(nonatomic, strong) UIImageView *contentView;
 
 @end
 
@@ -39,15 +39,15 @@
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
         //背景
-        contentView = [[UIImageView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT)];
-        contentView.image = [UIImage imageNamed:@"mine_Customer_bg"];
-        contentView.userInteractionEnabled = YES;
-        [self.view addSubview:contentView];
+        _contentView = [[UIImageView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT)];
+        _contentView.image = [UIImage imageNamed:@"mine_Customer_bg"];
+        _contentView.userInteractionEnabled = YES;
+        [self.view addSubview:_contentView];
         
         //白色背景
         UIView *whiteView = [[UIView alloc] initWithFrame:CGRectMake(40*SCALE, 40*SCALE, SCREEN_WIDTH-80*SCALE, SCREEN_WIDTH-80*SCALE)];
         whiteView.backgroundColor = [UIColor whiteColor];
-        [contentView addSubview:whiteView];
+        [_contentView addSubview:whiteView];
         
         //标题
         UIView *line = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH-80*SCALE, 40*SCALE)];
@@ -77,17 +77,17 @@
         serviceTel.font = [UIFont systemFontOfSize:13*SCALE];
         [whiteView addSubview:serviceTel];
         
-        storeNum = [[UILabel alloc] initWithFrame:CGRectMake(60*SCALE, 120*SCALE, SCREEN_WIDTH-200*SCALE, 40*SCALE)];
-        storeNum.textColor = MAIN_COLOR;
-        storeNum.font = [UIFont boldSystemFontOfSize:22*SCALE];
-        storeNum.textAlignment = NSTextAlignmentCenter;
-        [whiteView addSubview:storeNum];
+        _storeNum = [[UILabel alloc] initWithFrame:CGRectMake(60*SCALE, 120*SCALE, SCREEN_WIDTH-200*SCALE, 40*SCALE)];
+        _storeNum.textColor = MAIN_COLOR;
+        _storeNum.font = [UIFont boldSystemFontOfSize:22*SCALE];
+        _storeNum.textAlignment = NSTextAlignmentCenter;
+        [whiteView addSubview:_storeNum];
         
-        serviceNum = [[UILabel alloc] initWithFrame:CGRectMake(60*SCALE, 200*SCALE, SCREEN_WIDTH-200*SCALE, 40*SCALE)];
-        serviceNum.textColor = MAIN_COLOR;
-        serviceNum.font = [UIFont boldSystemFontOfSize:22*SCALE];
-        serviceNum.textAlignment = NSTextAlignmentCenter;
-        [whiteView addSubview:serviceNum];
+        _serviceNum = [[UILabel alloc] initWithFrame:CGRectMake(60*SCALE, 200*SCALE, SCREEN_WIDTH-200*SCALE, 40*SCALE)];
+        _serviceNum.textColor = MAIN_COLOR;
+        _serviceNum.font = [UIFont boldSystemFontOfSize:22*SCALE];
+        _serviceNum.textAlignment = NSTextAlignmentCenter;
+        [whiteView addSubview:_serviceNum];
         
         UIImageView *storeIcon = [[UIImageView alloc] initWithFrame:CGRectMake(40*SCALE, 130*SCALE, 20*SCALE, 20*SCALE)];
         storeIcon.image = [UIImage imageNamed:@"mine_Customer_tel"];
@@ -117,12 +117,12 @@
 }
 
 - (void)sroreBtnEvent {
-    NSString *telUrl = [NSString stringWithFormat:@"tel://%@", storeNum.text];
+    NSString *telUrl = [NSString stringWithFormat:@"tel://%@", _storeNum.text];
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:telUrl]];
 }
 
 - (void)serviceBtnEvent {
-    NSString *telUrl = [NSString stringWithFormat:@"tel://%@", serviceNum.text];
+    NSString *telUrl = [NSString stringWithFormat:@"tel://%@", _serviceNum.text];
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:telUrl]];
 }
 
@@ -131,26 +131,26 @@
     
     self.tabBarController.tabBar.hidden = YES;
     
-    [contentView setHidden:YES];
+    [_contentView setHidden:YES];
     [self showLoadHUDMsg:@"努力加载中..."];
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[[UserDefaults service] getStoreId], @"cvs_no", nil];
-    
+    weakify(self);
     [HttpClientService requestStoresummary:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            [contentView setHidden:NO];
-            storeNum.text = [NSString stringWithFormat:@"%@-%@", [[jsonDic objectForKey:@"store_tel"] substringWithRange:NSMakeRange(0,3)], [[jsonDic objectForKey:@"store_tel"] substringWithRange:NSMakeRange(3,8)]];
+            [self.contentView setHidden:NO];
+            self.storeNum.text = [NSString stringWithFormat:@"%@-%@", [[jsonDic objectForKey:@"store_tel"] substringWithRange:NSMakeRange(0,3)], [[jsonDic objectForKey:@"store_tel"] substringWithRange:NSMakeRange(3,8)]];
             
             if (![[jsonDic objectForKey:@"service_tel"] isKindOfClass:[NSNull class]] && [jsonDic objectForKey:@"service_tel"]) {
-                serviceNum.text = [NSString stringWithFormat:@"%@-%@-%@", [[jsonDic objectForKey:@"service_tel"] substringWithRange:NSMakeRange(0,3)], [[jsonDic objectForKey:@"service_tel"] substringWithRange:NSMakeRange(3,3)], [[jsonDic objectForKey:@"service_tel"] substringWithRange:NSMakeRange(6,4)]];
+                self.serviceNum.text = [NSString stringWithFormat:@"%@-%@-%@", [[jsonDic objectForKey:@"service_tel"] substringWithRange:NSMakeRange(0,3)], [[jsonDic objectForKey:@"service_tel"] substringWithRange:NSMakeRange(3,3)], [[jsonDic objectForKey:@"service_tel"] substringWithRange:NSMakeRange(6,4)]];
             }else {
-                serviceNum.text = @"400-166-0020";
+                self.serviceNum.text = @"400-166-0020";
             }
             
             [self hideLoadHUD:YES];

@@ -12,10 +12,10 @@
 
 #import "LoginViewController.h"
 
-@interface MineAddressViewController ()<UITableViewDelegate, UITableViewDataSource> {
-    UITableView *contentView;
-    NSMutableArray *addressArray;
-}
+@interface MineAddressViewController ()<UITableViewDelegate, UITableViewDataSource>
+
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, strong) NSMutableArray *addressArray;
 
 @end
 
@@ -41,20 +41,20 @@
         
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+1, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-1) style:UITableViewStylePlain];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+1, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-1) style:UITableViewStylePlain];
         
-        contentView.delegate = self;
+        _contentView.delegate = self;
         
-        contentView.dataSource = self;
+        _contentView.dataSource = self;
         
         //        contentView.separatorStyle = NO;
         
-        contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
         //去除底部多余分割线
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
     }
     
@@ -78,27 +78,27 @@
 
 - (void)new {
     NSDictionary *paramDic = [[NSDictionary alloc] init];
-    
+    weakify(self);
     [HttpClientService requestAddress:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            addressArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"address"]];
+            self.addressArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"address"]];
             
-            if ([addressArray count] > 0) {
+            if ([self.addressArray count] > 0) {
                 
-                [contentView setHidden:NO];
+                [self.contentView setHidden:NO];
                 
                 [self hideEmptyView];
 
-                [contentView reloadData];
+                [self.contentView reloadData];
                 
             }else {
-                [contentView setHidden:YES];
+                [self.contentView setHidden:YES];
 
                 [self showEmptyViewWithStyle:EmptyViewStyleNoAddress];
                 [self setEmptyViewTitle:@"暂时没有您的送货地址信息"];
@@ -131,7 +131,7 @@
 }
 
 - (NSInteger )tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [addressArray count];
+    return [_addressArray count];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -148,10 +148,10 @@
         cell = [[MineAddressCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier1];
     }
     
-    cell.name.text = addressArray[indexPath.row][@"name"];
+    cell.name.text = _addressArray[indexPath.row][@"name"];
     
     NSString *str = @"";
-    if ([addressArray[indexPath.row][@"flag"] isEqualToString:@"0"]) {
+    if ([_addressArray[indexPath.row][@"flag"] isEqualToString:@"0"]) {
         str = @" 女士";
     }else {
         str = @" 先生";
@@ -159,8 +159,8 @@
     
     cell.gender.text = str;
     
-    cell.phone.text = addressArray[indexPath.row][@"tel_no"];
-    cell.address.text = [NSString stringWithFormat:@"%@%@", addressArray[indexPath.row][@"address"], addressArray[indexPath.row][@"building"]];
+    cell.phone.text = _addressArray[indexPath.row][@"tel_no"];
+    cell.address.text = [NSString stringWithFormat:@"%@%@", _addressArray[indexPath.row][@"address"], _addressArray[indexPath.row][@"building"]];
     
     return cell;
     
@@ -168,14 +168,14 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath; {
     
-    [[UserDefaults service] updateEditName:addressArray[indexPath.row][@"name"]];
-    [[UserDefaults service] updateEditGender:addressArray[indexPath.row][@"flag"]];
-    [[UserDefaults service] updateEditPhone:addressArray[indexPath.row][@"tel_no"]];
-    [[UserDefaults service] updateEditAddress:addressArray[indexPath.row][@"address"]];
-    [[UserDefaults service] updateEditBuilding:addressArray[indexPath.row][@"building"]];
-    [[UserDefaults service] updateEditLatitude:addressArray[indexPath.row][@"latitude"]];
-    [[UserDefaults service] updateEditLongitude:addressArray[indexPath.row][@"longitude"]];
-    [[UserDefaults service] updateEditAddressId:addressArray[indexPath.row][@"address_id"]];
+    [[UserDefaults service] updateEditName:_addressArray[indexPath.row][@"name"]];
+    [[UserDefaults service] updateEditGender:_addressArray[indexPath.row][@"flag"]];
+    [[UserDefaults service] updateEditPhone:_addressArray[indexPath.row][@"tel_no"]];
+    [[UserDefaults service] updateEditAddress:_addressArray[indexPath.row][@"address"]];
+    [[UserDefaults service] updateEditBuilding:_addressArray[indexPath.row][@"building"]];
+    [[UserDefaults service] updateEditLatitude:_addressArray[indexPath.row][@"latitude"]];
+    [[UserDefaults service] updateEditLongitude:_addressArray[indexPath.row][@"longitude"]];
+    [[UserDefaults service] updateEditAddressId:_addressArray[indexPath.row][@"address_id"]];
 
     
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
@@ -186,9 +186,9 @@
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:addressArray[indexPath.row][@"address_id"], @"address_id", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_addressArray[indexPath.row][@"address_id"], @"address_id", nil];
     // 删除模型
-    [addressArray removeObjectAtIndex:indexPath.row];
+    [_addressArray removeObjectAtIndex:indexPath.row];
     // 刷新
     [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
     

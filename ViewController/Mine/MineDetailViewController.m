@@ -15,12 +15,10 @@
 #import "EditGenderViewController.h"
 #import "EditPasswordViewController.h"
 
-@interface MineDetailViewController ()<UITableViewDelegate, UITableViewDataSource, UINavigationControllerDelegate, UIImagePickerControllerDelegate> {
-    
-    UITableView *contentView;
-    
-    NSMutableDictionary *personalDic;
-}
+@interface MineDetailViewController ()<UITableViewDelegate, UITableViewDataSource, UINavigationControllerDelegate, UIImagePickerControllerDelegate>
+
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, strong) NSMutableDictionary *personalDic;
 
 @end
 
@@ -37,18 +35,18 @@
         
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0.0f, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+20, SCREEN_WIDTH, 300*SCALE) style:UITableViewStylePlain];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0.0f, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+20, SCREEN_WIDTH, 300*SCALE) style:UITableViewStylePlain];
         
-        contentView.delegate = self;
+        _contentView.delegate = self;
         
-        contentView.dataSource = self;
+        _contentView.dataSource = self;
         
-        contentView.scrollEnabled = NO;
+        _contentView.scrollEnabled = NO;
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
         //按钮
-        UIButton *logoutButton = [[UIButton alloc] initWithFrame:CGRectMake(20.0f, contentView.frame.origin.y+contentView.frame.size.height+100*SCALE, SCREEN_WIDTH - 20*2, 44.0f*SCALE)];
+        UIButton *logoutButton = [[UIButton alloc] initWithFrame:CGRectMake(20.0f, _contentView.frame.origin.y+_contentView.frame.size.height+100*SCALE, SCREEN_WIDTH - 20*2, 44.0f*SCALE)];
         logoutButton.layer.cornerRadius = 5;
         logoutButton.titleLabel.font = [UIFont boldSystemFontOfSize:16];
         [logoutButton setBackgroundImage:[UIImage imageNamed:@"order_appraise"] forState:UIControlStateNormal];
@@ -75,22 +73,22 @@
     [self showLoadHUDMsg:@"努力加载中..."];
     NSDictionary *paramDic = [[NSDictionary alloc] init];
     
-    //查询取餐列表
+    weakify(self);
     [HttpClientService requestGetpersonalinfo:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            personalDic = [[NSMutableDictionary alloc] initWithDictionary:jsonDic];
+            self.personalDic = [[NSMutableDictionary alloc] initWithDictionary:jsonDic];
             
-            [[UserDefaults service] updateNickName:personalDic[@"nick_name"]];
-            [[UserDefaults service] updateGender:personalDic[@"is_male"]];
-            [[UserDefaults service] updatePhone:personalDic[@"tel_no"]];
+            [[UserDefaults service] updateNickName:self.personalDic[@"nick_name"]];
+            [[UserDefaults service] updateGender:self.personalDic[@"is_male"]];
+            [[UserDefaults service] updatePhone:self.personalDic[@"tel_no"]];
             
-            [contentView reloadData];
+            [self.contentView reloadData];
             
             [self hideLoadHUD:YES];
         }if (status == 202) {
@@ -161,7 +159,7 @@
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         
         cell.titleLabel.text = @"昵称";
-        cell.detailTitleLabel.text = personalDic[@"nick_name"];
+        cell.detailTitleLabel.text = _personalDic[@"nick_name"];
         
         return cell;
     }else if(indexPath.row == 2) {
@@ -175,9 +173,9 @@
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         
         cell.titleLabel.text = @"性别";
-        if ([personalDic[@"is_male"] isEqualToString:@"0"]) {
+        if ([_personalDic[@"is_male"] isEqualToString:@"0"]) {
             cell.detailTitleLabel.text = @"女";
-        }else if ([personalDic[@"is_male"] isEqualToString:@"1"]) {
+        }else if ([_personalDic[@"is_male"] isEqualToString:@"1"]) {
             cell.detailTitleLabel.text = @"男";
         }
         
@@ -195,7 +193,7 @@
         
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         cell.titleLabel.text = @"手机号码";
-        cell.detailTitleLabel.text = personalDic[@"tel_no"];
+        cell.detailTitleLabel.text = _personalDic[@"tel_no"];
         
         return cell;
     }else if(indexPath.row == 4) {

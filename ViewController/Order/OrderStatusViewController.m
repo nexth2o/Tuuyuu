@@ -10,10 +10,10 @@
 #import "OrderStatusTitleCell.h"
 #import "OrderStatusCell.h"
 
-@interface OrderStatusViewController ()<UITableViewDelegate, UITableViewDataSource> {
-    UITableView *contentView;
-    NSMutableArray *statusArray;
-}
+@interface OrderStatusViewController ()<UITableViewDelegate, UITableViewDataSource>
+
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, strong) NSMutableArray *statusArray;
 
 @end
 
@@ -29,12 +29,12 @@
         
         self.view.backgroundColor = [UIColor clearColor];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - 50*SCALE*CELLCOUNT, SCREEN_WIDTH, 50*SCALE*CELLCOUNT) style:UITableViewStylePlain];
-        contentView.delegate = self;
-        contentView.dataSource = self;
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - 50*SCALE*CELLCOUNT, SCREEN_WIDTH, 50*SCALE*CELLCOUNT) style:UITableViewStylePlain];
+        _contentView.delegate = self;
+        _contentView.dataSource = self;
         //        contentView.separatorStyle = NO;s
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-        [self.view addSubview:contentView];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        [self.view addSubview:_contentView];
         
         _orderDictionary = [[NSMutableDictionary alloc] init];
         
@@ -53,16 +53,17 @@
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderDictionary[@"order_id"], @"order_id", @"0", @"state", nil];
     
     //查询订单节点
+    weakify(self);
     [HttpClientService requestLogisticsinfo:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            statusArray = [[NSMutableArray alloc] initWithArray:[jsonDic objectForKey:@"logistics_state"]];
-            [contentView reloadData];
+            self.statusArray = [[NSMutableArray alloc] initWithArray:[jsonDic objectForKey:@"logistics_state"]];
+            [self.contentView reloadData];
             [self hideLoadHUD:YES];
         }
         
@@ -108,13 +109,13 @@
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         
-        if ([statusArray count] >= 1) {
+        if ([_statusArray count] >= 1) {
             cell.statusIcon.image = [UIImage imageNamed:@"order_detail_status_header_gray"];
         }else {
             cell.statusIcon.image = [UIImage imageNamed:@""];
         }
-        cell.info.text = statusArray[0][@"description"];
-        cell.time.text = statusArray[0][@"time"];
+        cell.info.text = _statusArray[0][@"description"];
+        cell.time.text = _statusArray[0][@"time"];
         
         
         return cell;
@@ -126,14 +127,14 @@
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
         
-        if ([statusArray count] == 2) {
+        if ([_statusArray count] == 2) {
             cell.statusIcon.image = [UIImage imageNamed:@"order_detail_status_footer"];
-            cell.info.text = statusArray[1][@"description"];
-            cell.time.text = statusArray[1][@"time"];
-        }else if ([statusArray count] > 2) {
+            cell.info.text = _statusArray[1][@"description"];
+            cell.time.text = _statusArray[1][@"time"];
+        }else if ([_statusArray count] > 2) {
             cell.statusIcon.image = [UIImage imageNamed:@"order_detail_status_middle_gray"];
-            cell.info.text = statusArray[1][@"description"];
-            cell.time.text = statusArray[1][@"time"];
+            cell.info.text = _statusArray[1][@"description"];
+            cell.time.text = _statusArray[1][@"time"];
         }else {
             cell.statusIcon.image = [UIImage imageNamed:@""];
         }
@@ -146,14 +147,14 @@
             cell = [[OrderStatusCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier3];
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        if ([statusArray count] == 3) {
+        if ([_statusArray count] == 3) {
             cell.statusIcon.image = [UIImage imageNamed:@"order_detail_status_footer"];
-            cell.info.text = statusArray[2][@"description"];
-            cell.time.text = statusArray[2][@"time"];
-        }else if ([statusArray count] > 3) {
+            cell.info.text = _statusArray[2][@"description"];
+            cell.time.text = _statusArray[2][@"time"];
+        }else if ([_statusArray count] > 3) {
             cell.statusIcon.image = [UIImage imageNamed:@"order_detail_status_middle_gray"];
-            cell.info.text = statusArray[2][@"description"];
-            cell.time.text = statusArray[2][@"time"];
+            cell.info.text = _statusArray[2][@"description"];
+            cell.time.text = _statusArray[2][@"time"];
         }else {
             cell.statusIcon.image = [UIImage imageNamed:@""];
         }
@@ -166,14 +167,14 @@
             cell = [[OrderStatusCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier3];
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        if ([statusArray count] == 4) {
+        if ([_statusArray count] == 4) {
             cell.statusIcon.image = [UIImage imageNamed:@"order_detail_status_footer"];
-            cell.info.text = statusArray[3][@"description"];
-            cell.time.text = statusArray[3][@"time"];
-        }else if ([statusArray count] > 4) {
+            cell.info.text = _statusArray[3][@"description"];
+            cell.time.text = _statusArray[3][@"time"];
+        }else if ([_statusArray count] > 4) {
             cell.statusIcon.image = [UIImage imageNamed:@"order_detail_status_middle_gray"];
-            cell.info.text = statusArray[3][@"description"];
-            cell.time.text = statusArray[3][@"time"];
+            cell.info.text = _statusArray[3][@"description"];
+            cell.time.text = _statusArray[3][@"time"];
         }else {
             cell.statusIcon.image = [UIImage imageNamed:@""];
         }
@@ -186,14 +187,14 @@
             cell = [[OrderStatusCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier3];
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        if ([statusArray count] == 5) {
+        if ([_statusArray count] == 5) {
             cell.statusIcon.image = [UIImage imageNamed:@"order_detail_status_footer"];
-            cell.info.text = statusArray[4][@"description"];
-            cell.time.text = statusArray[4][@"time"];
-        }else if ([statusArray count] > 5) {
+            cell.info.text = _statusArray[4][@"description"];
+            cell.time.text = _statusArray[4][@"time"];
+        }else if ([_statusArray count] > 5) {
             cell.statusIcon.image = [UIImage imageNamed:@"order_detail_status_middle_gray"];
-            cell.info.text = statusArray[4][@"description"];
-            cell.time.text = statusArray[4][@"time"];
+            cell.info.text = _statusArray[4][@"description"];
+            cell.time.text = _statusArray[4][@"time"];
         }else {
             cell.statusIcon.image = [UIImage imageNamed:@""];
         }
@@ -206,14 +207,14 @@
             cell = [[OrderStatusCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier3];
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        if ([statusArray count] == 6) {
+        if ([_statusArray count] == 6) {
             cell.statusIcon.image = [UIImage imageNamed:@"order_detail_status_footer"];
-            cell.info.text = statusArray[5][@"description"];
-            cell.time.text = statusArray[5][@"time"];
-        }else if ([statusArray count] > 6) {
+            cell.info.text = _statusArray[5][@"description"];
+            cell.time.text = _statusArray[5][@"time"];
+        }else if ([_statusArray count] > 6) {
             cell.statusIcon.image = [UIImage imageNamed:@"order_detail_status_middle_gray"];
-            cell.info.text = statusArray[5][@"description"];
-            cell.time.text = statusArray[5][@"time"];
+            cell.info.text = _statusArray[5][@"description"];
+            cell.time.text = _statusArray[5][@"time"];
         }else {
             cell.statusIcon.image = [UIImage imageNamed:@""];
         }

@@ -14,10 +14,6 @@
 #import <TencentOpenAPI/QQApiInterface.h>
 
 @interface ShareCommentViewController () {
-    NSDictionary *jsonDic;
-    
-    UIView *whiteView;
-    
     UILabel *title;
     
     UIImageView *star1;
@@ -25,13 +21,14 @@
     UIImageView *star3;
     UIImageView *star4;
     UIImageView *star5;
-    
-    UILabel *rateMsg;
-    
-    HomeButton *qqBtn;
-    HomeButton *friendBtn;
-    HomeButton *wxBtn;
 }
+
+@property(nonatomic, strong) NSDictionary *jsonDic;
+@property(nonatomic, strong) UILabel *rateMsg;
+@property(nonatomic, strong) HomeButton *qqBtn;
+@property(nonatomic, strong) HomeButton *friendBtn;
+@property(nonatomic, strong) HomeButton *wxBtn;
+@property(nonatomic, strong) UIView *whiteView;
 
 @end
 
@@ -56,99 +53,99 @@
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
         //白色背景
-        whiteView = [[UIView alloc] initWithFrame:CGRectMake(20*SCALE, 80*SCALE, SCREEN_WIDTH-40*SCALE, SCREEN_WIDTH+20*SCALE)];
-        whiteView.backgroundColor = [UIColor whiteColor];
+        _whiteView = [[UIView alloc] initWithFrame:CGRectMake(20*SCALE, 80*SCALE, SCREEN_WIDTH-40*SCALE, SCREEN_WIDTH+20*SCALE)];
+        _whiteView.backgroundColor = [UIColor whiteColor];
     
         UIImageView *icon = [[UIImageView alloc] initWithFrame:CGRectMake((SCREEN_WIDTH-40*SCALE-70*SCALE)/2, 30*SCALE, 70*SCALE, 70*SCALE)];
         icon.image = [UIImage imageNamed:@"order_logo"];
-        [whiteView addSubview:icon];
+        [_whiteView addSubview:icon];
         
         title = [[UILabel alloc] initWithFrame:CGRectMake(0*SCALE, CGRectGetMaxY(icon.frame)+10*SCALE, SCREEN_WIDTH-40*SCALE, 20*SCALE)];
         title.textAlignment = NSTextAlignmentCenter;
         title.text = @"兔悠沈阳站店";
 //        title.textColor = [UIColor darkGrayColor];
         title.font = [UIFont systemFontOfSize:16*SCALE];
-        [whiteView addSubview:title];
+        [_whiteView addSubview:title];
         
         UILabel *subTitle = [[UILabel alloc] initWithFrame:CGRectMake(0*SCALE, CGRectGetMaxY(title.frame)+30*SCALE, SCREEN_WIDTH-40*SCALE, 20*SCALE)];
         subTitle.textAlignment = NSTextAlignmentCenter;
         subTitle.text = @"我的评价";
         subTitle.textColor = [UIColor darkGrayColor];
         subTitle.font = [UIFont systemFontOfSize:13*SCALE];
-        [whiteView addSubview:subTitle];
+        [_whiteView addSubview:subTitle];
         
         
         star1 = [[UIImageView alloc] initWithFrame:CGRectMake(100*SCALE, CGRectGetMaxY(subTitle.frame)+20*SCALE, 24*SCALE, 24*SCALE)];
         star1.image = [UIImage imageNamed:@"score_star_yellow"];
-        [whiteView addSubview:star1];
+        [_whiteView addSubview:star1];
         
         star2 = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(star1.frame)+5*SCALE, CGRectGetMaxY(subTitle.frame)+20*SCALE, 24*SCALE, 24*SCALE)];
         star2.image = [UIImage imageNamed:@"score_star_yellow"];
-        [whiteView addSubview:star2];
+        [_whiteView addSubview:star2];
         
         star3 = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(star2.frame)+5*SCALE, CGRectGetMaxY(subTitle.frame)+20*SCALE, 24*SCALE, 24*SCALE)];
         star3.image = [UIImage imageNamed:@"score_star_yellow"];
-        [whiteView addSubview:star3];
+        [_whiteView addSubview:star3];
         
         star4 = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(star3.frame)+5*SCALE, CGRectGetMaxY(subTitle.frame)+20*SCALE, 24*SCALE, 24*SCALE)];
         star4.image = [UIImage imageNamed:@"score_star_yellow"];
-        [whiteView addSubview:star4];
+        [_whiteView addSubview:star4];
         
         star5 = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(star4.frame)+5*SCALE, CGRectGetMaxY(subTitle.frame)+20*SCALE, 24*SCALE, 24*SCALE)];
         star5.image = [UIImage imageNamed:@"score_star_yellow"];
-        [whiteView addSubview:star5];
+        [_whiteView addSubview:star5];
         
         
-        rateMsg = [[UILabel alloc] initWithFrame:CGRectMake(20*SCALE, CGRectGetMaxY(star1.frame)+10*SCALE, SCREEN_WIDTH-60*SCALE, 70*SCALE)];
-        rateMsg.font = [UIFont systemFontOfSize:13*SCALE];
-        rateMsg.textColor = [UIColor darkGrayColor];
-        rateMsg.numberOfLines = 4;
-        [whiteView addSubview:rateMsg];
+        _rateMsg = [[UILabel alloc] initWithFrame:CGRectMake(20*SCALE, CGRectGetMaxY(star1.frame)+10*SCALE, SCREEN_WIDTH-60*SCALE, 70*SCALE)];
+        _rateMsg.font = [UIFont systemFontOfSize:13*SCALE];
+        _rateMsg.textColor = [UIColor darkGrayColor];
+        _rateMsg.numberOfLines = 4;
+        [_whiteView addSubview:_rateMsg];
         
-        UILabel *tips = [[UILabel alloc] initWithFrame:CGRectMake(95*SCALE, CGRectGetMaxY(rateMsg.frame) + 20*SCALE, 70*SCALE, 20*SCALE)];
+        UILabel *tips = [[UILabel alloc] initWithFrame:CGRectMake(95*SCALE, CGRectGetMaxY(_rateMsg.frame) + 20*SCALE, 70*SCALE, 20*SCALE)];
         tips.font = [UIFont systemFontOfSize:15*SCALE];
         tips.text = @"兔悠到家";
 //        tips.backgroundColor = [UIColor purpleColor];
-        [whiteView addSubview:tips];
+        [_whiteView addSubview:tips];
         
         UILabel *tipsDetail = [[UILabel alloc] initWithFrame:CGRectMake(95*SCALE, CGRectGetMaxY(tips.frame) + 5*SCALE, 220*SCALE, 20*SCALE)];
         tipsDetail.font = [UIFont systemFontOfSize:12*SCALE];
         tipsDetail.text = @"长按识别图中二维码 查看商家更多信息";
         tipsDetail.textColor = [UIColor darkGrayColor];
 //        tipsDetail.backgroundColor = [UIColor purpleColor];
-        [whiteView addSubview:tipsDetail];
+        [_whiteView addSubview:tipsDetail];
         
         
-        wxBtn = [HomeButton buttonWithType:UIButtonTypeCustom];
-        [wxBtn setFrame:CGRectMake(40*SCALE, 500*SCALE, 80*SCALE, 80*SCALE)];
+        _wxBtn = [HomeButton buttonWithType:UIButtonTypeCustom];
+        [_wxBtn setFrame:CGRectMake(40*SCALE, 500*SCALE, 80*SCALE, 80*SCALE)];
         
-        [wxBtn setImage:[UIImage imageNamed:@"home_bonus_wx"] forState:UIControlStateNormal];
-        [wxBtn setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
-        [wxBtn setTitle:@"微信好友" forState:UIControlStateNormal];
-        [wxBtn.titleLabel setFont:[UIFont systemFontOfSize:9*SCALE]];
-        [wxBtn verticalImageAndTitle:6*SCALE];
-        [wxBtn addTarget:self action:@selector(wxBtn) forControlEvents:UIControlEventTouchUpInside];
+        [_wxBtn setImage:[UIImage imageNamed:@"home_bonus_wx"] forState:UIControlStateNormal];
+        [_wxBtn setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+        [_wxBtn setTitle:@"微信好友" forState:UIControlStateNormal];
+        [_wxBtn.titleLabel setFont:[UIFont systemFontOfSize:9*SCALE]];
+        [_wxBtn verticalImageAndTitle:6*SCALE];
+        [_wxBtn addTarget:self action:@selector(wxBtnEvent) forControlEvents:UIControlEventTouchUpInside];
         //        _wxBtn.backgroundColor = [UIColor blueColor];
         
         
-        qqBtn = [HomeButton buttonWithType:UIButtonTypeCustom];
-        [qqBtn setFrame:CGRectMake(CGRectGetMaxX(wxBtn.frame)+30*SCALE, 500*SCALE, 80*SCALE, 80*SCALE)];
-        [qqBtn setImage:[UIImage imageNamed:@"home_bonus_qq"] forState:UIControlStateNormal];
-        [qqBtn setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
-        [qqBtn setTitle:@"QQ好友" forState:UIControlStateNormal];
-        [qqBtn.titleLabel setFont:[UIFont systemFontOfSize:9*SCALE]];
-        [qqBtn verticalImageAndTitle:6*SCALE];
-        [qqBtn addTarget:self action:@selector(qqBtn) forControlEvents:UIControlEventTouchUpInside];
+        _qqBtn = [HomeButton buttonWithType:UIButtonTypeCustom];
+        [_qqBtn setFrame:CGRectMake(CGRectGetMaxX(_wxBtn.frame)+30*SCALE, 500*SCALE, 80*SCALE, 80*SCALE)];
+        [_qqBtn setImage:[UIImage imageNamed:@"home_bonus_qq"] forState:UIControlStateNormal];
+        [_qqBtn setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+        [_qqBtn setTitle:@"QQ好友" forState:UIControlStateNormal];
+        [_qqBtn.titleLabel setFont:[UIFont systemFontOfSize:9*SCALE]];
+        [_qqBtn verticalImageAndTitle:6*SCALE];
+        [_qqBtn addTarget:self action:@selector(qqBtnEvent) forControlEvents:UIControlEventTouchUpInside];
         //        _qqBtn.backgroundColor = [UIColor blueColor];
         
-        friendBtn = [HomeButton buttonWithType:UIButtonTypeCustom];
-        [friendBtn setFrame:CGRectMake(CGRectGetMaxX(qqBtn.frame)+30*SCALE, 500*SCALE, 80*SCALE, 80*SCALE)];
-        [friendBtn setImage:[UIImage imageNamed:@"home_bonus_friend"] forState:UIControlStateNormal];
-        [friendBtn setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
-        [friendBtn setTitle:@"朋友圈" forState:UIControlStateNormal];
-        [friendBtn.titleLabel setFont:[UIFont systemFontOfSize:9*SCALE]];
-        [friendBtn verticalImageAndTitle:6*SCALE];
-        [friendBtn addTarget:self action:@selector(friendBtn) forControlEvents:UIControlEventTouchUpInside];
+        _friendBtn = [HomeButton buttonWithType:UIButtonTypeCustom];
+        [_friendBtn setFrame:CGRectMake(CGRectGetMaxX(_qqBtn.frame)+30*SCALE, 500*SCALE, 80*SCALE, 80*SCALE)];
+        [_friendBtn setImage:[UIImage imageNamed:@"home_bonus_friend"] forState:UIControlStateNormal];
+        [_friendBtn setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+        [_friendBtn setTitle:@"朋友圈" forState:UIControlStateNormal];
+        [_friendBtn.titleLabel setFont:[UIFont systemFontOfSize:9*SCALE]];
+        [_friendBtn verticalImageAndTitle:6*SCALE];
+        [_friendBtn addTarget:self action:@selector(friendBtnEvent) forControlEvents:UIControlEventTouchUpInside];
         //        _qqBtn.backgroundColor = [UIColor blueColor];
         
         
@@ -178,12 +175,12 @@
     [self showLoadHUDMsg:@"努力加载中..."];
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderDictionary[@"order_id"], @"order_id", nil];
-    
+    weakify(self);
     [HttpClientService requestOrderrateshare:paramDic success:^(id responseObject) {
+        strongify(self);
+        self.jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
-        jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
-        
-        int status = [[jsonDic objectForKey:@"status"] intValue];
+        int status = [[self.jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
 
@@ -195,23 +192,23 @@
             // 2.恢复默认
             [filter setDefaults];
             // 3.给过滤器添加数据(正则表达式/账号和密码)
-            NSString *dataString = [jsonDic objectForKey:@"register_url"];
+            NSString *dataString = [self.jsonDic objectForKey:@"register_url"];
             NSData *data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
             [filter setValue:data forKeyPath:@"inputMessage"];
             
             // 4.获取输出的二维码
             CIImage *outputImage = [filter outputImage];
             // 5.将CIImage转换成UIImage，并放大显示
-            UIImageView *imageV = [[UIImageView alloc]initWithFrame:CGRectMake(20*SCALE, CGRectGetMaxY(rateMsg.frame) + 10*SCALE, 65*SCALE, 65*SCALE)];
+            UIImageView *imageV = [[UIImageView alloc]initWithFrame:CGRectMake(20*SCALE, CGRectGetMaxY(self.rateMsg.frame) + 10*SCALE, 65*SCALE, 65*SCALE)];
 //            imageV.backgroundColor = [UIColor purpleColor];
             imageV.image = [self createNonInterpolatedUIImageFormCIImage:outputImage withSize:65*SCALE];
-            [whiteView addSubview:imageV];
+            [self.whiteView addSubview:imageV];
             
-            [self.view addSubview:whiteView];
+            [self.view addSubview:self.whiteView];
             
-            [self.view addSubview:wxBtn];
-            [self.view addSubview:qqBtn];
-            [self.view addSubview:friendBtn];
+            [self.view addSubview:self.wxBtn];
+            [self.view addSubview:self.qqBtn];
+            [self.view addSubview:self.friendBtn];
             
             [self cutUIImage];
             
@@ -237,14 +234,14 @@
 
 - (void)reloadView {
     
-    title.text = [jsonDic objectForKey:@"cvs_name"];
+    title.text = [_jsonDic objectForKey:@"cvs_name"];
     
     //评论星
     UIImage *halfStar = [UIImage imageNamed:@"score_star_half"];
     UIImage *grayStar = [UIImage imageNamed:@"score_star_gray"];
     UIImage *yellowStar = [UIImage imageNamed:@"score_star_yellow"];
     
-    double count = [[jsonDic objectForKey:@"cvs_rate"] doubleValue];
+    double count = [[_jsonDic objectForKey:@"cvs_rate"] doubleValue];
     
     for (int i = 0; i < 5; i++) {
         
@@ -301,14 +298,14 @@
         star5.image = grayStar;
     }
     
-    rateMsg.text = [jsonDic objectForKey:@"rate_msg"];
+    _rateMsg.text = [_jsonDic objectForKey:@"rate_msg"];
     
 }
 
 - (UIImage*)cutUIImage{
 
-    UIGraphicsBeginImageContext(whiteView.frame.size);
-    [whiteView.layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIGraphicsBeginImageContext(_whiteView.frame.size);
+    [_whiteView.layer renderInContext:UIGraphicsGetCurrentContext()];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
@@ -347,7 +344,7 @@
     return [UIImage imageWithCGImage:scaledImage];
 }
 
-- (void)wxBtn {
+- (void)wxBtnEvent {
     //创建发送对象实例
     SendMessageToWXReq *sendReq = [[SendMessageToWXReq alloc] init];
     sendReq.bText = NO;//不使用文本信息
@@ -358,7 +355,7 @@
     
     WXImageObject * imageObject = [WXImageObject object];
 //    imageObject.imageData = [self imageWithImage:[self cutUIImage] scaledToSize:CGSizeMake(300, 300)];
-    imageObject.imageData = [self imageWithImage:[self cutUIImage] scaledToSize:whiteView.frame.size];
+    imageObject.imageData = [self imageWithImage:[self cutUIImage] scaledToSize:_whiteView.frame.size];
     
     message.mediaObject = imageObject;
     
@@ -372,7 +369,7 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)friendBtn {
+- (void)friendBtnEvent {
     //创建发送对象实例
     SendMessageToWXReq *sendReq = [[SendMessageToWXReq alloc] init];
     sendReq.bText = NO;//不使用文本信息
@@ -390,7 +387,7 @@
     [WXApi sendReq:sendReq];
 }
 
-- (void)qqBtn {
+- (void)qqBtnEvent {
     //TODO替换分享图片
 //    UIImage *image = [UIImage imageNamed:@"test_btn"];
 //    NSData *imageData = UIImagePNGRepresentation(image);

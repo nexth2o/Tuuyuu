@@ -21,36 +21,28 @@
 
 
 @interface MinePointViewController ()<UITableViewDelegate, UITableViewDataSource, MMDatePickerDelegate> {
-    UITableView *contentView;
     SecSegmentView *secSegmentView;
-    
-    MMDatePicker *theDatePicker1;
-    MMDatePicker *theDatePicker2;
-    
-    UILabel *dateLabel1;
-    UILabel *dateLabel2;
-    
-    NSString *tabType;
-
-    NSMutableArray *detailsArray1;
-    NSMutableArray *detailsArray2;
-    
-    UILabel *label1;
-    UILabel *label2;
-    UILabel *label3;
-    
-    UILabel *piont1;
-    UILabel *piont2;
-    UILabel *piont3;
-    
-    UIImageView *gradeImage;
-    UILabel *gradeLabel;
-    UILabel *radixLabel;
-    
-    NSInteger pageNumber1;
-    NSInteger pageNumber2;
-    
 }
+
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, strong) UILabel *label1;
+@property(nonatomic, strong) UILabel *label2;
+@property(nonatomic, strong) UILabel *label3;
+@property(nonatomic, strong) UIImageView *gradeImage;
+@property(nonatomic, strong) UILabel *gradeLabel;
+@property(nonatomic, strong) UILabel *piont1;
+@property(nonatomic, strong) UILabel *piont2;
+@property(nonatomic, strong) UILabel *piont3;
+@property(nonatomic, copy) NSString *tabType;
+@property(nonatomic, strong) NSMutableArray *detailsArray1;
+@property(nonatomic, strong) NSMutableArray *detailsArray2;
+@property(nonatomic, strong) UILabel *dateLabel1;
+@property(nonatomic, strong) UILabel *dateLabel2;
+@property(nonatomic, strong) UILabel *radixLabel;
+@property(nonatomic, assign) NSInteger pageNumber1;
+@property(nonatomic, assign) NSInteger pageNumber2;
+@property(nonatomic, strong) MMDatePicker *theDatePicker1;
+@property(nonatomic, strong) MMDatePicker *theDatePicker2;
 
 @end
 
@@ -76,24 +68,24 @@
         bg.image = [UIImage imageNamed:@"mine_content_bg"];
         [self.view addSubview:bg];
         
-        gradeImage = [[UIImageView alloc] initWithFrame:CGRectMake(230*SCALE, 57*SCALE, 30*SCALE, 30*SCALE)];
-        [self.view addSubview:gradeImage];
+        _gradeImage = [[UIImageView alloc] initWithFrame:CGRectMake(230*SCALE, 57*SCALE, 30*SCALE, 30*SCALE)];
+        [self.view addSubview:_gradeImage];
         
-        gradeLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(gradeImage.frame), 65*SCALE, 60*SCALE, 20*SCALE)];
+        _gradeLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(_gradeImage.frame), 65*SCALE, 60*SCALE, 20*SCALE)];
 //        gradeLabel.text = @"注册会员";
-        gradeLabel.font = [UIFont systemFontOfSize:14*SCALE];
-        [self.view addSubview:gradeLabel];
+        _gradeLabel.font = [UIFont systemFontOfSize:14*SCALE];
+        [self.view addSubview:_gradeLabel];
         
-        UIImageView *radixImage = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(gradeLabel.frame), 64*SCALE, 18*SCALE, 18*SCALE)];
+        UIImageView *radixImage = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(_gradeLabel.frame), 64*SCALE, 18*SCALE, 18*SCALE)];
 //        radixImage.backgroundColor = [UIColor purpleColor];
         radixImage.image = [UIImage imageNamed:@"mine_radix"];
         [self.view addSubview:radixImage];
         
-        radixLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(radixImage.frame), 65*SCALE, 30*SCALE, 20*SCALE)];
-        radixLabel.text = @"1.0";
-        radixLabel.textColor = [UIColor orangeColor];
-        radixLabel.font = [UIFont systemFontOfSize:14*SCALE];
-        [self.view addSubview:radixLabel];
+        _radixLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(radixImage.frame), 65*SCALE, 30*SCALE, 20*SCALE)];
+        _radixLabel.text = @"1.0";
+        _radixLabel.textColor = [UIColor orangeColor];
+        _radixLabel.font = [UIFont systemFontOfSize:14*SCALE];
+        [self.view addSubview:_radixLabel];
         
         //可用兔币
         UIImageView *icon1 = [[UIImageView alloc] initWithFrame:CGRectMake(30*SCALE, 100*SCALE, 90*SCALE, 90*SCALE)];
@@ -101,18 +93,18 @@
 //        icon1.backgroundColor = [UIColor purpleColor];
         [self.view addSubview:icon1];
         
-        label1 = [[UILabel alloc] initWithFrame:CGRectMake(30*SCALE, CGRectGetMaxY(icon1.frame)+5*SCALE, 90*SCALE, 20*SCALE)];
-        label1.text = @"可用兔币";
-        label1.font = [UIFont systemFontOfSize:12*SCALE];
-        label1.textAlignment = NSTextAlignmentCenter;
-        [self.view addSubview:label1];
+        _label1 = [[UILabel alloc] initWithFrame:CGRectMake(30*SCALE, CGRectGetMaxY(icon1.frame)+5*SCALE, 90*SCALE, 20*SCALE)];
+        _label1.text = @"可用兔币";
+        _label1.font = [UIFont systemFontOfSize:12*SCALE];
+        _label1.textAlignment = NSTextAlignmentCenter;
+        [self.view addSubview:_label1];
         
-        piont1 = [[UILabel alloc] initWithFrame:CGRectMake(30*SCALE, 100*SCALE, 90*SCALE, 90*SCALE)];
-        piont1.font = [UIFont boldSystemFontOfSize:18*SCALE];
-        piont1.textColor = MAIN_COLOR;
-        piont1.textAlignment = NSTextAlignmentCenter;
-        piont1.text = @"99999";
-        [self.view addSubview:piont1];
+        _piont1 = [[UILabel alloc] initWithFrame:CGRectMake(30*SCALE, 100*SCALE, 90*SCALE, 90*SCALE)];
+        _piont1.font = [UIFont boldSystemFontOfSize:18*SCALE];
+        _piont1.textColor = MAIN_COLOR;
+        _piont1.textAlignment = NSTextAlignmentCenter;
+        _piont1.text = @"99999";
+        [self.view addSubview:_piont1];
         
         //已用兔币
         UIImageView *icon2 = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(icon1.frame)+22.5*SCALE, 100*SCALE, 90*SCALE, 90*SCALE)];
@@ -120,18 +112,18 @@
         icon2.image = [UIImage imageNamed:@"mine_piont_bg"];
         [self.view addSubview:icon2];
         
-        label2 = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(icon1.frame)+22.5*SCALE, CGRectGetMaxY(icon2.frame)+5*SCALE, 90*SCALE, 20*SCALE)];
-        label2.text = @"已用兔币";
-        label2.font = [UIFont systemFontOfSize:12*SCALE];
-        label2.textAlignment = NSTextAlignmentCenter;
-        [self.view addSubview:label2];
+        _label2 = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(icon1.frame)+22.5*SCALE, CGRectGetMaxY(icon2.frame)+5*SCALE, 90*SCALE, 20*SCALE)];
+        _label2.text = @"已用兔币";
+        _label2.font = [UIFont systemFontOfSize:12*SCALE];
+        _label2.textAlignment = NSTextAlignmentCenter;
+        [self.view addSubview:_label2];
         
-        piont2 = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(icon1.frame)+26*SCALE, 100*SCALE, 80*SCALE, 90*SCALE)];
-        piont2.font = [UIFont boldSystemFontOfSize:18*SCALE];
-        piont2.textColor = MAIN_COLOR;
-        piont2.textAlignment = NSTextAlignmentCenter;
-        piont2.text = @"99999";
-        [self.view addSubview:piont2];
+        _piont2 = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(icon1.frame)+26*SCALE, 100*SCALE, 80*SCALE, 90*SCALE)];
+        _piont2.font = [UIFont boldSystemFontOfSize:18*SCALE];
+        _piont2.textColor = MAIN_COLOR;
+        _piont2.textAlignment = NSTextAlignmentCenter;
+        _piont2.text = @"99999";
+        [self.view addSubview:_piont2];
         
         //剩余兔币
         UIImageView *icon3 = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(icon2.frame)+22.5*SCALE, 100*SCALE, 90*SCALE, 90*SCALE)];
@@ -139,53 +131,54 @@
         icon3.image = [UIImage imageNamed:@"mine_piont_bg"];
         [self.view addSubview:icon3];
         
-        label3 = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(icon2.frame)+22.5*SCALE, CGRectGetMaxY(icon3.frame)+5*SCALE, 90*SCALE, 20*SCALE)];
-        label3.text = @"累计兔币";
-        label3.font = [UIFont systemFontOfSize:12*SCALE];
-        label3.textAlignment = NSTextAlignmentCenter;
-        [self.view addSubview:label3];
+        _label3 = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(icon2.frame)+22.5*SCALE, CGRectGetMaxY(icon3.frame)+5*SCALE, 90*SCALE, 20*SCALE)];
+        _label3.text = @"累计兔币";
+        _label3.font = [UIFont systemFontOfSize:12*SCALE];
+        _label3.textAlignment = NSTextAlignmentCenter;
+        [self.view addSubview:_label3];
         
-        piont3 = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(icon2.frame)+26*SCALE, 100*SCALE, 90*SCALE, 90*SCALE)];
-        piont3.font = [UIFont boldSystemFontOfSize:18*SCALE];
-        piont3.textColor = MAIN_COLOR;
-        piont3.textAlignment = NSTextAlignmentCenter;
-        piont3.text = @"99999";
-        [self.view addSubview:piont3];
+        _piont3 = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(icon2.frame)+26*SCALE, 100*SCALE, 90*SCALE, 90*SCALE)];
+        _piont3.font = [UIFont boldSystemFontOfSize:18*SCALE];
+        _piont3.textColor = MAIN_COLOR;
+        _piont3.textAlignment = NSTextAlignmentCenter;
+        _piont3.text = @"99999";
+        [self.view addSubview:_piont3];
         
         
         
         //积分兔币列表
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, 340*SCALE, SCREEN_WIDTH, SCREEN_HEIGHT-340*SCALE) style:UITableViewStylePlain];
-        contentView.delegate = self;
-        contentView.dataSource = self;
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, 340*SCALE, SCREEN_WIDTH, SCREEN_HEIGHT-340*SCALE) style:UITableViewStylePlain];
+        _contentView.delegate = self;
+        _contentView.dataSource = self;
         //        contentView.separatorStyle = NO;
-        contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
         //去除底部多余分割线
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-        contentView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
 
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
         //tab画面
         NSMutableArray *titleArray = [[NSMutableArray alloc] initWithObjects:@"积分记录",@"我的兔币", nil];
-        tabType = @"我的兔币";
+        _tabType = @"我的兔币";
+        weakify(self);
         secSegmentView = [[SecSegmentView alloc] initWithFrame:CGRectMake(0 , 240*SCALE, SCREEN_WIDTH, 50*SCALE) titles:titleArray clickBlick:^void(NSInteger index) {
+            strongify(self);
+            [self.contentView.mj_footer resetNoMoreData];
             
-            [contentView.mj_footer resetNoMoreData];
+            self.tabType = [titleArray objectAtIndex:index];
             
-            tabType = [titleArray objectAtIndex:index];
-            
-            if ([tabType isEqualToString:@"积分记录"]) {
-                [self requestIntegralWithStartDate:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text] endDate:[NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text]];
-                label1.text = @"待转换兔币积分";
-                label2.text = @"已转换兔币积分";
-                label3.text = @"累计积分";
+            if ([self.tabType isEqualToString:@"积分记录"]) {
+                [self requestIntegralWithStartDate:[NSString stringWithFormat:@"%@ 00:00:00", self.dateLabel1.text] endDate:[NSString stringWithFormat:@"%@ 23:59:59", self.dateLabel2.text]];
+                self.label1.text = @"待转换兔币积分";
+                self.label2.text = @"已转换兔币积分";
+                self.label3.text = @"累计积分";
                 navigationBar.titleLabel.text = @"我的积分";
             }else {
-                [self requestTuucoinWithStartDate:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text] endDate:[NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text]];
-                label1.text = @"可用兔币";
-                label2.text = @"已用兔币";
-                label3.text = @"累计兔币";
+                [self requestTuucoinWithStartDate:[NSString stringWithFormat:@"%@ 00:00:00", self.dateLabel1.text] endDate:[NSString stringWithFormat:@"%@ 23:59:59", self.dateLabel2.text]];
+                self.label1.text = @"可用兔币";
+                self.label2.text = @"已用兔币";
+                self.label3.text = @"累计兔币";
                 navigationBar.titleLabel.text = @"我的兔币";
             }
     
@@ -211,7 +204,7 @@
         NSString *dateString = [formatter stringFromDate:date];
         
         
-        NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+        NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
         NSDateComponents *lastMonthComps = [[NSDateComponents alloc] init];
         //    [lastMonthComps setYear:1]; // year = 1表示1年后的时间 year = -1为1年前的日期，month day 类推
         [lastMonthComps setMonth:-1];
@@ -220,13 +213,13 @@
         
         
         
-        dateLabel1 = [[UILabel alloc] initWithFrame:CGRectMake(30*SCALE, 0*SCALE, 70*SCALE, 50*SCALE)];
-        dateLabel1.font = [UIFont systemFontOfSize:12*SCALE];
-        dateLabel1.textColor = [UIColor darkGrayColor];
-        dateLabel1.text = dateStr;
-        [toolView addSubview:dateLabel1];
+        _dateLabel1 = [[UILabel alloc] initWithFrame:CGRectMake(30*SCALE, 0*SCALE, 70*SCALE, 50*SCALE)];
+        _dateLabel1.font = [UIFont systemFontOfSize:12*SCALE];
+        _dateLabel1.textColor = [UIColor darkGrayColor];
+        _dateLabel1.text = dateStr;
+        [toolView addSubview:_dateLabel1];
         
-        UIImageView *dateIcon1 = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(dateLabel1.frame), 15*SCALE, 20*SCALE, 20*SCALE)];
+        UIImageView *dateIcon1 = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(_dateLabel1.frame), 15*SCALE, 20*SCALE, 20*SCALE)];
 //        dateIcon1.backgroundColor = [UIColor yellowColor];
         dateIcon1.image = [UIImage imageNamed:@"mine_piont_date"];
         [toolView addSubview:dateIcon1];
@@ -237,13 +230,13 @@
 //        _dateBtn2.backgroundColor = [UIColor blueColor];
         [toolView addSubview:_dateBtn2];
         
-        dateLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(_dateBtn1.frame)+30*SCALE, 0*SCALE, 70*SCALE, 50*SCALE)];
-        dateLabel2.font = [UIFont systemFontOfSize:12*SCALE];
-        dateLabel2.textColor = [UIColor darkGrayColor];
-        dateLabel2.text = dateString;
-        [toolView addSubview:dateLabel2];
+        _dateLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(_dateBtn1.frame)+30*SCALE, 0*SCALE, 70*SCALE, 50*SCALE)];
+        _dateLabel2.font = [UIFont systemFontOfSize:12*SCALE];
+        _dateLabel2.textColor = [UIColor darkGrayColor];
+        _dateLabel2.text = dateString;
+        [toolView addSubview:_dateLabel2];
         
-        UIImageView *dateIcon2 = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(dateLabel2.frame), 15*SCALE, 20*SCALE, 20*SCALE)];
+        UIImageView *dateIcon2 = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(_dateLabel2.frame), 15*SCALE, 20*SCALE, 20*SCALE)];
 //        dateIcon2.backgroundColor = [UIColor yellowColor];
         dateIcon2.image = [UIImage imageNamed:@"mine_piont_date"];
         [toolView addSubview:dateIcon2];
@@ -259,23 +252,23 @@
 //        searchBtn.backgroundColor = [UIColor blueColor];
         [toolView addSubview:searchBtn];
         
-        theDatePicker1 = [[MMDatePicker alloc] initWithFrame:CGRectMake(0,
+        _theDatePicker1 = [[MMDatePicker alloc] initWithFrame:CGRectMake(0,
                                                                             [[UIScreen mainScreen] applicationFrame].size.height,
                                                                             [[UIScreen mainScreen] applicationFrame].size.width,
                                                                             400)]; //height is not important, it will be overwritten
-        [theDatePicker1 setDelegate:self];
-        [theDatePicker1.datePicker setDatePickerMode:UIDatePickerModeDate];
-        [theDatePicker1 setBackgroundColor:[UIColor whiteColor]];
-        [self.view addSubview:theDatePicker1];
+        [_theDatePicker1 setDelegate:self];
+        [_theDatePicker1.datePicker setDatePickerMode:UIDatePickerModeDate];
+        [_theDatePicker1 setBackgroundColor:[UIColor whiteColor]];
+        [self.view addSubview:_theDatePicker1];
         
-        theDatePicker2 = [[MMDatePicker alloc] initWithFrame:CGRectMake(0,
+        _theDatePicker2 = [[MMDatePicker alloc] initWithFrame:CGRectMake(0,
                                                                        [[UIScreen mainScreen] applicationFrame].size.height,
                                                                        [[UIScreen mainScreen] applicationFrame].size.width,
                                                                        400)]; //height is not important, it will be overwritten
-        [theDatePicker2 setDelegate:self];
-        [theDatePicker2.datePicker setDatePickerMode:UIDatePickerModeDate];
-        [theDatePicker2 setBackgroundColor:[UIColor whiteColor]];
-        [self.view addSubview:theDatePicker2];
+        [_theDatePicker2 setDelegate:self];
+        [_theDatePicker2.datePicker setDatePickerMode:UIDatePickerModeDate];
+        [_theDatePicker2 setBackgroundColor:[UIColor whiteColor]];
+        [self.view addSubview:_theDatePicker2];
         
         
         [self.view bringSubviewToFront:navigationBar];
@@ -287,21 +280,21 @@
 
 - (void)dateBtn1Btn:(id)sender {
     [UIView animateWithDuration:0.3 animations:^{
-        [theDatePicker1 setTransform:CGAffineTransformMakeTranslation(0, -theDatePicker1.frame.size.height)];
+        [self.theDatePicker1 setTransform:CGAffineTransformMakeTranslation(0, -self.theDatePicker1.frame.size.height)];
     }completion:^(BOOL finished) {
     }];
 }
 - (void)dateBtn2Btn:(id)sender {
     [UIView animateWithDuration:0.3 animations:^{
-        [theDatePicker2 setTransform:CGAffineTransformMakeTranslation(0, -theDatePicker2.frame.size.height)];
+        [self.theDatePicker2 setTransform:CGAffineTransformMakeTranslation(0, -self.theDatePicker2.frame.size.height)];
     }completion:^(BOOL finished) {
     }];
 }
 - (void)searchBtn:(id)sender {
-    if ([tabType isEqualToString:@"积分记录"]) {
-        [self requestIntegralWithStartDate:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text] endDate:[NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text]];
+    if ([_tabType isEqualToString:@"积分记录"]) {
+        [self requestIntegralWithStartDate:[NSString stringWithFormat:@"%@ 00:00:00", _dateLabel1.text] endDate:[NSString stringWithFormat:@"%@ 23:59:59", _dateLabel2.text]];
     }else {
-        [self requestTuucoinWithStartDate:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text] endDate:[NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text]];
+        [self requestTuucoinWithStartDate:[NSString stringWithFormat:@"%@ 00:00:00", _dateLabel1.text] endDate:[NSString stringWithFormat:@"%@ 23:59:59", _dateLabel2.text]];
         
     }
 }
@@ -325,10 +318,10 @@
     [formatter setDateFormat:@"yyyy-MM-dd"];
     NSString *dateString = [formatter stringFromDate:date];
     
-    if (datePicker == theDatePicker1) {
-        dateLabel1.text = dateString;
+    if (datePicker == _theDatePicker1) {
+        _dateLabel1.text = dateString;
     }else {
-        dateLabel2.text = dateString;
+        _dateLabel2.text = dateString;
     }
 }
 
@@ -342,59 +335,59 @@
     
     self.tabBarController.tabBar.hidden = YES;
     
-    if ([tabType isEqualToString:@"积分记录"]) {
-        [self requestIntegralWithStartDate:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text] endDate:[NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text]];
+    if ([_tabType isEqualToString:@"积分记录"]) {
+        [self requestIntegralWithStartDate:[NSString stringWithFormat:@"%@ 00:00:00", _dateLabel1.text] endDate:[NSString stringWithFormat:@"%@ 23:59:59", _dateLabel2.text]];
     }else {
-        [self requestTuucoinWithStartDate:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text] endDate:[NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text]];
+        [self requestTuucoinWithStartDate:[NSString stringWithFormat:@"%@ 00:00:00", _dateLabel1.text] endDate:[NSString stringWithFormat:@"%@ 23:59:59", _dateLabel2.text]];
 
     }
 }
 
 - (void)requestIntegralWithStartDate:(NSString *)startDate endDate:(NSString *)endDate {
     
-    pageNumber1 = 0;
+    _pageNumber1 = 0;
     
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:startDate, @"beg_time", endDate, @"end_time", [NSString stringWithFormat:@"%ld", (long)pageNumber1], @"page", nil];
-    
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:startDate, @"beg_time", endDate, @"end_time", [NSString stringWithFormat:@"%ld", (long)_pageNumber1], @"page", nil];
+    weakify(self);
     [HttpClientService requestIntegraldetails:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            detailsArray1 = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"details"]];
+            self.detailsArray1 = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"details"]];
 
                 if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"0"]) {
-                    gradeImage.image = [UIImage imageNamed:@"mine_grade_0"];
-                    gradeLabel.text = @"普通会员";
+                    self.gradeImage.image = [UIImage imageNamed:@"mine_grade_0"];
+                    self.gradeLabel.text = @"普通会员";
                 }else if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"1"]) {
-                    gradeImage.image = [UIImage imageNamed:@"mine_grade_1"];
-                    gradeLabel.text = @"铜牌会员";
+                    self.gradeImage.image = [UIImage imageNamed:@"mine_grade_1"];
+                    self.gradeLabel.text = @"铜牌会员";
                 }else if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"2"]) {
-                    gradeImage.image = [UIImage imageNamed:@"mine_grade_2"];
-                    gradeLabel.text = @"银牌会员";
+                    self.gradeImage.image = [UIImage imageNamed:@"mine_grade_2"];
+                    self.gradeLabel.text = @"银牌会员";
                 }else if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"3"]) {
-                    gradeImage.image = [UIImage imageNamed:@"mine_grade_3"];
-                    gradeLabel.text = @"金牌会员";
+                    self.gradeImage.image = [UIImage imageNamed:@"mine_grade_3"];
+                    self.gradeLabel.text = @"金牌会员";
                 }else if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"4"]) {
-                    gradeImage.image = [UIImage imageNamed:@"mine_grade_4"];
-                    gradeLabel.text = @"钻石会员";
+                    self.gradeImage.image = [UIImage imageNamed:@"mine_grade_4"];
+                    self.gradeLabel.text = @"钻石会员";
                 }
                 
-                radixLabel.text = [jsonDic objectForKey:@"radix"];
+                self.radixLabel.text = [jsonDic objectForKey:@"radix"];
                 
-                pageNumber1++;
+                self.pageNumber1++;
             
-            piont1.text = [jsonDic objectForKey:@"unconverted"];
-            piont2.text = [jsonDic objectForKey:@"converted"];
-            piont3.text = [jsonDic objectForKey:@"addup"];
+            self.piont1.text = [jsonDic objectForKey:@"unconverted"];
+            self.piont2.text = [jsonDic objectForKey:@"converted"];
+            self.piont3.text = [jsonDic objectForKey:@"addup"];
             
-            [contentView reloadData];
-            [contentView setContentOffset:CGPointMake(0,0) animated:YES];
+            [self.contentView reloadData];
+            [self.contentView setContentOffset:CGPointMake(0,0) animated:YES];
             [self hideLoadHUD:YES];
             
         }else if (status == 202) {
@@ -422,51 +415,51 @@
 
 - (void)requestTuucoinWithStartDate:(NSString *)startDate endDate:(NSString *)endDate {
     
-    pageNumber2 = 0;
+    _pageNumber2 = 0;
     
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:startDate, @"beg_time", endDate, @"end_time", [NSString stringWithFormat:@"%ld", (long)pageNumber2], @"page", nil];
-    
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:startDate, @"beg_time", endDate, @"end_time", [NSString stringWithFormat:@"%ld", (long)_pageNumber2], @"page", nil];
+    weakify(self);
     [HttpClientService requestTuucoindetails:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            detailsArray2 = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"details"]];
+            self.detailsArray2 = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"details"]];
             
                 if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"0"]) {
-                    gradeImage.image = [UIImage imageNamed:@"mine_grade_0"];
-                    gradeLabel.text = @"普通会员";
+                    self.gradeImage.image = [UIImage imageNamed:@"mine_grade_0"];
+                    self.gradeLabel.text = @"普通会员";
                 }else if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"1"]) {
-                    gradeImage.image = [UIImage imageNamed:@"mine_grade_1"];
-                    gradeLabel.text = @"铜牌会员";
+                    self.gradeImage.image = [UIImage imageNamed:@"mine_grade_1"];
+                    self.gradeLabel.text = @"铜牌会员";
                 }else if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"2"]) {
-                    gradeImage.image = [UIImage imageNamed:@"mine_grade_2"];
-                    gradeLabel.text = @"银牌会员";
+                    self.gradeImage.image = [UIImage imageNamed:@"mine_grade_2"];
+                    self.gradeLabel.text = @"银牌会员";
                 }else if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"3"]) {
-                    gradeImage.image = [UIImage imageNamed:@"mine_grade_3"];
-                    gradeLabel.text = @"金牌会员";
+                    self.gradeImage.image = [UIImage imageNamed:@"mine_grade_3"];
+                    self.gradeLabel.text = @"金牌会员";
                 }else if ([[jsonDic objectForKey:@"member_type"] isEqualToString:@"4"]) {
-                    gradeImage.image = [UIImage imageNamed:@"mine_grade_4"];
-                    gradeLabel.text = @"钻石会员";
+                    self.gradeImage.image = [UIImage imageNamed:@"mine_grade_4"];
+                    self.gradeLabel.text = @"钻石会员";
                 }
                 
             
-                radixLabel.text = [jsonDic objectForKey:@"radix"];
+                self.radixLabel.text = [jsonDic objectForKey:@"radix"];
                 
-                pageNumber2++;
+                self.pageNumber2++;
    
             
-            piont1.text = [jsonDic objectForKey:@"useable"];
-            piont2.text = [jsonDic objectForKey:@"used"];
-            piont3.text = [jsonDic objectForKey:@"addup"];
+            self.piont1.text = [jsonDic objectForKey:@"useable"];
+            self.piont2.text = [jsonDic objectForKey:@"used"];
+            self.piont3.text = [jsonDic objectForKey:@"addup"];
             
-            [contentView reloadData];
-            [contentView setContentOffset:CGPointMake(0,0) animated:YES];
+            [self.contentView reloadData];
+            [self.contentView setContentOffset:CGPointMake(0,0) animated:YES];
             [self hideLoadHUD:YES];
             
         }else if (status == 202) {
@@ -500,10 +493,10 @@
 }
 
 - (NSInteger )tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if ([tabType isEqualToString:@"积分记录"]) {
-        return [detailsArray1 count];
+    if ([_tabType isEqualToString:@"积分记录"]) {
+        return [_detailsArray1 count];
     }else {
-        return [detailsArray2 count];
+        return [_detailsArray2 count];
     }
     
 }
@@ -520,10 +513,8 @@
     static NSString *myCellIdentifier1 = @"MyCellIdentifier1";
     static NSString *myCellIdentifier2 = @"MyCellIdentifier2";
     
-    
-    
     UITableViewCell *cell = nil;
-    if ([tabType isEqualToString:@"积分记录"]) {
+    if ([_tabType isEqualToString:@"积分记录"]) {
         
         MinePointCell *cell = [tableView dequeueReusableCellWithIdentifier:myCellIdentifier1];
         if (cell == nil) {
@@ -532,43 +523,43 @@
         
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
-        if ([detailsArray1[indexPath.row][@"money"] floatValue] > 0) {
-            cell.title.text = [NSString stringWithFormat:@"%@:%@", detailsArray1[indexPath.row][@"engender_type"], detailsArray1[indexPath.row][@"money"]];
+        if ([_detailsArray1[indexPath.row][@"money"] floatValue] > 0) {
+            cell.title.text = [NSString stringWithFormat:@"%@:%@", _detailsArray1[indexPath.row][@"engender_type"], _detailsArray1[indexPath.row][@"money"]];
         }else {
-            cell.title.text = [NSString stringWithFormat:@"%@", detailsArray1[indexPath.row][@"engender_type"]];
+            cell.title.text = [NSString stringWithFormat:@"%@", _detailsArray1[indexPath.row][@"engender_type"]];
         }
         
-        cell.detail.text = [NSString stringWithFormat:@"增加积分:%@", detailsArray1[indexPath.row][@"integral"]];
-        cell.info.text = [NSString stringWithFormat:@"%@ %@", detailsArray1[indexPath.row][@"friend_type"], detailsArray1[indexPath.row][@"nick_name"]];
+        cell.detail.text = [NSString stringWithFormat:@"增加积分:%@", _detailsArray1[indexPath.row][@"integral"]];
+        cell.info.text = [NSString stringWithFormat:@"%@ %@", _detailsArray1[indexPath.row][@"friend_type"], _detailsArray1[indexPath.row][@"nick_name"]];
         
         
-        if ([detailsArray1[indexPath.row][@"integral"] floatValue] > 0) {
-            cell.subTitle.text = [NSString stringWithFormat:@"+ %@", detailsArray1[indexPath.row][@"integral"]];
+        if ([_detailsArray1[indexPath.row][@"integral"] floatValue] > 0) {
+            cell.subTitle.text = [NSString stringWithFormat:@"+ %@", _detailsArray1[indexPath.row][@"integral"]];
         }else {
-            cell.subTitle.text = [NSString stringWithFormat:@"  %@", detailsArray1[indexPath.row][@"integral"]];
+            cell.subTitle.text = [NSString stringWithFormat:@"  %@", _detailsArray1[indexPath.row][@"integral"]];
         }
         
         
-        cell.time.text = detailsArray1[indexPath.row][@"engender_time"];
+        cell.time.text = _detailsArray1[indexPath.row][@"engender_time"];
         
-        if ([detailsArray1[indexPath.row][@"friend_member_type"] isEqualToString:@"0"]) {
+        if ([_detailsArray1[indexPath.row][@"friend_member_type"] isEqualToString:@"0"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_0"];
             cell.grageLabel.text = @"普通会员";
-        }else if ([detailsArray1[indexPath.row][@"friend_member_type"] isEqualToString:@"1"]) {
+        }else if ([_detailsArray1[indexPath.row][@"friend_member_type"] isEqualToString:@"1"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_1"];
             cell.grageLabel.text = @"铜牌会员";
-        }else if ([detailsArray1[indexPath.row][@"friend_member_type"] isEqualToString:@"2"]) {
+        }else if ([_detailsArray1[indexPath.row][@"friend_member_type"] isEqualToString:@"2"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_2"];
             cell.grageLabel.text = @"银牌会员";
-        }else if ([detailsArray1[indexPath.row][@"friend_member_type"] isEqualToString:@"3"]) {
+        }else if ([_detailsArray1[indexPath.row][@"friend_member_type"] isEqualToString:@"3"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_3"];
             cell.grageLabel.text = @"金牌会员";
-        }else if ([detailsArray1[indexPath.row][@"friend_member_type"] isEqualToString:@"4"]) {
+        }else if ([_detailsArray1[indexPath.row][@"friend_member_type"] isEqualToString:@"4"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_4"];
             cell.grageLabel.text = @"钻石会员";
         }
         
-        cell.radix.text = detailsArray1[indexPath.row][@"radix"];
+        cell.radix.text = _detailsArray1[indexPath.row][@"radix"];
         
         
         
@@ -580,42 +571,42 @@
             cell = [[MinePointCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier2];
         }
         
-        if ([detailsArray2[indexPath.row][@"money"] floatValue] > 0) {
-            cell.title.text = [NSString stringWithFormat:@"%@:%@", detailsArray2[indexPath.row][@"engender_type"], detailsArray2[indexPath.row][@"money"]];
+        if ([_detailsArray2[indexPath.row][@"money"] floatValue] > 0) {
+            cell.title.text = [NSString stringWithFormat:@"%@:%@", _detailsArray2[indexPath.row][@"engender_type"], _detailsArray2[indexPath.row][@"money"]];
         }else {
-            cell.title.text = [NSString stringWithFormat:@"%@", detailsArray2[indexPath.row][@"engender_type"]];
+            cell.title.text = [NSString stringWithFormat:@"%@", _detailsArray2[indexPath.row][@"engender_type"]];
         }
         
         
-        cell.detail.text = [NSString stringWithFormat:@"转换兔币:%@", detailsArray2[indexPath.row][@"tuu_coin"]];
-        cell.info.text = [NSString stringWithFormat:@"%@ %@", detailsArray2[indexPath.row][@"friend_type"], detailsArray2[indexPath.row][@"nick_name"]];
+        cell.detail.text = [NSString stringWithFormat:@"转换兔币:%@", _detailsArray2[indexPath.row][@"tuu_coin"]];
+        cell.info.text = [NSString stringWithFormat:@"%@ %@", _detailsArray2[indexPath.row][@"friend_type"], _detailsArray2[indexPath.row][@"nick_name"]];
         
-        if ([detailsArray2[indexPath.row][@"tuu_coin"] floatValue] > 0) {
-            cell.subTitle.text = [NSString stringWithFormat:@"+ %@", detailsArray2[indexPath.row][@"tuu_coin"]];
+        if ([_detailsArray2[indexPath.row][@"tuu_coin"] floatValue] > 0) {
+            cell.subTitle.text = [NSString stringWithFormat:@"+ %@", _detailsArray2[indexPath.row][@"tuu_coin"]];
         }else {
-            cell.subTitle.text = [NSString stringWithFormat:@"  %@", detailsArray2[indexPath.row][@"tuu_coin"]];
+            cell.subTitle.text = [NSString stringWithFormat:@"  %@", _detailsArray2[indexPath.row][@"tuu_coin"]];
         }
 
-        cell.time.text = detailsArray2[indexPath.row][@"engender_time"];
+        cell.time.text = _detailsArray2[indexPath.row][@"engender_time"];
         
-        if ([detailsArray2[indexPath.row][@"friend_member_type"] isEqualToString:@"0"]) {
+        if ([_detailsArray2[indexPath.row][@"friend_member_type"] isEqualToString:@"0"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_0"];
                         cell.grageLabel.text = @"普通会员";
-        }else if ([detailsArray2[indexPath.row][@"friend_member_type"] isEqualToString:@"1"]) {
+        }else if ([_detailsArray2[indexPath.row][@"friend_member_type"] isEqualToString:@"1"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_1"];
                         cell.grageLabel.text = @"铜牌会员";
-        }else if ([detailsArray2[indexPath.row][@"friend_member_type"] isEqualToString:@"2"]) {
+        }else if ([_detailsArray2[indexPath.row][@"friend_member_type"] isEqualToString:@"2"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_2"];
                         cell.grageLabel.text = @"银牌会员";
-        }else if ([detailsArray2[indexPath.row][@"friend_member_type"] isEqualToString:@"3"]) {
+        }else if ([_detailsArray2[indexPath.row][@"friend_member_type"] isEqualToString:@"3"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_3"];
                         cell.grageLabel.text = @"金牌会员";
-        }else if ([detailsArray2[indexPath.row][@"friend_member_type"] isEqualToString:@"4"]) {
+        }else if ([_detailsArray2[indexPath.row][@"friend_member_type"] isEqualToString:@"4"]) {
             cell.gradeImage.image = [UIImage imageNamed:@"mine_grade_4"];
                         cell.grageLabel.text = @"钻石会员";
         }
         
-        cell.radix.text = detailsArray2[indexPath.row][@"radix"];
+        cell.radix.text = _detailsArray2[indexPath.row][@"radix"];
         
         
         return cell;
@@ -632,34 +623,34 @@
 
 - (void)loadNewData {
     
-    if ([tabType isEqualToString:@"积分记录"]) {
+    if ([_tabType isEqualToString:@"积分记录"]) {
         
         [self showLoadHUDMsg:@"努力加载中..."];
         
-        pageNumber1 = 0;
+        _pageNumber1 = 0;
         
         
-        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%ld", (long)pageNumber1], @"page", nil];
-        
+        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", _dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", _dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%ld", (long)_pageNumber1], @"page", nil];
+        weakify(self);
         [HttpClientService requestIntegraldetails:paramDic success:^(id responseObject) {
-            
+            strongify(self);
             NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
             
             int status = [[jsonDic objectForKey:@"status"] intValue];
             
             if (status == 0) {
                 
-                detailsArray1 = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"details"]];
+                self.detailsArray1 = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"details"]];
                 
                 
-                if ([detailsArray1 count] > 0) {
+                if ([self.detailsArray1 count] > 0) {
                     
-                    [contentView setHidden:NO];
+                    [self.contentView setHidden:NO];
                     
-                    [contentView.mj_header endRefreshing];
-                    [contentView.mj_footer endRefreshing];
-                    [contentView reloadData];
-                    pageNumber1++;
+                    [self.contentView.mj_header endRefreshing];
+                    [self.contentView.mj_footer endRefreshing];
+                    [self.contentView reloadData];
+                    self.pageNumber1++;
                     
                 }
                 
@@ -667,8 +658,8 @@
             }
             
         } failure:^(NSError *error) {
-            
-            [contentView.mj_header endRefreshing];
+            strongify(self);
+            [self.contentView.mj_header endRefreshing];
             
             [self hideLoadHUD:YES];
             
@@ -679,29 +670,29 @@
         
         [self showLoadHUDMsg:@"努力加载中..."];
         
-        pageNumber2 = 0;
+        _pageNumber2 = 0;
         
-        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%ld", (long)pageNumber2], @"page", nil];
-        
+        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", _dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", _dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%ld", (long)_pageNumber2], @"page", nil];
+        weakify(self);
         [HttpClientService requestTuucoindetails:paramDic success:^(id responseObject) {
-            
+            strongify(self);
             NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
             
             int status = [[jsonDic objectForKey:@"status"] intValue];
             
             if (status == 0) {
                 
-                detailsArray2 = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"details"]];
+                self.detailsArray2 = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"details"]];
                 
                 
-                if ([detailsArray2 count] > 0) {
+                if ([self.detailsArray2 count] > 0) {
                     
-                    [contentView setHidden:NO];
+                    [self.contentView setHidden:NO];
                     
-                    [contentView.mj_header endRefreshing];
-                    [contentView.mj_footer endRefreshing];
-                    [contentView reloadData];
-                    pageNumber2++;
+                    [self.contentView.mj_header endRefreshing];
+                    [self.contentView.mj_footer endRefreshing];
+                    [self.contentView reloadData];
+                    self.pageNumber2++;
                     
                 }
                 
@@ -709,12 +700,10 @@
             }
             
         } failure:^(NSError *error) {
-            
-            [contentView.mj_header endRefreshing];
+            strongify(self);
+            [self.contentView.mj_header endRefreshing];
             
             [self hideLoadHUD:YES];
-            
-            NSLog(@"请求炸鸡美食失败");
         }];
 
         
@@ -726,14 +715,14 @@
 
 - (void)loadMoreData {
     
-    if ([tabType isEqualToString:@"积分记录"]) {
+    if ([_tabType isEqualToString:@"积分记录"]) {
         
         [self showLoadHUDMsg:@"努力加载中..."];
         
-        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%ld", (long)pageNumber1], @"page", nil];
-        
+        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", _dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", _dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%ld", (long)_pageNumber1], @"page", nil];
+        weakify(self);
         [HttpClientService requestIntegraldetails:paramDic success:^(id responseObject) {
-            
+            strongify(self);
             NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
             
             int status = [[jsonDic objectForKey:@"status"] intValue];
@@ -748,7 +737,7 @@
                     
                     [self showMsg:@"没有更多信息了"];
                     
-                    [contentView.mj_footer endRefreshingWithNoMoreData];
+                    [self.contentView.mj_footer endRefreshingWithNoMoreData];
                     
                 }else if (array.count > 0 && array.count < 20) {
                     
@@ -758,14 +747,14 @@
                         
                         dic = [array objectAtIndex:i];
                         
-                        [detailsArray1 addObject:dic];
+                        [self.detailsArray1 addObject:dic];
                     }
                     
-                    [contentView reloadData];
+                    [self.contentView reloadData];
                     
                     [self hideLoadHUD:YES];
                     
-                    [contentView.mj_footer endRefreshingWithNoMoreData];
+                    [self.contentView.mj_footer endRefreshingWithNoMoreData];
                     
                 }else {
                     
@@ -775,15 +764,15 @@
                         
                         dic = [array objectAtIndex:i];
                         
-                        [detailsArray1 addObject:dic];
+                        [self.detailsArray1 addObject:dic];
                     }
-                    pageNumber1++;
+                    self.pageNumber1++;
                     
-                    [contentView reloadData];
+                    [self.contentView reloadData];
                     
                     [self hideLoadHUD:YES];
                     
-                    [contentView.mj_footer endRefreshing];
+                    [self.contentView.mj_footer endRefreshing];
                     
                 }
                 
@@ -791,11 +780,12 @@
             
         } failure:^(NSError *error) {
             
+            strongify(self);
             [self hideLoadHUD:YES];
             
             [self showMsg:@"加载失败"];
             
-            [contentView.mj_footer endRefreshing];
+            [self.contentView.mj_footer endRefreshing];
             
         }];
 
@@ -804,10 +794,10 @@
         
         [self showLoadHUDMsg:@"努力加载中..."];
         
-        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%ld", (long)pageNumber2], @"page", nil];
-        
+        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%@ 00:00:00", _dateLabel1.text], @"beg_time", [NSString stringWithFormat:@"%@ 23:59:59", _dateLabel2.text], @"end_time",[NSString stringWithFormat:@"%ld", (long)_pageNumber2], @"page", nil];
+        weakify(self);
         [HttpClientService requestTuucoindetails:paramDic success:^(id responseObject) {
-            
+            strongify(self);
             NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
             
             int status = [[jsonDic objectForKey:@"status"] intValue];
@@ -822,7 +812,7 @@
                     
                     [self showMsg:@"没有更多信息了"];
                     
-                    [contentView.mj_footer endRefreshingWithNoMoreData];
+                    [self.contentView.mj_footer endRefreshingWithNoMoreData];
                     
                 }else if (array.count > 0 && array.count < 20) {
                     
@@ -832,14 +822,14 @@
                         
                         dic = [array objectAtIndex:i];
                         
-                        [detailsArray2 addObject:dic];
+                        [self.detailsArray2 addObject:dic];
                     }
                     
-                    [contentView reloadData];
+                    [self.contentView reloadData];
                     
                     [self hideLoadHUD:YES];
                     
-                    [contentView.mj_footer endRefreshingWithNoMoreData];
+                    [self.contentView.mj_footer endRefreshingWithNoMoreData];
                     
                 }else {
                     
@@ -849,27 +839,27 @@
                         
                         dic = [array objectAtIndex:i];
                         
-                        [detailsArray2 addObject:dic];
+                        [self.detailsArray2 addObject:dic];
                     }
-                    pageNumber2++;
+                    self.pageNumber2++;
                     
-                    [contentView reloadData];
+                    [self.contentView reloadData];
                     
                     [self hideLoadHUD:YES];
                     
-                    [contentView.mj_footer endRefreshing];
+                    [self.contentView.mj_footer endRefreshing];
                     
                 }
                 
             }
             
         } failure:^(NSError *error) {
-            
+            strongify(self);
             [self hideLoadHUD:YES];
             
             [self showMsg:@"加载失败"];
             
-            [contentView.mj_footer endRefreshing];
+            [self.contentView.mj_footer endRefreshing];
             
         }];
     }

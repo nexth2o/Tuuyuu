@@ -11,17 +11,14 @@
 
 #import "LoginViewController.h"
 
-@interface TPayViewController () {
-    
-    UIView *contentView;
-    //二维码
-    UIImageView *codeImageView;
-    
-    NSDictionary *jsonDic;
-    
-    //兔币余额
-    UILabel *subTitle;
-}
+@interface TPayViewController ()
+
+@property(nonatomic, strong) NSDictionary *jsonDic;
+@property(nonatomic, strong) UIView *contentView;
+//二维码
+@property(nonatomic, strong) UIImageView *codeImageView;
+//兔币余额
+@property(nonatomic, strong) UILabel *subTitle;
 
 @end
 
@@ -49,14 +46,14 @@
         
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        contentView = [[UIView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT)];
-        [self.view addSubview:contentView];
+        _contentView = [[UIView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT)];
+        [self.view addSubview:_contentView];
         
         //兔币图标
         UIImageView *mark = [[UIImageView alloc] initWithFrame:CGRectMake((SCREEN_WIDTH-90*SCALE)/2, 20*SCALE, 90*SCALE, 90*SCALE)];
         mark.image = [UIImage imageNamed:@"mine_pay_mark"];
 //        mark.backgroundColor = [UIColor purpleColor];s
-        [contentView addSubview:mark];
+        [_contentView addSubview:mark];
         
         //我的兔币
         UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(mark.frame)+10*SCALE, SCREEN_WIDTH, 20*SCALE)];
@@ -64,19 +61,19 @@
         title.text = @"我的兔币";
         title.font = [UIFont systemFontOfSize:15*SCALE];
         title.textAlignment = NSTextAlignmentCenter;
-        [contentView addSubview:title];
+        [_contentView addSubview:title];
         
         //兔币
-        subTitle = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(title.frame)+10*SCALE, SCREEN_WIDTH, 20*SCALE)];
-        subTitle.text = @"0";
-        subTitle.font = [UIFont boldSystemFontOfSize:20*SCALE];
-        subTitle.textAlignment = NSTextAlignmentCenter;
-        [contentView addSubview:subTitle];
+        _subTitle = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(title.frame)+10*SCALE, SCREEN_WIDTH, 20*SCALE)];
+        _subTitle.text = @"0";
+        _subTitle.font = [UIFont boldSystemFontOfSize:20*SCALE];
+        _subTitle.textAlignment = NSTextAlignmentCenter;
+        [_contentView addSubview:_subTitle];
         
         //二维码区
-        UIImageView *bg = [[UIImageView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(subTitle.frame)+30*SCALE, SCREEN_WIDTH, 420*SCALE)];
+        UIImageView *bg = [[UIImageView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_subTitle.frame)+30*SCALE, SCREEN_WIDTH, 420*SCALE)];
         bg.image = [UIImage imageNamed:@"mine_pay_bg"];
-        [contentView addSubview:bg];
+        [_contentView addSubview:bg];
         
         UIView *whiteView = [[UIView alloc] initWithFrame:CGRectMake(40*SCALE, 50*SCALE, SCREEN_WIDTH-80*SCALE, SCREEN_WIDTH-80*SCALE)];
         whiteView.backgroundColor = [UIColor whiteColor];
@@ -98,9 +95,9 @@
         [whiteView addSubview:QRtitle];
    
         //二维码
-        codeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(50*SCALE, 60*SCALE, 200*SCALE, 200*SCALE)];//185
+        _codeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(50*SCALE, 60*SCALE, 200*SCALE, 200*SCALE)];//185
         //        codeImageView.image = [UIImage imageNamed:@"pickup_qrcode"];
-        [whiteView addSubview:codeImageView];
+        [whiteView addSubview:_codeImageView];
         
     }
     
@@ -117,34 +114,36 @@
     
     self.tabBarController.tabBar.hidden = YES;
     
-    [contentView setHidden:YES];
+    [_contentView setHidden:YES];
     [self showLoadHUDMsg:@"努力加载中..."];
     
         NSDictionary *paramDic = [[NSDictionary alloc] init];
     
+    weakify(self);
         [HttpClientService requestQrcode:paramDic success:^(id responseObject) {
     
-            jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+            strongify(self);
+            self.jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
     
-            int status = [[jsonDic objectForKey:@"status"] intValue];
+            int status = [[self.jsonDic objectForKey:@"status"] intValue];
     
             if (status == 0) {
-                [contentView setHidden:NO];
-                subTitle.text = [jsonDic objectForKey:@"integral"];
+                [self.contentView setHidden:NO];
+                self.subTitle.text = [self.jsonDic objectForKey:@"integral"];
                 
                 // 1.创建过滤器
                 CIFilter *filter = [CIFilter filterWithName:@"CIQRCodeGenerator"];
                 // 2.恢复默认
                 [filter setDefaults];
                 // 3.给过滤器添加数据(正则表达式/账号和密码)
-                NSString *dataString = [jsonDic objectForKey:@"code"];
+                NSString *dataString = [self.jsonDic objectForKey:@"code"];
                 NSData *data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
                 [filter setValue:data forKeyPath:@"inputMessage"];
                 
                 // 4.获取输出的二维码
                 CIImage *outputImage = [filter outputImage];
                 // 5.将CIImage转换成UIImage，并放大显示
-                codeImageView.image = [self createNonInterpolatedUIImageFormCIImage:outputImage withSize:200*SCALE];
+                self.codeImageView.image = [self createNonInterpolatedUIImageFormCIImage:outputImage withSize:200*SCALE];
     
     
                 [self hideLoadHUD:YES];

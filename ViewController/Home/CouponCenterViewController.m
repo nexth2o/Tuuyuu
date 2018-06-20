@@ -23,13 +23,8 @@
 
 @interface CouponCenterViewController ()<UITableViewDelegate, UITableViewDataSource> {
     OrderSegmentView *tabView;
-    UITableView *contentView;
-    
-    NSMutableArray *couponArray;
     
     NSInteger pageNumber;
-    
-    NSString *type;
     
     UIImageView *noNetImage;
     UIButton *noNetBtn;
@@ -37,6 +32,10 @@
     UIImageView *noDataImage;
     UILabel *noDataLabel;
 }
+
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, copy) NSString *type;
+@property(nonatomic, strong) NSMutableArray *couponArray;
 
 @end
 
@@ -52,44 +51,44 @@
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
         NSArray *tabArray = [NSArray arrayWithObjects:@"全部", @"会员专享劵", @"通用劵", nil];
-        
+        weakify(self);
         tabView = [[OrderSegmentView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, 35*SCALE) titles:tabArray clickBlick:^void(NSInteger index) {
-            
-            [contentView.mj_footer resetNoMoreData];
-            [contentView setHidden:NO];
+            strongify(self);
+            [self.contentView.mj_footer resetNoMoreData];
+            [self.contentView setHidden:NO];
             
             if (index==1) {
-                type = @"0";//全部
+                self.type = @"0";//全部
             }else if (index==2) {
-                type = @"1";//会员专享劵
+                self.type = @"1";//会员专享劵
             }else if (index==3) {
-                type = @"2";//通用劵
+                self.type = @"2";//通用劵
             }
         }];
         [self.view addSubview:tabView];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(tabView.frame), SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT-35*SCALE) style:UITableViewStyleGrouped];
-        contentView.delegate = self;
-        contentView.dataSource = self;
-        contentView.separatorStyle = NO;
-        contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(tabView.frame), SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT-35*SCALE) style:UITableViewStyleGrouped];
+        _contentView.delegate = self;
+        _contentView.dataSource = self;
+        _contentView.separatorStyle = NO;
+        _contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
         // 纯动画 无状态和时间
         MJChiBaoZiHeader *header = [MJChiBaoZiHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadNewData)];
         header.lastUpdatedTimeLabel.hidden = YES;
-        contentView.mj_header = header;
-        contentView.mj_header.automaticallyChangeAlpha = YES;
-        contentView.mj_footer = [MJChiBaoZiFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
+        _contentView.mj_header = header;
+        _contentView.mj_header.automaticallyChangeAlpha = YES;
+        _contentView.mj_footer = [MJChiBaoZiFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
         [self.view bringSubviewToFront:navigationBar];
         
         self.automaticallyAdjustsScrollViewInsets = NO;
         
         //初始化全部
-        type = @"0";
+        _type = @"0";
         
         noDataImage = [[UIImageView alloc] initWithFrame:CGRectMake((SCREEN_WIDTH-200*SCALE)/2, 200*SCALE, 200*SCALE, 200*SCALE)];
         noDataImage.image = [UIImage imageNamed:@"no_data"];
@@ -121,11 +120,11 @@
     if ([[UserDefaults service] getLoginStatus] == YES) {
         [noNetImage setHidden:YES];
         [noNetBtn setHidden:YES];
-        [contentView setHidden:YES];
+        [_contentView setHidden:YES];
         [self newData];
         
     }else {
-        [contentView setHidden:YES];
+        [_contentView setHidden:YES];
         [noNetImage setHidden:NO];
         [noNetBtn setHidden:NO];
     }
@@ -138,22 +137,22 @@
     
     pageNumber = 0;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys: type, @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys: _type, @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
-    //查询取餐列表
+    weakify(self);
     [HttpClientService requestOrderlist:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            couponArray = [[NSMutableArray alloc] initWithArray:[jsonDic objectForKey:@"orderlist"]];
+            self.couponArray = [[NSMutableArray alloc] initWithArray:[jsonDic objectForKey:@"orderlist"]];
             
-            if ([couponArray count] > 0) {
+            if ([self.couponArray count] > 0) {
                 
-                [contentView setHidden:NO];
+                [self.contentView setHidden:NO];
                 
                 [noDataImage setHidden:YES];
                 [self.view sendSubviewToBack:noDataImage];
@@ -161,14 +160,14 @@
                 [noDataLabel setHidden:YES];
                 [self.view sendSubviewToBack:noDataLabel];
                 
-                [contentView reloadData];
-                [contentView setContentOffset:CGPointMake(0,0) animated:YES];
+                [self.contentView reloadData];
+                [self.contentView setContentOffset:CGPointMake(0,0) animated:YES];
                 
                 
                 pageNumber++;
                 
             }else {
-                [contentView setHidden:YES];
+                [self.contentView setHidden:YES];
                 
                 [noDataImage setHidden:NO];
                 [self.view bringSubviewToFront:noDataImage];
@@ -205,11 +204,11 @@
 {
     pageNumber = 0;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys: type, @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys: _type, @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
-    //查询取餐列表
+    weakify(self);
     [HttpClientService requestOrderlist:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
@@ -217,12 +216,12 @@
         if (status == 0) {
             
             
-            couponArray = [[NSMutableArray alloc] initWithArray:[jsonDic objectForKey:@"orderlist"]];
+            self.couponArray = [[NSMutableArray alloc] initWithArray:[jsonDic objectForKey:@"orderlist"]];
             
             
-            if ([couponArray count] > 0) {
+            if ([self.couponArray count] > 0) {
                 
-                [contentView setHidden:NO];
+                [self.contentView setHidden:NO];
                 
                 [noDataImage setHidden:YES];
                 [self.view sendSubviewToBack:noDataImage];
@@ -230,14 +229,14 @@
                 [noDataLabel setHidden:YES];
                 [self.view sendSubviewToBack:noDataLabel];
                 
-                [contentView reloadData];
-                [contentView setContentOffset:CGPointMake(0,0) animated:YES];
+                [self.contentView reloadData];
+                [self.contentView setContentOffset:CGPointMake(0,0) animated:YES];
                 
                 
                 pageNumber++;
                 
             }else {
-                [contentView setHidden:YES];
+                [self.contentView setHidden:YES];
                 
                 [noDataImage setHidden:NO];
                 [self.view bringSubviewToFront:noDataImage];
@@ -262,20 +261,20 @@
         }
         
     } failure:^(NSError *error) {
-        
+        strongify(self);
         [self hideLoadHUD:YES];
-        [contentView.mj_header endRefreshing];
+        [self.contentView.mj_header endRefreshing];
         
     }];
 }
 
 - (void)loadMoreData {
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys: type, @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys: _type, @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
     
-    //查询取餐列表
+    weakify(self);
     [HttpClientService requestOrderlist:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
@@ -290,7 +289,7 @@
                 
                 [self showMsg:@"没有更多订单了"];
                 
-                [contentView.mj_footer endRefreshingWithNoMoreData];
+                [self.contentView.mj_footer endRefreshingWithNoMoreData];
                 
             }else if (array.count > 0 && array.count < 20) {
                 
@@ -300,14 +299,14 @@
                     
                     dic = [array objectAtIndex:i];
                     
-                    [couponArray addObject:dic];
+                    [self.couponArray addObject:dic];
                 }
                 
-                [contentView reloadData];
+                [self.contentView reloadData];
                 
                 [self hideLoadHUD:YES];
                 
-                [contentView.mj_footer endRefreshingWithNoMoreData];
+                [self.contentView.mj_footer endRefreshingWithNoMoreData];
                 
                 
             }else {
@@ -318,15 +317,15 @@
                     
                     dic = [array objectAtIndex:i];
                     
-                    [couponArray addObject:dic];
+                    [self.couponArray addObject:dic];
                 }
                 pageNumber++;
                 
-                [contentView reloadData];
+                [self.contentView reloadData];
                 
                 [self hideLoadHUD:YES];
                 
-                [contentView.mj_footer endRefreshing];
+                [self.contentView.mj_footer endRefreshing];
                 
             }
             
@@ -344,9 +343,9 @@
         }
         
     } failure:^(NSError *error) {
-        
+        strongify(self);
         [self hideLoadHUD:YES];
-        [contentView.mj_header endRefreshing];
+        [self.contentView.mj_header endRefreshing];
         
     }];
 }

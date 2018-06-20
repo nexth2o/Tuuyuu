@@ -10,9 +10,9 @@
 
 #import "LoginViewController.h"
 
-@interface ServiceGuideViewController ()<UIWebViewDelegate> {
-    UIWebView *serviceGuideWebView;
-}
+@interface ServiceGuideViewController ()<UIWebViewDelegate>
+
+@property(nonatomic, strong) UIWebView *serviceGuideWebView;
 
 @end
 
@@ -36,12 +36,12 @@
         
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        serviceGuideWebView = [[UIWebView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT)];
-        serviceGuideWebView.delegate = self;
-        serviceGuideWebView.scalesPageToFit = YES;
+        _serviceGuideWebView = [[UIWebView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT)];
+        _serviceGuideWebView.delegate = self;
+        _serviceGuideWebView.scalesPageToFit = YES;
         
         
-        [self.view addSubview:serviceGuideWebView];
+        [self.view addSubview:_serviceGuideWebView];
     }
     
     return self;
@@ -60,9 +60,9 @@
     [self showLoadHUDMsg:@"努力加载中..."];
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[[UserDefaults service] getStoreId], @"cvs_no", nil];
-    
+    weakify(self);
     [HttpClientService requestServiceterms:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
@@ -74,7 +74,7 @@
             
             NSURLRequest *request = [NSURLRequest requestWithURL:url];
             
-            [serviceGuideWebView loadRequest:request];
+            [self.serviceGuideWebView loadRequest:request];
 
         }else if (status == 202) {
             [self showMsg:@"您的登录状态失效，请重新登录"];

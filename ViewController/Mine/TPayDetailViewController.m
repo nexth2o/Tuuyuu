@@ -19,14 +19,12 @@
 
 
 
-@interface TPayDetailViewController ()<UITableViewDelegate, UITableViewDataSource> {
-    UITableView *contentView;
-    NSMutableArray *detailArray;
-    
-    NSInteger pageNumber;
-    
-    UIImageView *bg;
-}
+@interface TPayDetailViewController ()<UITableViewDelegate, UITableViewDataSource>
+
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, strong) UIImageView *bg;
+@property(nonatomic, strong) NSMutableArray *detailArray;
+@property(nonatomic, assign) NSInteger pageNumber;
 
 @end
 
@@ -51,33 +49,33 @@
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
         
-        bg = [[UIImageView alloc] initWithFrame:self.view.frame];
-        bg.image = [UIImage imageNamed:@"mine_content_bg"];
-        [self.view addSubview:bg];
+        _bg = [[UIImageView alloc] initWithFrame:self.view.frame];
+        _bg.image = [UIImage imageNamed:@"mine_content_bg"];
+        [self.view addSubview:_bg];
         
         [self.view bringSubviewToFront:navigationBar];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+6, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-6) style:UITableViewStylePlain];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+6, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-6) style:UITableViewStylePlain];
         
-        contentView.delegate = self;
+        _contentView.delegate = self;
         
-        contentView.dataSource = self;
+        _contentView.dataSource = self;
         
         //        contentView.separatorStyle = NO;
         
-        contentView.backgroundColor = [UIColor clearColor];
+        _contentView.backgroundColor = [UIColor clearColor];
         
         //去除底部多余分割线
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
         // 纯动画 无状态和时间
         MJChiBaoZiHeader *header = [MJChiBaoZiHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadNewData)];
         header.lastUpdatedTimeLabel.hidden = YES;
-        contentView.mj_header = header;
-        contentView.mj_header.automaticallyChangeAlpha = YES;
-        contentView.mj_footer = [MJChiBaoZiFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
+        _contentView.mj_header = header;
+        _contentView.mj_header.automaticallyChangeAlpha = YES;
+        _contentView.mj_footer = [MJChiBaoZiFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
     }
     
@@ -96,32 +94,32 @@
     
     [self newData];
     
-    [contentView setHidden:YES];
-    [bg setHidden:YES];
+    [_contentView setHidden:YES];
+    [_bg setHidden:YES];
     
 }
 
 - (void)newData {
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    pageNumber = 0;
+    _pageNumber = 0;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
-    
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%ld", (long)_pageNumber], @"page", nil];
+    weakify(self);
     [HttpClientService requestTuucoinconsume:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
-            [contentView setHidden:NO];
-            [bg setHidden:NO];
+            [self.contentView setHidden:NO];
+            [self.bg setHidden:NO];
             
-            detailArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"details"]];
-            [contentView reloadData];
+            self.detailArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"details"]];
+            [self.contentView reloadData];
             
-            pageNumber++;
+            self.pageNumber++;
             [self hideLoadHUD:YES];
         }else if (status == 202) {
             [self showMsg:@"您的登录状态失效，请重新登录"];
@@ -146,26 +144,26 @@
 #pragma mark 下拉刷新数据
 - (void)loadNewData
 {
-    pageNumber = 0;
+    _pageNumber = 0;
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
-    
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%ld", (long)_pageNumber], @"page", nil];
+    weakify(self);
     [HttpClientService requestTuucoinconsume:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
-            [contentView setHidden:NO];
-            [bg setHidden:NO];
+            [self.contentView setHidden:NO];
+            [self.bg setHidden:NO];
             
-            detailArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"details"]];
-            [contentView reloadData];
+            self.detailArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"details"]];
+            [self.contentView reloadData];
             
-            pageNumber++;
-            [contentView.mj_header endRefreshing];
-            [contentView.mj_footer resetNoMoreData];
+            self.pageNumber++;
+            [self.contentView.mj_header endRefreshing];
+            [self.contentView.mj_footer resetNoMoreData];
         }else if (status == 202) {
             [self showMsg:@"您的登录状态失效，请重新登录"];
             [self hideLoadHUD:YES];
@@ -179,18 +177,18 @@
         }
         
     } failure:^(NSError *error) {
-        
+        strongify(self);
         [self hideLoadHUD:YES];
-        [contentView.mj_header endRefreshing];
+        [self.contentView.mj_header endRefreshing];
 //        NSLog(@"请求兔币明细失败");
     }];
 }
 
 - (void)loadMoreData {
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
-    
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[NSString stringWithFormat:@"%ld", (long)_pageNumber], @"page", nil];
+    weakify(self);
     [HttpClientService requestTuucoinconsume:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
@@ -204,7 +202,7 @@
                 
                 [self showMsg:@"没有更多记录了"];
                 
-                [contentView.mj_footer endRefreshingWithNoMoreData];
+                [self.contentView.mj_footer endRefreshingWithNoMoreData];
             }else if (array.count > 0 && array.count < 20) {
                 
                 for (int i = 0; i<array.count; i++) {
@@ -213,14 +211,14 @@
                     
                     dic = [array objectAtIndex:i];
                     
-                    [detailArray addObject:dic];
+                    [self.detailArray addObject:dic];
                 }
                 
-                [contentView reloadData];
+                [self.contentView reloadData];
                 
                 [self hideLoadHUD:YES];
                 
-                [contentView.mj_footer endRefreshingWithNoMoreData];
+                [self.contentView.mj_footer endRefreshingWithNoMoreData];
             }else {
                 for (int i = 0; i<array.count; i++) {
                     
@@ -228,15 +226,15 @@
                     
                     dic = [array objectAtIndex:i];
                     
-                    [detailArray addObject:dic];
+                    [self.detailArray addObject:dic];
                 }
-                pageNumber++;
+                self.pageNumber++;
                 
-                [contentView reloadData];
+                [self.contentView reloadData];
                 
                 [self hideLoadHUD:YES];
                 
-                [contentView.mj_footer endRefreshing];
+                [self.contentView.mj_footer endRefreshing];
             }
             
         }else if (status == 202) {
@@ -252,9 +250,9 @@
         }
         
     } failure:^(NSError *error) {
-        
+        strongify(self);
         [self hideLoadHUD:YES];
-        [contentView.mj_footer endRefreshing];
+        [self.contentView.mj_footer endRefreshing];
     }];
 }
 
@@ -264,7 +262,7 @@
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return [detailArray count];
+    return [_detailArray count];
 }
 
 - (NSInteger )tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -287,9 +285,9 @@
     }
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
-    cell.title.text = detailArray[indexPath.section][@"engender_type"];
-    cell.subTitle.text = detailArray[indexPath.section][@"tuu_coin"];
-    cell.time.text = detailArray[indexPath.section][@"engender_time"];
+    cell.title.text = _detailArray[indexPath.section][@"engender_type"];
+    cell.subTitle.text = _detailArray[indexPath.section][@"tuu_coin"];
+    cell.time.text = _detailArray[indexPath.section][@"engender_time"];
     
     return cell;
     
