@@ -78,11 +78,11 @@
     }
 }
 
--(void)changeButtonColor:(UIButton *)sender
-{
-    if (self.keyWordsDelegate && [self.keyWordsDelegate respondsToSelector:@selector(tagBtnChangeColor:)]) {
-        [self.keyWordsDelegate tagBtnChangeColor:sender];
-    }
-}
+//-(void)changeButtonColor:(UIButton *)sender
+//{
+//    if (self.keyWordsDelegate && [self.keyWordsDelegate respondsToSelector:@selector(tagBtnChangeColor:)]) {
+//        [self.keyWordsDelegate tagBtnChangeColor:sender];
+//    }
+//}
 
 @end

@@ -144,12 +144,12 @@
     }
 
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    
+    weakify(self);
     [cell.rightImageView sd_setImageWithURL:[NSURL URLWithString:_paramArray[indexPath.row][@"product_url"]]
                            placeholderImage:[UIImage imageNamed:@""]
                                   completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-                                      //TODO
-                                      if ([_paramArray[indexPath.row][@"stock_qty"] intValue] > 0) {
+                                      strongify(self);
+                                      if ([self.paramArray[indexPath.row][@"stock_qty"] intValue] > 0) {
                                           //hidden
                                           [cell.rightImageView2 setHidden:YES];
                                       }else {
@@ -182,7 +182,8 @@
 //    __weak __typeof(&*cell)weakCell =cell;
     cell.plusBlock = ^(NSInteger nCount,BOOL animated)
     {
-        NSMutableDictionary *dic = [_paramArray[indexPath.row] mutableCopy];
+        strongify(self);
+        NSMutableDictionary *dic = [self.paramArray[indexPath.row] mutableCopy];
         
         [dic setObject:@"1" forKey:@"type"];//是否是换购
         [self storeOrders:dic isAdded:animated];

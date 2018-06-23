@@ -24,15 +24,15 @@
     MKPointAnnotation *anno;
 
     UITextField *searchTextField;
-    UITableView *placemarksView;
-    NSMutableArray *placemarksArray;
-    
-    UITableView *contentView;
-    NSMutableArray *contentArray;
-    
+
     double contentLongitude;
     double contentLatitude;
 }
+
+@property(nonatomic, strong) UITableView *placemarksView;
+@property(nonatomic, strong) NSMutableArray *placemarksArray;
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, strong) NSMutableArray *contentArray;
 
 @end
 
@@ -104,29 +104,29 @@
         [searchMapView addSubview:_locateButton];
         
         //地址列表
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(searchMapView.frame), SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-300*SCALE) style:UITableViewStylePlain];
-        contentView.delegate = self;
-        contentView.dataSource = self;
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(searchMapView.frame), SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-300*SCALE) style:UITableViewStylePlain];
+        _contentView.delegate = self;
+        _contentView.dataSource = self;
         //        placemarksView.separatorStyle = NO;
-        contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
         //去除底部多余分割线
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
-        placemarksView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT) style:UITableViewStylePlain];
-        placemarksView.delegate = self;
-        placemarksView.dataSource = self;
+        _placemarksView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT) style:UITableViewStylePlain];
+        _placemarksView.delegate = self;
+        _placemarksView.dataSource = self;
         //        placemarksView.separatorStyle = NO;
-        placemarksView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _placemarksView.backgroundColor = [UIColor groupTableViewBackgroundColor];
         //去除底部多余分割线
-        placemarksView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-        [placemarksView setHidden:YES];
-        [self.view addSubview:placemarksView];
+        _placemarksView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        [_placemarksView setHidden:YES];
+        [self.view addSubview:_placemarksView];
         
         if (@available(iOS 11.0, *)) {
-            contentView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-            placemarksView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+            _contentView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+            _placemarksView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }else {
             self.automaticallyAdjustsScrollViewInsets = NO;
         }
@@ -154,18 +154,18 @@
     NSString *locationStr = [NSString stringWithFormat:@"%f,%f", contentLongitude, contentLatitude];
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:@"c04fd37f34ea2b75ac010823e26a732e", @"key", locationStr, @"location", @"2000", @"radius", @"all", @"extensions", nil];
-    
+    weakify(self);
     [HttpClientService requestGeoAddressWithPoint:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         int status = [[responseObject objectForKey:@"status"] intValue];
         
         if (status == 1) {
             
             NSMutableDictionary *dic = [[NSMutableDictionary alloc] initWithDictionary:[responseObject objectForKey:@"regeocode"]];
             
-            contentArray = [[NSMutableArray alloc] initWithArray:[dic objectForKey:@"pois"]];
+            self.contentArray = [[NSMutableArray alloc] initWithArray:[dic objectForKey:@"pois"]];
             
-            [contentView reloadData];
+            [self.contentView reloadData];
         }
         
     } failure:^(NSError *error) {
@@ -208,10 +208,10 @@
 
 - (NSInteger )tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    if (tableView == contentView) {
-        return [contentArray count];
+    if (tableView == _contentView) {
+        return [_contentArray count];
     }else {
-        return placemarksArray.count;
+        return _placemarksArray.count;
     }
 }
 
@@ -225,15 +225,15 @@
     static NSString *myCellIdentifier1 = @"MyCellIdentifier1";
     static NSString *myCellIdentifier2 = @"MyCellIdentifier2";
     
-    if (tableView == contentView) {
+    if (tableView == _contentView) {
         SearchAddressCell *cell = [tableView dequeueReusableCellWithIdentifier:myCellIdentifier1];
         if (cell == nil) {
             cell = [[SearchAddressCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier1];
         }
         
-        cell.address.text = [NSString stringWithFormat:@"%@", [contentArray objectAtIndex:indexPath.row][@"name"]];
+        cell.address.text = [NSString stringWithFormat:@"%@", [_contentArray objectAtIndex:indexPath.row][@"name"]];
         
-        cell.detailAddress.text = [NSString stringWithFormat:@"%@", [contentArray objectAtIndex:indexPath.row][@"address"]];
+        cell.detailAddress.text = [NSString stringWithFormat:@"%@", [_contentArray objectAtIndex:indexPath.row][@"address"]];
         
         
         return cell;
@@ -243,9 +243,9 @@
             cell = [[SearchAddressCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:myCellIdentifier2];
         }
         
-        cell.address.text = [NSString stringWithFormat:@"%@", [placemarksArray objectAtIndex:indexPath.row][@"name"]];
+        cell.address.text = [NSString stringWithFormat:@"%@", [_placemarksArray objectAtIndex:indexPath.row][@"name"]];
         
-        cell.detailAddress.text = [NSString stringWithFormat:@"%@", [placemarksArray objectAtIndex:indexPath.row][@"address"]];
+        cell.detailAddress.text = [NSString stringWithFormat:@"%@", [_placemarksArray objectAtIndex:indexPath.row][@"address"]];
         
         
         return cell;
@@ -256,20 +256,20 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath; {
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
     
-    if (tableView == contentView) {
-        NSString *placemark = [contentArray objectAtIndex:indexPath.row][@"location"];
+    if (tableView == _contentView) {
+        NSString *placemark = [_contentArray objectAtIndex:indexPath.row][@"location"];
         NSArray *aArray = [placemark componentsSeparatedByString:@","];
         
-        [[UserDefaults service] updateEditAddress:[NSString stringWithFormat:@"%@%@", [contentArray objectAtIndex:indexPath.row][@"address"], [contentArray objectAtIndex:indexPath.row][@"name"]]];
+        [[UserDefaults service] updateEditAddress:[NSString stringWithFormat:@"%@%@", [_contentArray objectAtIndex:indexPath.row][@"address"], [_contentArray objectAtIndex:indexPath.row][@"name"]]];
         
         [[UserDefaults service] updateEditLatitude:aArray[1]];
         [[UserDefaults service] updateEditLongitude:aArray[0]];
         POP;
     }else {
-        NSString *placemark = [placemarksArray objectAtIndex:indexPath.row][@"location"];
+        NSString *placemark = [_placemarksArray objectAtIndex:indexPath.row][@"location"];
         NSArray *aArray = [placemark componentsSeparatedByString:@","];
         
-        [[UserDefaults service] updateEditAddress:[NSString stringWithFormat:@"%@%@", [placemarksArray objectAtIndex:indexPath.row][@"address"], [placemarksArray objectAtIndex:indexPath.row][@"name"]]];
+        [[UserDefaults service] updateEditAddress:[NSString stringWithFormat:@"%@%@", [_placemarksArray objectAtIndex:indexPath.row][@"address"], [_placemarksArray objectAtIndex:indexPath.row][@"name"]]];
         
         [[UserDefaults service] updateEditLatitude:aArray[1]];
         [[UserDefaults service] updateEditLongitude:aArray[0]];
@@ -300,20 +300,21 @@
     }
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:searchTextField.text, @"keywords", @"c04fd37f34ea2b75ac010823e26a732e", @"key", @"沈阳", @"city", @"1", @"page", nil];
-    
+    weakify(self);
     [HttpClientService requestGeoAddress:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         int status = [[responseObject objectForKey:@"status"] intValue];
         
         if (status == 1) {
             
-            placemarksArray = [[NSMutableArray alloc] initWithArray:[responseObject objectForKey:@"pois"]];
-            [placemarksView reloadData];
-            [placemarksView setHidden:NO];
+            self.placemarksArray = [[NSMutableArray alloc] initWithArray:[responseObject objectForKey:@"pois"]];
+            [self.placemarksView reloadData];
+            [self.placemarksView setHidden:NO];
         }
         
     } failure:^(NSError *error) {
-        [placemarksView setHidden:YES];
+        strongify(self);
+        [self.placemarksView setHidden:YES];
         [self hideLoadHUD:YES];
     }];
 }

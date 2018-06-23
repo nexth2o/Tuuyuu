@@ -11,10 +11,10 @@
 
 #import "LoginViewController.h"
 
-@interface NotificationViewController ()<UITableViewDelegate, UITableViewDataSource> {
-    UITableView *contentView;
-    NSMutableArray *noticeArray;
-}
+@interface NotificationViewController ()<UITableViewDelegate, UITableViewDataSource>
+
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, strong) NSMutableArray *noticeArray;
 
 @end
 
@@ -34,23 +34,23 @@
         
         self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
-        contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+1, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-1) style:UITableViewStylePlain];
+        _contentView = [[UITableView alloc] initWithFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT+1, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-1) style:UITableViewStylePlain];
         
-        contentView.delegate = self;
+        _contentView.delegate = self;
         
-        contentView.dataSource = self;
+        _contentView.dataSource = self;
         
         //        contentView.separatorStyle = NO;
         
-        contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        _contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
         
         //去除底部多余分割线
-        contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+        _contentView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
         
-        [self.view addSubview:contentView];
+        [self.view addSubview:_contentView];
         
         if (@available(iOS 11.0, *)) {
-            contentView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+            _contentView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }else {
             self.automaticallyAdjustsScrollViewInsets = NO;
         }
@@ -73,18 +73,18 @@
     [self showLoadHUDMsg:@"努力加载中..."];
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:[[UserDefaults service] getStoreId], @"cvs_no", nil];
-    
+    weakify(self);
     [HttpClientService requestNoticemsg:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
         
         if (status == 0) {
             
-            noticeArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"notice"]];
+            self.noticeArray = [NSMutableArray arrayWithArray:[jsonDic objectForKey:@"notice"]];
             
-            [contentView reloadData];
+            [self.contentView reloadData];
             
             
             [self hideLoadHUD:YES];
@@ -112,7 +112,7 @@
 }
 
 - (NSInteger )tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [noticeArray count];
+    return [_noticeArray count];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -130,15 +130,15 @@
     }
     
     
-    [cell.icon sd_setImageWithURL:[NSURL URLWithString:noticeArray[indexPath.row][@"icon"]]
+    [cell.icon sd_setImageWithURL:[NSURL URLWithString:_noticeArray[indexPath.row][@"icon"]]
                            placeholderImage:[UIImage imageNamed:@"loading_Image"]
                                   completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                       //TODO
                                   }];
     
-    cell.title.text = noticeArray[indexPath.row][@"title"];
-    cell.subTitle.text = noticeArray[indexPath.row][@"content"];
-    cell.time.text = noticeArray[indexPath.row][@"time"];
+    cell.title.text = _noticeArray[indexPath.row][@"title"];
+    cell.subTitle.text = _noticeArray[indexPath.row][@"content"];
+    cell.time.text = _noticeArray[indexPath.row][@"time"];
     
     return cell;
     

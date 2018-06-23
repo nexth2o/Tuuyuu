@@ -17,22 +17,19 @@
 #import "CartInfoEntity.h"
 
 @interface PaymentViewController () {
-    dispatch_source_t payTimer;
-    
-    UILabel *minuteLabel1;
-    UILabel *minuteLabel2;
-    UILabel *secondLabel1;
-    UILabel *secondLabel2;
-    
     UIButton *wxBtn;
     UIButton *aliBtn;
     UIImageView *wxBtnImage;
     UIImageView *aliBtnImage;
-    
-    UILabel *orderInfo;
-    UILabel *price;
 
 }
+@property(nonatomic, strong) dispatch_source_t payTimer;
+@property(nonatomic, strong) UILabel *orderInfo;
+@property(nonatomic, strong) UILabel *price;
+@property(nonatomic, strong) UILabel *minuteLabel1;
+@property(nonatomic, strong) UILabel *minuteLabel2;
+@property(nonatomic, strong) UILabel *secondLabel1;
+@property(nonatomic, strong) UILabel *secondLabel2;
 
 @end
 
@@ -75,48 +72,48 @@
         [titleView addSubview:timeBg];
         
         if ([[UIApplication sharedApplication] statusBarFrame].size.height > 20) {
-            minuteLabel1 = [[UILabel alloc] initWithFrame:CGRectMake(138*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
+            _minuteLabel1 = [[UILabel alloc] initWithFrame:CGRectMake(138*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
         }else {
-           minuteLabel1 = [[UILabel alloc] initWithFrame:CGRectMake(145*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
+           _minuteLabel1 = [[UILabel alloc] initWithFrame:CGRectMake(145*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
         }
         
-        minuteLabel1.text = @"9";
-        minuteLabel1.textColor = [UIColor whiteColor];
-        [minuteLabel1 setFont:[UIFont boldSystemFontOfSize:14*SCALE]];
-        [titleView addSubview:minuteLabel1];
+        _minuteLabel1.text = @"9";
+        _minuteLabel1.textColor = [UIColor whiteColor];
+        [_minuteLabel1 setFont:[UIFont boldSystemFontOfSize:14*SCALE]];
+        [titleView addSubview:_minuteLabel1];
         
         if ([[UIApplication sharedApplication] statusBarFrame].size.height > 20) {
-            minuteLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(158*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
+            _minuteLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(158*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
         }else {
-            minuteLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(165*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
+            _minuteLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(165*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
         }
         
-        minuteLabel2.text = @"9";
-        minuteLabel2.textColor = [UIColor whiteColor];
-        [minuteLabel2 setFont:[UIFont boldSystemFontOfSize:14*SCALE]];
-        [titleView addSubview:minuteLabel2];
+        _minuteLabel2.text = @"9";
+        _minuteLabel2.textColor = [UIColor whiteColor];
+        [_minuteLabel2 setFont:[UIFont boldSystemFontOfSize:14*SCALE]];
+        [titleView addSubview:_minuteLabel2];
         
         if ([[UIApplication sharedApplication] statusBarFrame].size.height > 20) {
-            secondLabel1 = [[UILabel alloc] initWithFrame:CGRectMake(194*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
+            _secondLabel1 = [[UILabel alloc] initWithFrame:CGRectMake(194*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
         }else {
-           secondLabel1 = [[UILabel alloc] initWithFrame:CGRectMake(201*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
+           _secondLabel1 = [[UILabel alloc] initWithFrame:CGRectMake(201*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
         }
         
-        secondLabel1.text = @"9";
-        secondLabel1.textColor = [UIColor whiteColor];
-        [secondLabel1 setFont:[UIFont boldSystemFontOfSize:14*SCALE]];
-        [titleView addSubview:secondLabel1];
+        _secondLabel1.text = @"9";
+        _secondLabel1.textColor = [UIColor whiteColor];
+        [_secondLabel1 setFont:[UIFont boldSystemFontOfSize:14*SCALE]];
+        [titleView addSubview:_secondLabel1];
         
         if ([[UIApplication sharedApplication] statusBarFrame].size.height > 20) {
-            secondLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(214*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
+            _secondLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(214*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
         }else {
-           secondLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(221*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
+           _secondLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(221*SCALE, CGRectGetMaxY(timeTitle.frame)+1*SCALE, 10*SCALE, 20*SCALE)];
         }
         
-        secondLabel2.text = @"9";
-        secondLabel2.textColor = [UIColor whiteColor];
-        [secondLabel2 setFont:[UIFont boldSystemFontOfSize:14*SCALE]];
-        [titleView addSubview:secondLabel2];
+        _secondLabel2.text = @"9";
+        _secondLabel2.textColor = [UIColor whiteColor];
+        [_secondLabel2 setFont:[UIFont boldSystemFontOfSize:14*SCALE]];
+        [titleView addSubview:_secondLabel2];
         
         //店铺图标 (100)
         UIImageView *storeIcon = [[UIImageView alloc] initWithFrame:CGRectMake(40*SCALE, 75*SCALE, 40*SCALE, 40*SCALE)];
@@ -124,16 +121,16 @@
         [titleView addSubview:storeIcon];
         
         //金额
-        price = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(storeIcon.frame)+30*SCALE, 70*SCALE, 240*SCALE, 30*SCALE)];
-        price.text = @"40.00";
-        price.font = [UIFont systemFontOfSize:25*SCALE];
-        [titleView addSubview:price];
+        _price = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(storeIcon.frame)+30*SCALE, 70*SCALE, 240*SCALE, 30*SCALE)];
+        _price.text = @"40.00";
+        _price.font = [UIFont systemFontOfSize:25*SCALE];
+        [titleView addSubview:_price];
         
         //店铺加订单号
-        orderInfo = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(storeIcon.frame)+30*SCALE, CGRectGetMaxY(price.frame)+5*SCALE, 240*SCALE, 12*SCALE)];
-        orderInfo.text = @"兔悠和平店-3487324873874";
-        orderInfo.font = [UIFont systemFontOfSize:13*SCALE];
-        [titleView addSubview:orderInfo];
+        _orderInfo = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(storeIcon.frame)+30*SCALE, CGRectGetMaxY(_price.frame)+5*SCALE, 240*SCALE, 12*SCALE)];
+        _orderInfo.text = @"兔悠和平店-3487324873874";
+        _orderInfo.font = [UIFont systemFontOfSize:13*SCALE];
+        [titleView addSubview:_orderInfo];
         
         
         //微信区 50
@@ -217,9 +214,9 @@
     [self showLoadHUDMsg:@"努力加载中..."];
     
     NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:_orderDictionary[@"order_id"], @"order_id", nil];
-    
+    weakify(self);
     [HttpClientService requestOrderpay:paramDic success:^(id responseObject) {
-        
+        strongify(self);
         NSDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
         
         int status = [[jsonDic objectForKey:@"status"] intValue];
@@ -228,9 +225,9 @@
             
             [self runTime:[[jsonDic objectForKey:@"count_down"] intValue]];
             
-            price.text = [jsonDic objectForKey:@"money"];
+            self.price.text = [jsonDic objectForKey:@"money"];
             
-            orderInfo.text = [NSString stringWithFormat:@"%@-%@", [jsonDic objectForKey:@"cvs_name"], [jsonDic objectForKey:@"order_id"]];
+            self.orderInfo.text = [NSString stringWithFormat:@"%@-%@", [jsonDic objectForKey:@"cvs_name"], [jsonDic objectForKey:@"order_id"]];
             
             [self hideLoadHUD:YES];
         }else {
@@ -445,23 +442,23 @@
     NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd"];
     
-    if (payTimer==nil) {
+    if (_payTimer==nil) {
         __block int timeout = timeInterval; //倒计时时间
-        
+        weakify(self);
         if (timeout!=0) {
             dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-            payTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
-            dispatch_source_set_timer(payTimer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
-            dispatch_source_set_event_handler(payTimer, ^{
+            _payTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
+            dispatch_source_set_timer(_payTimer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
+            dispatch_source_set_event_handler(_payTimer, ^{
+                strongify(self);
                 if(timeout<=0){ //倒计时结束，关闭
-                    dispatch_source_cancel(payTimer);
-                    payTimer = nil;
+                    dispatch_source_cancel(self.payTimer);
+                    self.payTimer = nil;
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        
-                        minuteLabel1.text = @"0";
-                        minuteLabel2.text = @"0";
-                        secondLabel1.text = @"0";
-                        secondLabel2.text = @"0";
+                        self.minuteLabel1.text = @"0";
+                        self.minuteLabel2.text = @"0";
+                        self.secondLabel1.text = @"0";
+                        self.secondLabel2.text = @"0";
                     });
                 }else {
                     
@@ -470,25 +467,25 @@
                     dispatch_async(dispatch_get_main_queue(), ^{
 
                         if (minute<10) {
-                            minuteLabel1.text = @"0";
-                            minuteLabel2.text = [NSString stringWithFormat:@"%d",minute];
+                            self.minuteLabel1.text = @"0";
+                            self.minuteLabel2.text = [NSString stringWithFormat:@"%d",minute];
                         }else {
-                            minuteLabel1.text = [[NSString stringWithFormat:@"%d",minute] substringWithRange:NSMakeRange(0,1)];
-                            minuteLabel2.text = [[NSString stringWithFormat:@"%d",minute] substringWithRange:NSMakeRange(1,1)];
+                            self.minuteLabel1.text = [[NSString stringWithFormat:@"%d",minute] substringWithRange:NSMakeRange(0,1)];
+                            self.minuteLabel2.text = [[NSString stringWithFormat:@"%d",minute] substringWithRange:NSMakeRange(1,1)];
                         }
                         if (second<10) {
-                            secondLabel1.text = @"0";
-                            secondLabel2.text = [NSString stringWithFormat:@"%d",second];
+                            self.secondLabel1.text = @"0";
+                            self.secondLabel2.text = [NSString stringWithFormat:@"%d",second];
                         }else{
-                            secondLabel1.text = [[NSString stringWithFormat:@"%d",second] substringWithRange:NSMakeRange(0,1)];
-                            secondLabel2.text = [[NSString stringWithFormat:@"%d",second] substringWithRange:NSMakeRange(1,1)];
+                            self.secondLabel1.text = [[NSString stringWithFormat:@"%d",second] substringWithRange:NSMakeRange(0,1)];
+                            self.secondLabel2.text = [[NSString stringWithFormat:@"%d",second] substringWithRange:NSMakeRange(1,1)];
                         }
                         
                     });
                     timeout--;
                 }
             });
-            dispatch_resume(payTimer);
+            dispatch_resume(_payTimer);
         }
     }
     

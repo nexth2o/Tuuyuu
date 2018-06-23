@@ -11,7 +11,7 @@
 @protocol KeyWordsDelegate <NSObject>
 
 -(void)tagBtnClick:(UIButton *)button;
--(void)tagBtnChangeColor:(UIButton *)button;
+//-(void)tagBtnChangeColor:(UIButton *)button;
 
 @end
 

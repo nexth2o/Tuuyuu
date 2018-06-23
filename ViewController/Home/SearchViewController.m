@@ -52,31 +52,32 @@
     UILabel *tipsLabelWithShopCartView;
     
     //购物车关闭提示促销信息
-    UIView *tipsViewWithoutShopCartView;
     UILabel *tipsLabelWithoutShopCartView;
     
     UIView *closeView;
     
     NSString *keyString;
-    NSInteger pageNumber;
 }
 
-@property (nonatomic, strong) KeywordView *hotKeyWordView;
-@property (nonatomic, strong) KeywordView *guessKeyWordView;
-@property (nonatomic, strong) KeywordView *historyKeyWordView;
-@property (nonatomic, strong) UITableView *contentView;
-@property (nonatomic, strong) NSMutableArray *hotArray;
-@property (nonatomic, strong) NSMutableArray *guessArray;
-@property (nonatomic, strong) NSMutableArray *historyArray;
+@property(nonatomic, strong) KeywordView *hotKeyWordView;
+@property(nonatomic, strong) KeywordView *guessKeyWordView;
+@property(nonatomic, strong) KeywordView *historyKeyWordView;
+@property(nonatomic, strong) UITableView *contentView;
+@property(nonatomic, strong) NSMutableArray *hotArray;
+@property(nonatomic, strong) NSMutableArray *guessArray;
+@property(nonatomic, strong) NSMutableArray *historyArray;
 
-@property (nonatomic, strong) UITableView *resultView;
-@property (nonatomic, strong) NSMutableArray *resultArray;
+@property(nonatomic, strong) UITableView *resultView;
+@property(nonatomic, strong) NSMutableArray *resultArray;
 //购物车相关
-@property (nonatomic, strong) ShoppingCartView *ShopCartView;
-@property (nonatomic) NSUInteger totalOrders;
-@property (nonatomic, strong) NSMutableArray *ordersArray;
+@property(nonatomic, strong) ShoppingCartView *ShopCartView;
+@property(nonatomic, assign) NSUInteger totalOrders;
+@property(nonatomic, strong) NSMutableArray *ordersArray;
 
-@property (nonatomic)NSInteger pageNumber;
+@property(nonatomic, assign) NSInteger pageNumber;
+
+//购物车关闭提示促销信息
+@property (nonatomic, strong) UIView *tipsViewWithoutShopCartView;
 
 @end
 
@@ -170,11 +171,11 @@
         tipsLabelWithoutShopCartView.textColor = [UIColor darkGrayColor];
         tipsLabelWithoutShopCartView.font = [UIFont systemFontOfSize:9.5*SCALE];
         
-        tipsViewWithoutShopCartView = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - BOTTOM_BAR_HEIGHT2-TIPS_HEIGHT, SCREEN_WIDTH, TIPS_HEIGHT)];
-        tipsViewWithoutShopCartView.backgroundColor = UIColorFromRGB(255, 241, 213);
-        [tipsViewWithoutShopCartView addSubview:tipsLabelWithoutShopCartView];
-        [tipsViewWithoutShopCartView setHidden:YES];
-        [self.view addSubview:tipsViewWithoutShopCartView];
+        _tipsViewWithoutShopCartView = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - BOTTOM_BAR_HEIGHT2-TIPS_HEIGHT, SCREEN_WIDTH, TIPS_HEIGHT)];
+        _tipsViewWithoutShopCartView.backgroundColor = UIColorFromRGB(255, 241, 213);
+        [_tipsViewWithoutShopCartView addSubview:tipsLabelWithoutShopCartView];
+        [_tipsViewWithoutShopCartView setHidden:YES];
+        [self.view addSubview:_tipsViewWithoutShopCartView];
         
         
         
@@ -445,9 +446,9 @@
         
         [self showLoadHUDMsg:@"搜索中..."];
         
-        pageNumber = 0;
+        _pageNumber = 0;
         
-        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:key, @"condition", [[UserDefaults service] getStoreId], @"cvs_no", @"0", @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
+        NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:key, @"condition", [[UserDefaults service] getStoreId], @"cvs_no", @"0", @"type", [NSString stringWithFormat:@"%ld", (long)_pageNumber], @"page", nil];
         weakify(self);
         [HttpClientService requestSearch:paramDic success:^(id responseObject) {
             strongify(self);
@@ -515,7 +516,7 @@
                     [self showEmptyViewWithStyle:EmptyViewStyleNoResults];
                     [self setEmptyViewTitle:@"搜不到您要的商品"];
                     
-                    [tipsViewWithoutShopCartView setHidden:YES];
+                    [self.tipsViewWithoutShopCartView setHidden:YES];
                     [self.resultView setHidden:YES];
                     [self.contentView setHidden:YES];
                     [self.ShopCartView setHidden:YES];
@@ -540,7 +541,7 @@
 - (void)loadMoreData {
     [self showLoadHUDMsg:@"努力加载中..."];
     
-    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:keyString, @"condition", [[UserDefaults service] getStoreId], @"cvs_no", @"0", @"type", [NSString stringWithFormat:@"%ld", (long)pageNumber], @"page", nil];
+    NSDictionary *paramDic = [[NSDictionary alloc] initWithObjectsAndKeys:keyString, @"condition", [[UserDefaults service] getStoreId], @"cvs_no", @"0", @"type", [NSString stringWithFormat:@"%ld", (long)_pageNumber], @"page", nil];
     
     weakify(self);
     [HttpClientService requestSearch:paramDic success:^(id responseObject) {
@@ -1690,6 +1691,7 @@
     [self search:btnText];
 }
 
+
 #pragma mark TitleViewDelegate Methods
 - (void)leftBtnClick:(id)sender {
     POP;
@@ -1702,7 +1704,7 @@
 }
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
-
+    
     [self hideEmptyView];
     
     if (_resultArray.count > 0) {
@@ -1728,9 +1730,9 @@
     }
     if (searchTextField.text.length <= 0) {
         [self new2];
-
+        
         [self hideEmptyView];
-        [tipsViewWithoutShopCartView setHidden:YES];
+        [_tipsViewWithoutShopCartView setHidden:YES];
         [_resultView setHidden:YES];
         [_contentView setHidden:NO];
         [_ShopCartView setHidden:YES];
@@ -1829,20 +1831,20 @@
     if ([[UserDefaults service] getOperatingState] == YES) {
         [_ShopCartView setHidden:NO];
         [closeView setHidden:YES];
-    if (self.totalOrders > 0) {
-        
-        [_ShopCartView setCartImage:@"cart_full"];
-        [tipsViewWithoutShopCartView setHidden:NO];
-        [_resultView setFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT-TIPS_HEIGHT)];
-        
-    }else {
-        [_ShopCartView setCartImage:@"cart_empty"];
-        [tipsViewWithoutShopCartView setHidden:YES];
-        [_resultView setFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT)];
-        CartInfoDAL *dal = [[CartInfoDAL alloc] init];
-        [dal deleteGift];
-   
-    }
+        if (self.totalOrders > 0) {
+            
+            [_ShopCartView setCartImage:@"cart_full"];
+            [_tipsViewWithoutShopCartView setHidden:NO];
+            [_resultView setFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT-TIPS_HEIGHT)];
+            
+        }else {
+            [_ShopCartView setCartImage:@"cart_empty"];
+            [_tipsViewWithoutShopCartView setHidden:YES];
+            [_resultView setFrame:CGRectMake(0, STATUS_BAR_HEIGHT+NAV_BAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT-STATUS_BAR_HEIGHT-NAV_BAR_HEIGHT-BOTTOM_BAR_HEIGHT)];
+            CartInfoDAL *dal = [[CartInfoDAL alloc] init];
+            [dal deleteGift];
+            
+        }
     }else {
         [_ShopCartView setHidden:YES];
         [closeView setHidden:NO];
@@ -1908,7 +1910,7 @@
         
         if (min_number>0 && min_number != INFINITY) {
             
-        
+            
             tipsLabelWithShopCartView.text = [NSString stringWithFormat:@"再买%.2f元,%@", min_number, [[self test] objectAtIndex:min_index][@"result"]];
             [_resultView reloadData];
             
@@ -1920,7 +1922,7 @@
             
             tipsLabelWithoutShopCartView.text = [NSString stringWithFormat:@"已满%.2f元,%@", max_number, [[self test] objectAtIndex:max_index][@"result"]];
         }
-
+        
     }
     
     
@@ -2081,7 +2083,7 @@
                     [dic setObject:@"0" forKey:@"orderCount"];
                     [self updateDB:dic];
                     [_ordersArray removeObject:dic];
-                   
+                    
                     _ShopCartView.OrderList.objects = _ordersArray;
                     [_ShopCartView updateFrame:_ShopCartView.OrderList];
                     [_ShopCartView.OrderList.tableView reloadData];
@@ -2107,7 +2109,7 @@
 - (void)cashBtnClick:(id)sender {
     
     if ([[UserDefaults service] getLoginStatus] == YES) {
-       
+        
         SubmitOrderViewController *submitOrderViewController = [[SubmitOrderViewController alloc] init];
         [self.navigationController pushViewController:submitOrderViewController animated:YES];
         
@@ -2164,9 +2166,9 @@
                 NSInteger nCount = [dic[@"orderCount"] integerValue];
                 nCount = nCount + boxUnit;
                 [dic setObject:[NSString stringWithFormat:@"%ld",(long)nCount] forKey:@"orderCount"];
-               
+                
                 [self updateDB:dic];
-
+                
                 _ShopCartView.OrderList.objects = _ordersArray;
                 [_ShopCartView.OrderList.tableView reloadData];
                 return;
